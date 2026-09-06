@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Time Goal Planner - Weekly</title>
+  <title>Moment Planner - Weekly</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --row-height: 34px;
+      --drag-over-bg: #f0fdf4;
     }
 
     * {
@@ -34,6 +35,7 @@
       justify-content: center;
       padding: 24px 16px;
       min-height: 100vh;
+      user-select: none;
     }
 
     .planner-container {
@@ -137,7 +139,15 @@
       background-color: var(--card-bg);
       display: flex;
       flex-direction: column;
-      min-height: 480px;
+      min-height: 500px;
+      transition: background-color 0.2s;
+    }
+
+    /* 드래그 대상 칸에 올라왔을 때 하이라이트 */
+    .day-column.drag-over {
+      background-color: var(--drag-over-bg);
+      outline: 2px dashed #86efac;
+      outline-offset: -2px;
     }
 
     .column-header {
@@ -170,6 +180,7 @@
         var(--line-color) calc(var(--row-height) - 1px),
         var(--line-color) var(--row-height)
       );
+      padding-bottom: 20px;
     }
 
     .task-item {
@@ -179,7 +190,18 @@
       padding: 0 10px;
       gap: 8px;
       font-size: 0.82rem;
-      transition: background 0.15s;
+      cursor: grab;
+      transition: background 0.15s, opacity 0.2s;
+      user-select: none;
+    }
+
+    .task-item:active {
+      cursor: grabbing;
+    }
+
+    .task-item.dragging {
+      opacity: 0.35;
+      background-color: #e2e8f0;
     }
 
     .task-item:hover {
@@ -214,7 +236,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      outline: none;
+      user-select: text;
     }
 
     .task-checkbox:checked + .task-text {
@@ -237,45 +259,47 @@
       opacity: 1;
     }
 
-    /* Input Row */
-    .input-container {
-      border-top: 1px solid var(--border-color);
-      padding: 8px 10px;
+    /* Inline Note Input (줄눈 위 직접 입력창) */
+    .inline-input-row {
+      height: var(--row-height);
       display: flex;
-      gap: 6px;
-      background: #fafafa;
-    }
-
-    .input-container input {
-      flex: 1;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 0.8rem;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .input-container input:focus {
-      border-color: var(--primary-color);
-    }
-
-    .input-container button {
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
+      align-items: center;
       padding: 0 10px;
-      font-size: 0.8rem;
-      cursor: pointer;
+      gap: 8px;
     }
 
-    /* Guide Note */
+    .inline-dot {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .inline-task-input {
+      flex: 1;
+      height: 26px;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.82rem;
+      font-family: inherit;
+      color: var(--text-main);
+    }
+
+    .inline-task-input::placeholder {
+      color: #cbd5e1;
+      font-size: 0.78rem;
+    }
+
     .footer-note {
       font-size: 0.78rem;
       color: var(--text-muted);
       text-align: right;
-      margin-top: 8px;
+      margin-top: 4px;
     }
 
     @media (max-width: 960px) {
@@ -319,91 +343,56 @@
 
     <main class="planner-grid">
       <section class="day-column" data-day="weekly">
-        <div class="column-header weekly-todo">
-          <span>weekly todo</span>
-        </div>
+        <div class="column-header weekly-todo"><span>weekly todo</span></div>
         <ul class="task-list" id="list-weekly"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="주간 할 일 추가..." onkeydown="handleKey(event, 'weekly')" />
-          <button onclick="addTask('weekly')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="mon">
         <div class="column-header"><span>Mon</span></div>
         <ul class="task-list" id="list-mon"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="월요일 일정..." onkeydown="handleKey(event, 'mon')" />
-          <button onclick="addTask('mon')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="tue">
         <div class="column-header"><span>Tue</span></div>
         <ul class="task-list" id="list-tue"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="화요일 일정..." onkeydown="handleKey(event, 'tue')" />
-          <button onclick="addTask('tue')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="wed">
         <div class="column-header"><span>Wed</span></div>
         <ul class="task-list" id="list-wed"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="수요일 일정..." onkeydown="handleKey(event, 'wed')" />
-          <button onclick="addTask('wed')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="thur">
         <div class="column-header"><span>Thur</span></div>
         <ul class="task-list" id="list-thur"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="목요일 일정..." onkeydown="handleKey(event, 'thur')" />
-          <button onclick="addTask('thur')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="fri">
         <div class="column-header"><span>Fri</span></div>
         <ul class="task-list" id="list-fri"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="금요일 일정..." onkeydown="handleKey(event, 'fri')" />
-          <button onclick="addTask('fri')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="sat">
         <div class="column-header"><span>Sat</span></div>
         <ul class="task-list" id="list-sat"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="토요일 일정..." onkeydown="handleKey(event, 'sat')" />
-          <button onclick="addTask('sat')">+</button>
-        </div>
       </section>
 
       <section class="day-column" data-day="sun">
         <div class="column-header"><span>Sun</span></div>
         <ul class="task-list" id="list-sun"></ul>
-        <div class="input-container">
-          <input type="text" placeholder="일요일 일정..." onkeydown="handleKey(event, 'sun')" />
-          <button onclick="addTask('sun')">+</button>
-        </div>
       </section>
     </main>
 
     <div class="footer-note">
-      💡 입력된 모든 일정은 브라우저(localStorage)에 실시간으로 안전하게 자동 저장됩니다.
+      💡 주간 할 일을 <b>원하는 요일로 마우스 드래그</b>하여 옮길 수 있습니다. 빈 줄을 클릭해 바로 입력하고 Enter를 누르세요.
     </div>
   </div>
 
   <script>
-    // Storage Key
-    const STORAGE_KEY = 'planner_weekly_data';
+    const STORAGE_KEY = 'planner_weekly_data_v2';
     const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
 
-    // State Initialization
+    // Initial Demo Data
     let plannerData = {
       weekly: [
         { id: '1', text: '콘텐츠 - 영상 대본 초안 완성하기 (2시간*2)', completed: false },
@@ -426,7 +415,8 @@
       sun: [{ id: '13', text: '강의 내용 정리하기 (4시간)', completed: false }]
     };
 
-    // Load from LocalStorage if exists
+    let draggedItemInfo = null; // { sourceDay, taskId }
+
     function loadData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -438,35 +428,81 @@
       }
     }
 
-    // Save to LocalStorage
     function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
     }
 
-    // Render lists on the screen
-    function render() {
+    // Render Lists
+    function render(focusedDay = null) {
       days.forEach(day => {
         const listEl = document.getElementById(`list-${day}`);
         listEl.innerHTML = '';
 
+        // 1. Existing Tasks
         (plannerData[day] || []).forEach(task => {
           const li = document.createElement('li');
           li.className = 'task-item';
+          li.draggable = true;
+          li.dataset.id = task.id;
+          li.dataset.day = day;
 
           li.innerHTML = `
-            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${day}', '${task.id}')" />
+            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
             <span class="task-text" title="${task.text}">${task.text}</span>
-            <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
+            <button class="delete-btn">✕</button>
           `;
+
+          // Event Listeners for Item
+          const checkbox = li.querySelector('.task-checkbox');
+          checkbox.addEventListener('change', () => toggleTask(day, task.id));
+
+          const delBtn = li.querySelector('.delete-btn');
+          delBtn.addEventListener('click', () => deleteTask(day, task.id));
+
+          // Drag Events
+          li.addEventListener('dragstart', (e) => {
+            draggedItemInfo = { sourceDay: day, taskId: task.id };
+            li.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+          });
+
+          li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+            draggedItemInfo = null;
+          });
+
           listEl.appendChild(li);
         });
+
+        // 2. Direct Inline Input Row (다이어리 줄눈 위 바로 입력)
+        const inputRow = document.createElement('li');
+        inputRow.className = 'inline-input-row';
+        inputRow.innerHTML = `
+          <span class="inline-dot">+</span>
+          <input type="text" class="inline-task-input" placeholder="새 할 일 입력..." data-day="${day}" />
+        `;
+
+        const inputEl = inputRow.querySelector('.inline-task-input');
+        inputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            addInlineTask(day, inputEl.value.trim());
+          }
+        });
+
+        listEl.appendChild(inputRow);
+
+        // 포커스 복원 (연속 입력 지원)
+        if (focusedDay === day) {
+          setTimeout(() => {
+            const currentInput = listEl.querySelector('.inline-task-input');
+            if (currentInput) currentInput.focus();
+          }, 0);
+        }
       });
     }
 
-    // Add Task
-    function addTask(day) {
-      const inputEl = document.querySelector(`.day-column[data-day="${day}"] input`);
-      const text = inputEl.value.trim();
+    // Add Task Inline
+    function addInlineTask(day, text) {
       if (!text) return;
 
       const newTask = {
@@ -478,19 +514,10 @@
       if (!plannerData[day]) plannerData[day] = [];
       plannerData[day].push(newTask);
       saveData();
-      render();
-
-      inputEl.value = '';
+      render(day); // 입력했던 칸에 계속 포커스 유지
     }
 
-    // Enter Key Handler
-    function handleKey(event, day) {
-      if (event.key === 'Enter') {
-        addTask(day);
-      }
-    }
-
-    // Toggle Complete
+    // Toggle Task
     function toggleTask(day, id) {
       const task = plannerData[day].find(t => t.id === id);
       if (task) {
@@ -507,9 +534,53 @@
       render();
     }
 
+    // Setup Drag and Drop Zones for Columns
+    function setupDragAndDrop() {
+      const columns = document.querySelectorAll('.day-column');
+
+      columns.forEach(col => {
+        const targetDay = col.dataset.day;
+
+        col.addEventListener('dragover', (e) => {
+          e.preventDefault(); // 드롭 허용을 위해 필수
+          e.dataTransfer.dropEffect = 'move';
+          col.classList.add('drag-over');
+        });
+
+        col.addEventListener('dragleave', (e) => {
+          // 컬럼 영역을 벗어났을 때 스타일 제거
+          if (!col.contains(e.relatedTarget)) {
+            col.classList.remove('drag-over');
+          }
+        });
+
+        col.addEventListener('drop', (e) => {
+          e.preventDefault();
+          col.classList.remove('drag-over');
+
+          if (!draggedItemInfo) return;
+
+          const { sourceDay, taskId } = draggedItemInfo;
+          if (sourceDay === targetDay) return; // 같은 요일이면 무시
+
+          // 원본에서 찾기
+          const taskIndex = plannerData[sourceDay].findIndex(t => t.id === taskId);
+          if (taskIndex !== -1) {
+            const [movedTask] = plannerData[sourceDay].splice(taskIndex, 1);
+            if (!plannerData[targetDay]) plannerData[targetDay] = [];
+            plannerData[targetDay].push(movedTask);
+
+            saveData();
+            render();
+          }
+        });
+      });
+    }
+
     // Initialize
     loadData();
     render();
+    setupDragAndDrop();
   </script>
 </body>
 </html>
