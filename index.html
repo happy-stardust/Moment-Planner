@@ -2,12 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Time Goal Planner - Weekly</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   
   <style>
     :root {
@@ -36,10 +37,7 @@
       justify-content: center;
       padding: 24px 16px;
       min-height: 100vh;
-      /* 아이패드에서 텍스트 선택 방지 (드래그 편의성) */
       -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
     }
 
     .planner-container {
@@ -54,7 +52,6 @@
       gap: 20px;
     }
 
-    /* Top Navigation & Header */
     .planner-header {
       display: flex;
       justify-content: space-between;
@@ -93,7 +90,6 @@
       text-decoration: none;
       cursor: pointer;
       padding-bottom: 4px;
-      transition: all 0.2s;
     }
 
     .nav-tab.active {
@@ -102,7 +98,6 @@
       border-bottom: 2px solid var(--accent-color);
     }
 
-    /* Sub-bar */
     .sub-bar {
       display: flex;
       justify-content: space-between;
@@ -123,7 +118,6 @@
       text-decoration: underline;
     }
 
-    /* Planner 4x2 Grid Layout */
     .planner-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -147,7 +141,6 @@
         var(--line-color) calc(var(--row-height) - 1px),
         var(--line-color) var(--row-height)
       );
-      /* 줄눈 배경이 헤더 아래부터 시작되도록 조정 */
       background-position: 0 40px; 
     }
 
@@ -162,7 +155,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      /* 헤더 영역은 배경 줄눈 가리기 */
       position: relative;
       z-index: 2;
     }
@@ -172,10 +164,9 @@
       color: var(--primary-color);
     }
 
-    /* Task Lines */
     .task-list {
       list-style: none;
-      min-height: 20px; /* 드래그할 빈 공간 확보 */
+      min-height: 40px;
     }
 
     .task-item {
@@ -185,23 +176,13 @@
       padding: 0 10px;
       gap: 8px;
       font-size: 0.82rem;
-      cursor: grab;
       position: relative;
-      background-color: var(--card-bg); /* 배경색 지정해서 겹치지 않게 */
+      background-color: var(--card-bg);
     }
 
-    .task-item:active {
-      cursor: grabbing;
-    }
-
-    /* 드래그 중인 아이템의 모습 */
     .sortable-ghost {
       opacity: 0.4;
       background-color: #e2e8f0;
-    }
-    
-    .sortable-drag {
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .drag-handle {
@@ -217,7 +198,6 @@
       height: 14px;
       border: 1.5px solid #cbd5e1;
       border-radius: 3px;
-      cursor: pointer;
       display: grid;
       place-content: center;
       flex-shrink: 0;
@@ -239,9 +219,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      /* 글자 부분은 선택 가능하게 복구 */
-      -webkit-user-select: text;
-      user-select: text;
     }
 
     .task-checkbox:checked + .task-text {
@@ -253,23 +230,16 @@
       border: none;
       background: none;
       color: #e2e8f0;
-      cursor: pointer;
       font-size: 11px;
       padding: 4px;
     }
 
-    .task-item:hover .delete-btn {
-      color: #94a3b8;
-    }
-
-    /* Inline Note Input (줄눈 위 직접 입력창) */
     .inline-input-row {
       height: var(--row-height);
       display: flex;
       align-items: center;
       padding: 0 10px;
       gap: 8px;
-      background-color: transparent;
     }
 
     .inline-dot {
@@ -281,7 +251,7 @@
       color: #cbd5e1;
       font-size: 13px;
       flex-shrink: 0;
-      margin-left: 18px; /* 손잡이 공간만큼 띄우기 */
+      margin-left: 18px; 
     }
 
     .inline-task-input {
@@ -295,16 +265,8 @@
       color: var(--text-main);
     }
 
-    .inline-task-input::placeholder {
-      color: #cbd5e1;
-    }
-
-    @media (max-width: 960px) {
-      .planner-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 540px) {
-      .planner-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 960px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .planner-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -409,134 +371,125 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'planner_weekly_data_v3';
-    const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+    // 💡 화면부터 무조건 띄우도록 전체 코드를 감쌉니다.
+    document.addEventListener("DOMContentLoaded", function() {
+      const STORAGE_KEY = 'planner_weekly_data_v4';
+      const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
 
-    let plannerData = {
-      weekly: [
-        { id: '1', text: '콘텐츠 - 영상 대본 초안 (2시간*2)', completed: false },
-        { id: '2', text: '회사 - 수요일 회의 자료 준비', completed: false }
-      ],
-      mon: [{ id: '3', text: '오전 업무 미팅', completed: false }],
-      tue: [], wed: [], thur: [], fri: [], sat: [], sun: []
-    };
+      let plannerData = {
+        weekly: [
+          { id: '1', text: '콘텐츠 - 영상 대본 초안 완성하기', completed: false },
+          { id: '2', text: '루틴 - 이번 주 3번 운동 가기', completed: false }
+        ],
+        mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: []
+      };
 
-    function loadData() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          plannerData = JSON.parse(saved);
-        } catch (e) {}
-      }
-    }
-
-    function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
-    }
-
-    function render(focusedDay = null) {
-      days.forEach(day => {
-        const listEl = document.getElementById(`list-${day}`);
-        listEl.innerHTML = '';
-
-        (plannerData[day] || []).forEach(task => {
-          const li = document.createElement('li');
-          li.className = 'task-item';
-          li.dataset.id = task.id; // 드래그 시 데이터 식별용
-
-          // 아이패드에서 터치하기 쉽게 점자(⋮) 손잡이 추가
-          li.innerHTML = `
-            <div class="drag-handle">⋮</div>
-            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
-            <span class="task-text">${task.text}</span>
-            <button class="delete-btn">✕</button>
-          `;
-
-          // 이벤트 연결
-          li.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(day, task.id));
-          li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(day, task.id));
-          
-          listEl.appendChild(li);
-        });
-
-        // 엔터 입력 이벤트 연결 (중복 등록 방지)
-        const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
-        inputEl.onkeydown = (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addInlineTask(day, inputEl.value.trim());
-            inputEl.value = ''; // 입력 후 비우기
-          }
-        };
-
-        if (focusedDay === day) {
-          setTimeout(() => inputEl.focus(), 0);
+      function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try { plannerData = JSON.parse(saved); } catch (e) {}
         }
-      });
-    }
+      }
 
-    function addInlineTask(day, text) {
-      if (!text) return;
-      plannerData[day].push({ id: Date.now().toString(), text: text, completed: false });
-      saveData();
-      render(day);
-    }
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
+      }
 
-    function toggleTask(day, id) {
-      const task = plannerData[day].find(t => t.id === id);
-      if (task) {
-        task.completed = !task.completed;
+      function render(focusedDay = null) {
+        days.forEach(day => {
+          const listEl = document.getElementById(`list-${day}`);
+          if (!listEl) return;
+          listEl.innerHTML = '';
+
+          (plannerData[day] || []).forEach(task => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            li.dataset.id = task.id;
+
+            li.innerHTML = `
+              <div class="drag-handle">⋮</div>
+              <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
+              <span class="task-text">${task.text}</span>
+              <button class="delete-btn">✕</button>
+            `;
+
+            li.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(day, task.id));
+            li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(day, task.id));
+            listEl.appendChild(li);
+          });
+
+          const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
+          if (inputEl) {
+            inputEl.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addInlineTask(day, inputEl.value.trim());
+                inputEl.value = '';
+              }
+            };
+            if (focusedDay === day) setTimeout(() => inputEl.focus(), 0);
+          }
+        });
+      }
+
+      function addInlineTask(day, text) {
+        if (!text) return;
+        plannerData[day].push({ id: Date.now().toString(), text: text, completed: false });
+        saveData();
+        render(day);
+      }
+
+      function toggleTask(day, id) {
+        const task = plannerData[day].find(t => t.id === id);
+        if (task) {
+          task.completed = !task.completed;
+          saveData();
+          render();
+        }
+      }
+
+      function deleteTask(day, id) {
+        plannerData[day] = plannerData[day].filter(t => t.id !== id);
         saveData();
         render();
       }
-    }
 
-    function deleteTask(day, id) {
-      plannerData[day] = plannerData[day].filter(t => t.id !== id);
-      saveData();
+      // 화면 먼저 그리기
+      loadData();
       render();
-    }
 
-    // 💡 SortableJS 초기화 (아이패드 터치 드래그의 핵심!)
-    function initSortable() {
-      const lists = document.querySelectorAll('.task-list');
-      
-      lists.forEach(list => {
-        new Sortable(list, {
-          group: 'shared', // 모든 요일 칸을 하나의 그룹으로 묶어서 서로 이동 가능하게 함
-          animation: 150,  // 이동할 때 부드러운 애니메이션
-          handle: '.task-item', // 아이템 전체를 잡아도 드래그 가능
-          ghostClass: 'sortable-ghost',
-          
-          // 드래그가 끝났을 때 데이터 업데이트
-          onEnd: function (evt) {
-            const fromDay = evt.from.dataset.day;
-            const toDay = evt.to.dataset.day;
-            const oldIndex = evt.oldIndex;
-            const newIndex = evt.newIndex;
+      // 💡 만약 터치 라이브러리 로딩에 실패해도 앱 전체가 뻗지 않도록 예외 처리
+      try {
+        if (typeof Sortable !== 'undefined') {
+          const lists = document.querySelectorAll('.task-list');
+          lists.forEach(list => {
+            new Sortable(list, {
+              group: 'shared',
+              animation: 150,
+              handle: '.drag-handle', // 전체 말고 점자(⋮) 부분만 잡고 끌게 변경
+              ghostClass: 'sortable-ghost',
+              onEnd: function (evt) {
+                const fromDay = evt.from.dataset.day;
+                const toDay = evt.to.dataset.day;
+                const oldIndex = evt.oldIndex;
+                const newIndex = evt.newIndex;
 
-            // 같은 요일 안에서 순서만 바꾼 경우
-            if (fromDay === toDay) {
-              const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
-              plannerData[fromDay].splice(newIndex, 0, movedItem);
-            } 
-            // 다른 요일로 넘어간 경우
-            else {
-              const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
-              plannerData[toDay].splice(newIndex, 0, movedItem);
-            }
-            saveData();
-            // render()를 다시 부르면 DOM이 꼬일 수 있으므로 Sortable이 화면을 바꾼 상태를 그대로 유지
-          }
-        });
-      });
-    }
-
-    // 실행
-    loadData();
-    render();
-    initSortable();
-
+                if (fromDay === toDay) {
+                  const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
+                  plannerData[fromDay].splice(newIndex, 0, movedItem);
+                } else {
+                  const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
+                  plannerData[toDay].splice(newIndex, 0, movedItem);
+                }
+                saveData();
+              }
+            });
+          });
+        }
+      } catch (e) {
+        console.error("드래그 기능 초기화 실패:", e);
+      }
+    });
   </script>
 </body>
 </html>
