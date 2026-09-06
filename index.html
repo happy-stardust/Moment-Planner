@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time Goal Planner - Weekly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #8b9bb4;
+      --accent-color: #e58b88;
+      --border-color: #e2e8f0;
+      --line-color: #f1f5f9;
+      --text-main: #334155;
+      --text-muted: #94a3b8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --row-height: 34px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    .planner-container {
+      width: 100%;
+      max-width: 1240px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      padding: 32px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Navigation & Header */
+    .planner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 16px;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      letter-spacing: -0.5px;
+    }
+
+    .title-group span {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 18px;
+    }
+
+    .nav-tab {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      cursor: pointer;
+      padding-bottom: 4px;
+      transition: all 0.2s;
+    }
+
+    .nav-tab.active {
+      color: var(--accent-color);
+      font-weight: 600;
+      border-bottom: 2px solid var(--accent-color);
+    }
+
+    /* Sub-bar (Months & Week Trackers) */
+    .sub-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .month-list, .week-list {
+      display: flex;
+      gap: 10px;
+    }
+
+    .month-list span, .week-list span {
+      cursor: pointer;
+    }
+
+    .sub-bar .active-indicator {
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    /* Planner 4x2 Grid Layout */
+    .planner-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1px;
+      background-color: var(--border-color);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .day-column {
+      background-color: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 480px;
+    }
+
+    .column-header {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background-color: #fcfcfd;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .column-header.weekly-todo {
+      background-color: #f8fafc;
+      color: var(--primary-color);
+    }
+
+    /* Task Lines (Notebook Style) */
+    .task-list {
+      flex: 1;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent calc(var(--row-height) - 1px),
+        var(--line-color) calc(var(--row-height) - 1px),
+        var(--line-color) var(--row-height)
+      );
+    }
+
+    .task-item {
+      height: var(--row-height);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 8px;
+      font-size: 0.82rem;
+      transition: background 0.15s;
+    }
+
+    .task-item:hover {
+      background-color: rgba(241, 245, 249, 0.6);
+    }
+
+    .task-checkbox {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 3px;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      flex-shrink: 0;
+    }
+
+    .task-checkbox:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .task-checkbox:checked::before {
+      content: "✔";
+      font-size: 9px;
+      color: white;
+    }
+
+    .task-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      outline: none;
+    }
+
+    .task-checkbox:checked + .task-text {
+      text-decoration: line-through;
+      color: #cbd5e1;
+    }
+
+    .delete-btn {
+      opacity: 0;
+      border: none;
+      background: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 4px;
+      transition: opacity 0.2s;
+    }
+
+    .task-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    /* Input Row */
+    .input-container {
+      border-top: 1px solid var(--border-color);
+      padding: 8px 10px;
+      display: flex;
+      gap: 6px;
+      background: #fafafa;
+    }
+
+    .input-container input {
+      flex: 1;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-container input:focus {
+      border-color: var(--primary-color);
+    }
+
+    .input-container button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    /* Guide Note */
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 960px) {
+      .planner-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .planner-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="planner-container">
+    <header class="planner-header">
+      <div class="title-group">
+        <h1>time goal planner</h1>
+        <span>weekly time management</span>
+      </div>
+      <nav class="nav-tabs">
+        <span class="nav-tab">quarterly planner</span>
+        <span class="nav-tab">monthly planner</span>
+        <span class="nav-tab active">weekly planner</span>
+        <span class="nav-tab">daily planner</span>
+      </nav>
+    </header>
+
+    <div class="sub-bar">
+      <div class="month-list">
+        <span>jan</span><span>feb</span><span>mar</span><span>apr</span><span>may</span><span>jun</span>
+        <span>jul</span><span>aug</span><span class="active-indicator">sep</span><span>oct</span><span>nov</span><span>dec</span>
+      </div>
+      <div class="week-list">
+        <span class="active-indicator">1/5</span><span>2/5</span><span>3/5</span><span>4/5</span><span>5/5</span>
+      </div>
+    </div>
+
+    <main class="planner-grid">
+      <section class="day-column" data-day="weekly">
+        <div class="column-header weekly-todo">
+          <span>weekly todo</span>
+        </div>
+        <ul class="task-list" id="list-weekly"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="주간 할 일 추가..." onkeydown="handleKey(event, 'weekly')" />
+          <button onclick="addTask('weekly')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="mon">
+        <div class="column-header"><span>Mon</span></div>
+        <ul class="task-list" id="list-mon"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="월요일 일정..." onkeydown="handleKey(event, 'mon')" />
+          <button onclick="addTask('mon')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="tue">
+        <div class="column-header"><span>Tue</span></div>
+        <ul class="task-list" id="list-tue"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="화요일 일정..." onkeydown="handleKey(event, 'tue')" />
+          <button onclick="addTask('tue')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="wed">
+        <div class="column-header"><span>Wed</span></div>
+        <ul class="task-list" id="list-wed"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="수요일 일정..." onkeydown="handleKey(event, 'wed')" />
+          <button onclick="addTask('wed')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="thur">
+        <div class="column-header"><span>Thur</span></div>
+        <ul class="task-list" id="list-thur"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="목요일 일정..." onkeydown="handleKey(event, 'thur')" />
+          <button onclick="addTask('thur')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="fri">
+        <div class="column-header"><span>Fri</span></div>
+        <ul class="task-list" id="list-fri"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="금요일 일정..." onkeydown="handleKey(event, 'fri')" />
+          <button onclick="addTask('fri')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="sat">
+        <div class="column-header"><span>Sat</span></div>
+        <ul class="task-list" id="list-sat"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="토요일 일정..." onkeydown="handleKey(event, 'sat')" />
+          <button onclick="addTask('sat')">+</button>
+        </div>
+      </section>
+
+      <section class="day-column" data-day="sun">
+        <div class="column-header"><span>Sun</span></div>
+        <ul class="task-list" id="list-sun"></ul>
+        <div class="input-container">
+          <input type="text" placeholder="일요일 일정..." onkeydown="handleKey(event, 'sun')" />
+          <button onclick="addTask('sun')">+</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer-note">
+      💡 입력된 모든 일정은 브라우저(localStorage)에 실시간으로 안전하게 자동 저장됩니다.
+    </div>
+  </div>
+
+  <script>
+    // Storage Key
+    const STORAGE_KEY = 'planner_weekly_data';
+    const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+
+    // State Initialization
+    let plannerData = {
+      weekly: [
+        { id: '1', text: '콘텐츠 - 영상 대본 초안 완성하기 (2시간*2)', completed: false },
+        { id: '2', text: '회사 - 수요일 회의 자료 준비 (30분)', completed: false },
+        { id: '3', text: '루틴 - 이번 주에 3번 운동 가기 (1시간 *3)', completed: false },
+        { id: '4', text: '개인공부 - GPT & 클로드로 편집 자동화 공부 (2시간)', completed: false }
+      ],
+      mon: [{ id: '5', text: '콘텐츠 - 영상 대본 초안 완성하기 (2시간*2)', completed: false }],
+      tue: [
+        { id: '6', text: '오전 업무 미팅', completed: false },
+        { id: '7', text: '회사 - 수요일 회의 자료 준비 (30분)', completed: false }
+      ],
+      wed: [
+        { id: '8', text: '동기 점심 약속', completed: false },
+        { id: '9', text: '개인공부 - GPT & 클로드 공부 (2시간)', completed: false }
+      ],
+      thur: [{ id: '10', text: '영상 대본 초안 마무리', completed: false }],
+      fri: [{ id: '11', text: '롱폼 영상 촬영 및 편집', completed: false }],
+      sat: [{ id: '12', text: '가족 저녁 약속', completed: false }],
+      sun: [{ id: '13', text: '강의 내용 정리하기 (4시간)', completed: false }]
+    };
+
+    // Load from LocalStorage if exists
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          plannerData = JSON.parse(saved);
+        } catch (e) {
+          console.error('데이터 파싱 오류:', e);
+        }
+      }
+    }
+
+    // Save to LocalStorage
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
+    }
+
+    // Render lists on the screen
+    function render() {
+      days.forEach(day => {
+        const listEl = document.getElementById(`list-${day}`);
+        listEl.innerHTML = '';
+
+        (plannerData[day] || []).forEach(task => {
+          const li = document.createElement('li');
+          li.className = 'task-item';
+
+          li.innerHTML = `
+            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${day}', '${task.id}')" />
+            <span class="task-text" title="${task.text}">${task.text}</span>
+            <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
+          `;
+          listEl.appendChild(li);
+        });
+      });
+    }
+
+    // Add Task
+    function addTask(day) {
+      const inputEl = document.querySelector(`.day-column[data-day="${day}"] input`);
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const newTask = {
+        id: Date.now().toString(),
+        text: text,
+        completed: false
+      };
+
+      if (!plannerData[day]) plannerData[day] = [];
+      plannerData[day].push(newTask);
+      saveData();
+      render();
+
+      inputEl.value = '';
+    }
+
+    // Enter Key Handler
+    function handleKey(event, day) {
+      if (event.key === 'Enter') {
+        addTask(day);
+      }
+    }
+
+    // Toggle Complete
+    function toggleTask(day, id) {
+      const task = plannerData[day].find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        saveData();
+        render();
+      }
+    }
+
+    // Delete Task
+    function deleteTask(day, id) {
+      plannerData[day] = plannerData[day].filter(t => t.id !== id);
+      saveData();
+      render();
+    }
+
+    // Initialize
+    loadData();
+    render();
+  </script>
+</body>
+</html>
