@@ -47,7 +47,7 @@
     .nav-tab:hover { color: var(--primary-color); }
     .nav-tab.active { color: var(--accent-color); font-weight: 600; border-bottom: 2px solid var(--accent-color); }
 
-    .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; }
+    .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; transition: 0.3s; }
     .month-list { display: flex; gap: 10px; cursor: pointer; }
     .sub-bar .active-indicator { color: var(--primary-color); font-weight: 600; text-decoration: underline; }
 
@@ -57,9 +57,9 @@
       color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s;
     }
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
-    #week-display { font-size: 0.85rem; min-width: 120px; white-space: nowrap; text-align: center; font-weight: 600; }
+    #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
 
-    /* 🏠 홈 대시보드 */
+    /* 🏠 홈 대시보드 (정방형 대형 감성 카드 스타일) */
     .home-view-container { display: none; flex-direction: column; align-items: center; gap: 32px; padding: 10px 0; }
     .home-square-card {
       width: 520px; height: 520px; position: relative; border-radius: 20px; overflow: hidden;
@@ -91,7 +91,6 @@
     .column-header.clickable:hover { background-color: var(--primary-color); color: white; }
 
     .task-list { list-style: none; position: relative; z-index: 1; }
-    /* 💡 수정: background-color를 transparent로 변경하여 뒤쪽 모눈 선이 보이도록 수정 */
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
     .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
 
@@ -192,7 +191,8 @@
       </nav>
     </header>
 
-    <div class="sub-bar">
+    <!-- 💡 홈 화면일 땐 사라지는 서브바 영역 -->
+    <div class="sub-bar" id="sub-bar">
       <div class="month-list" id="month-list">
         <span onclick="jumpToMonth(0)">jan</span><span onclick="jumpToMonth(1)">feb</span><span onclick="jumpToMonth(2)">mar</span>
         <span onclick="jumpToMonth(3)">apr</span><span onclick="jumpToMonth(4)">may</span><span onclick="jumpToMonth(5)">jun</span>
@@ -216,7 +216,7 @@
       
       <!-- 🖼️ [여기에 핀터레스트 이미지 주소를 넣어주세요] 아래 src 속성 따옴표 안에 원하는 이미지 URL을 붙여넣으세요! -->
       <div class="home-square-card">
-        <img src="https://i.pinimg.com/736x/1a/a5/9c/1aa59c0ddf9c3566c70a70fc8c1c826d.jpg" alt="Mood Image">
+        <img src="https://i.pinimg.com/1200x/e7/b7/20/e7b7207a188e36e7c457ae65f83c8d62.jpg" alt="Mood Image">
         <div class="home-square-content">
           <h2>Moment Planner</h2>
           <p>빛나는 오늘을 기록하는 당신만의 공간</p>
@@ -252,12 +252,12 @@
       
       <script>
         const weekdays = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
-        const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
         weekdays.forEach(day => {
           document.write(`
             <section class="day-column">
-              <div class="column-header clickable" onclick="jumpToDailyFromWeekly('${day}')" title="${capitalize(day)} 데일리로 점프">
-                <span>${capitalize(day)}</span>
+              <div class="column-header clickable" onclick="jumpToDailyFromWeekly('${day}')" title="해당 요일 데일리로 점프">
+                <!-- 💡 자바스크립트로 날짜가 자동 주입되는 영역 -->
+                <span id="header-text-${day}">로딩중...</span>
               </div>
               <ul class="task-list" id="list-${day}" data-day="${day}"></ul>
               <div class="inline-input-row">
@@ -371,12 +371,12 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const STORAGE_KEY = 'planner_all_data_v29'; // 데이터 꼬임 방지를 위한 스토리지 버전업
+      const STORAGE_KEY = 'planner_all_data_v30'; // 새 버전
       const allDaysList = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
       
       const pastelColors = [
         'transparent', 
-        '#DCE2FF', // 지정 블루
+         '#DCE2FF', // 지정 블루
         '#DFEED4', // 지정 올리브 그린
         '#EBEED4', // 지정 베이지 그린
         '#FFEFE7', 
@@ -395,7 +395,6 @@
       let currentDailyDay = 'mon'; 
       let isWeeklyReviewMode = false;
 
-      // 타임블록 생성 (새벽 2시 / 26시까지)
       const tbBody = document.getElementById('timeblock-body');
       if (tbBody) {
         tbBody.innerHTML = '';
@@ -431,19 +430,14 @@
         return `${temp.getFullYear()}-${String(temp.getMonth() + 1).padStart(2, '0')}-${String(temp.getDate()).padStart(2, '0')}`;
       }
 
-      function getWeekInfo(d) {
-        let temp = new Date(d);
-        let day = temp.getDay();
-        let diff = temp.getDate() - day + (day === 0 ? -6 : 1);
-        temp.setDate(diff);
-
-        const month = temp.getMonth() + 1;
-        const year = temp.getFullYear();
-        const firstDay = new Date(year, month - 1, 1).getDay();
-        const offsetDate = temp.getDate() + firstDay - 1;
-        const weekOfMonth = Math.floor(offsetDate / 7) + 1;
-
-        return { year, month, weekOfMonth };
+      // 💡 ISO 기준 주차(Week of Year) 계산 로직 (2026-W37 형태를 위함)
+      function getISOWeekInfo(d) {
+        const date = new Date(d.getTime());
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+        const week1 = new Date(date.getFullYear(), 0, 4);
+        const weekNum = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        return { year: date.getFullYear(), week: String(weekNum).padStart(2, '0') };
       }
 
       function updateDateUI() {
@@ -461,15 +455,37 @@
             else span.classList.remove('active-indicator');
           });
         } else {
-          const info = getWeekInfo(currentDate);
-          weekDisplay.innerText = `${info.year}년 ${info.month}월 ${info.weekOfMonth}주차`;
+          // 💡 2026-W37 형태의 ISO 주차 표시 반영
+          const info = getISOWeekInfo(currentDate);
+          weekDisplay.innerText = `${info.year}-W${info.week}`;
 
           const monthSpans = document.querySelectorAll('#month-list span');
+          // 주차 이동 중에도 현재 월 탭을 정확히 하이라이트
           monthSpans.forEach((span, idx) => {
-            if (idx === info.month - 1) span.classList.add('active-indicator');
+            if (idx === currentDate.getMonth()) span.classList.add('active-indicator');
             else span.classList.remove('active-indicator');
           });
         }
+      }
+
+      // 💡 위클리 탭의 각 요일 컬럼 헤더에 동적인 날짜(예: 09/07 MON) 주입
+      function updateWeeklyHeaders() {
+        if (!currentWeekKey) return;
+        const parts = currentWeekKey.split('-');
+        const monDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        const dayCodes = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+        const dayNames = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+        
+        dayCodes.forEach((day, index) => {
+          const targetDate = new Date(monDate);
+          targetDate.setDate(monDate.getDate() + index);
+          const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+          const dd = String(targetDate.getDate()).padStart(2, '0');
+          const headerSpan = document.getElementById(`header-text-${day}`);
+          if (headerSpan) {
+            headerSpan.innerText = `${mm}/${dd} ${dayNames[index]}`;
+          }
+        });
       }
 
       function loadAllData() {
@@ -481,6 +497,7 @@
       window.loadWeek = function() {
         currentWeekKey = getMondayStr(currentDate);
         updateDateUI();
+        updateWeeklyHeaders(); // 💡 주차 변경 시 위클리 헤더 날짜 재계산
 
         if (!allData[currentWeekKey]) {
           allData[currentWeekKey] = {
@@ -517,7 +534,7 @@
           currentDate.setMonth(currentDate.getMonth() + offset);
           updateDateUI();
           renderMonthlyCalendar();
-        } else if (currentView === 'weekly') {
+        } else if (currentView === 'weekly' || currentView === 'daily') {
           currentDate.setDate(currentDate.getDate() + (offset * 7));
           loadWeek();
           renderAll();
@@ -564,6 +581,12 @@
           if (viewEl) viewEl.style.display = (v === viewType) ? (v === 'weekly' ? (isWeeklyReviewMode ? 'none' : 'grid') : 'flex') : 'none';
         });
         
+        // 💡 홈 화면일 때 Sub-bar 숨김 처리
+        const subBar = document.getElementById('sub-bar');
+        if (subBar) {
+          subBar.style.display = (viewType === 'home') ? 'none' : 'flex';
+        }
+
         const reviewToolbar = document.getElementById('review-toolbar');
         const viewWeeklyReview = document.getElementById('view-weekly-review');
         const viewWeekly = document.getElementById('view-weekly');
@@ -728,8 +751,8 @@
 
           let weekBadgeHtml = '';
           if (cellDateObj.getDay() === 1 && !isOtherMonth) {
-            const wInfo = getWeekInfo(cellDateObj);
-            weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.weekOfMonth}</span><br>`;
+            const wInfo = getISOWeekInfo(cellDateObj);
+            weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.week}</span><br>`;
           }
 
           let previewHtml = '';
@@ -921,7 +944,7 @@
         renderAll();
       }
 
-      // 💡 여기서 초기에 loadWeek()를 호출하도록 추가하여 최초 진입 시 데이터 완벽 동기화
+      // 💡 여기서 최초 앱 로딩 시 데이터를 완전히 셋업하고 홈 화면으로 넘어가게 순서 고정
       loadAllData();
       loadWeek();
       switchView('home');
