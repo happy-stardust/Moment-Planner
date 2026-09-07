@@ -102,9 +102,7 @@
     .column-header.clickable { cursor: pointer; }
     .column-header.clickable:hover { background-color: #f1f5f9; }
 
-    /* 💡 줄눈 깨짐 현상을 없애기 위해 padding-bottom 제거 */
-    .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
-    
+    .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; padding-bottom: 8px; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; padding: 16px 0; font-weight: 400; font-style: italic; }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
@@ -155,11 +153,13 @@
     .monthly-view-container { display: none; flex-direction: column; gap: 16px; }
     .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .monthly-weekday-header { background: #fcfcfd; padding: 10px; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-    .monthly-day-cell { background: #fff; min-height: 110px; padding: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: 0.1s; }
+    .monthly-day-cell { background: #fff; min-height: 160px; padding: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: 0.1s; }
     .monthly-day-cell:hover { background: #f8fafc; }
     .monthly-day-cell.other-month { background: #fcfcfd; opacity: 0.4; }
     .monthly-day-number { font-size: 0.85rem; font-weight: 600; color: var(--text-main); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
     .monthly-day-cell.today .monthly-day-number { background: var(--accent-color); color: white; }
+    
+    .monthly-tasks-container { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
     .monthly-preview-text { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--line-color); padding: 2px 4px; border-radius: 3px; }
     .monthly-week-badge { font-size: 0.7rem; color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-bottom: 4px; display: inline-block; }
 
@@ -224,23 +224,23 @@
   <div class="planner-container">
     <header class="planner-header">
       <div class="title-group">
-        <h1>Moment planner</h1>
+        <h1>Moment PLANNER </h1>
         <span>time block management</span>
       </div>
       <nav class="nav-tabs">
-        <span class="nav-tab active" id="tab-home" onclick="switchView('home')">home</span>
-        <span class="nav-tab" id="tab-monthly" onclick="switchView('monthly')">monthly planner</span>
-        <span class="nav-tab" id="tab-weekly" onclick="switchView('weekly')">weekly planner</span>
-        <span class="nav-tab" id="tab-daily" onclick="switchView('daily')">daily planner</span>
+        <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
+        <span class="nav-tab" id="tab-monthly" onclick="switchView('monthly')">MONTHLY</span>
+        <span class="nav-tab" id="tab-weekly" onclick="switchView('weekly')">WEEKLY</span>
+        <span class="nav-tab" id="tab-daily" onclick="switchView('daily')">DAILY</span>
       </nav>
     </header>
 
     <div class="sub-bar" id="sub-bar">
       <div class="month-list" id="month-list">
-        <span onclick="jumpToMonth(0)">jan</span><span onclick="jumpToMonth(1)">feb</span><span onclick="jumpToMonth(2)">mar</span>
-        <span onclick="jumpToMonth(3)">apr</span><span onclick="jumpToMonth(4)">may</span><span onclick="jumpToMonth(5)">jun</span>
-        <span onclick="jumpToMonth(6)">jul</span><span onclick="jumpToMonth(7)">aug</span><span onclick="jumpToMonth(8)">sep</span>
-        <span onclick="jumpToMonth(9)">oct</span><span onclick="jumpToMonth(10)">nov</span><span onclick="jumpToMonth(11)">dec</span>
+        <span onclick="jumpToMonth(0)">JAN</span><span onclick="jumpToMonth(1)">FEB</span><span onclick="jumpToMonth(2)">MAR</span>
+        <span onclick="jumpToMonth(3)">APR</span><span onclick="jumpToMonth(4)">MAY</span><span onclick="jumpToMonth(5)">JUN</span>
+        <span onclick="jumpToMonth(6)">JUL</span><span onclick="jumpToMonth(7)">AUG</span><span onclick="jumpToMonth(8)">SEP</span>
+        <span onclick="jumpToMonth(9)">OCT</span><span onclick="jumpToMonth(10)">NOV</span><span onclick="jumpToMonth(11)">DEC</span>
       </div>
       <div class="week-controls">
         <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; margin-right: 12px; display:none;">
@@ -262,9 +262,9 @@
     <!-- 🏠 0. 정방형 대형 감성 홈 대시보드 뷰 -->
     <main class="home-view-container fade-in" id="view-home">
       <div class="home-square-card">
-        <img src="https://i.pinimg.com/1200x/e7/b7/20/e7b7207a188e36e7c457ae65f83c8d62.jpg" alt="Mood Image">
+ <img src="https://i.pinimg.com/1200x/e7/b7/20/e7b7207a188e36e7c457ae65f83c8d62.jpg" alt="Mood Image">
         <div class="home-square-content">
-          <h2>Moment Planner</h2>
+          <h2>Moment PLANNER</h2>
           <p>빛나는 오늘을 기록하는 당신만의 공간</p>
         </div>
       </div>
@@ -290,7 +290,7 @@
       <section class="day-column">
         <div class="column-header weekly-todo">
           <div class="column-header-top">
-            <span>weekly todo</span>
+            <span>WEEKLY FOCUS</span>
             <span id="progress-text-weekly" class="progress-text-display"></span>
           </div>
           <div class="progress-bg"><div class="progress-fill" id="progress-bar-weekly"></div></div>
@@ -376,7 +376,7 @@
           <div class="daily-box" style="min-height: 200px;">
             <div class="daily-box-header">
               <div class="column-header-top">
-                <span>Daily Todo <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(위클리 자동 연동)</span></span>
+                <span>DAILY TODO <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(주간 목표 연동)</span></span>
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
               <div class="progress-bg"><div class="progress-fill" id="daily-progress-bar"></div></div>
@@ -759,7 +759,6 @@
         reader.readAsText(file);
       };
 
-      // 💡 [Round 2] 통합 검색 모달 함수
       window.openSearchModal = function() {
         const modal = document.getElementById('search-modal');
         modal.style.display = 'flex';
@@ -773,7 +772,6 @@
         document.getElementById('search-results').innerHTML = '<div class="empty-state" style="margin-top:40px;">찾고 싶은 메모나 투두 키워드를 검색해보세요 🔍</div>';
       }
 
-      // 💡 위클리 커스텀 리뷰로 바로 이동하는 타임머신 함수 추가
       window.jumpToWeeklyReview = function(weekKey) {
          currentDate = new Date(weekKey);
          closeSearchModal();
@@ -798,7 +796,6 @@
         for(const weekKey in allData) {
           const weekData = allData[weekKey];
 
-          // 1. 위클리 투두 (Weekly Todo) 검색
           const weeklyTasks = weekData['weekly'] || [];
           weeklyTasks.forEach(task => {
             if(task.text.toLowerCase().includes(keyword)) {
@@ -816,7 +813,6 @@
             }
           });
 
-          // 💡 2. 위클리 KPT 종합 회고 (Custom Review) 검색 로직 추가
           const customReview = weekData.customWeeklyReview || [];
           customReview.forEach(review => {
             const reviewDateStr = `${weekKey} 주간 회고`;
@@ -847,7 +843,6 @@
             });
           });
 
-          // 3. 데일리 투두, KPT, Memo 검색
           if(!weekData.daily) continue;
 
           ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach((day, index) => {
@@ -925,9 +920,9 @@
         if (percent < 30) return '💍 최고의 하루를 만드는 중!';
         if (percent < 50) return '👑 항상 응원해!';
         if (percent < 60) return '✨ 절반을 넘기다니!!';
-        if (percent < 80) return '🍋 자랑스러워!';
-        if (percent < 90) return '🌿 잘 하고 있어!!';
-        if (percent < 100) return '🎀 정말 놀라워요!';
+        if (percent < 80) return '🩰 자랑스러워!';
+        if (percent < 90) return '🌾 잘 하고 있어!!';
+        if (percent < 100) return '🏆 정말 놀라워요!';
         return '🌷 마법같은 일이야';
       }
 
@@ -983,7 +978,6 @@
               listEl.innerHTML = '';
               const tasks = allData[currentWeekKey][day] || [];
               
-              // 💡 "아직 할 일이 없어요" 메시지를 삭제하여 빈 화면 시 입력칸과 배경 줄눈이 완벽히 일치하도록 수정
               tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
               
               updateProgress(day);
@@ -1090,8 +1084,14 @@
             const dNamesMap = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
             const targetDayKey = dNamesMap[(cellDateObj.getDay() === 0 ? 6 : cellDateObj.getDay() - 1)];
             const tasks = allData[mondayKeyForThisDate][targetDayKey] || [];
+            
             if (tasks.length > 0) {
-              previewHtml = `<div class="monthly-preview-text">✔ ${tasks[0].text}</div>`;
+              const maxDisplay = 4;
+              const displayTasks = tasks.slice(0, maxDisplay);
+              previewHtml = '<div class="monthly-tasks-container">' + 
+                            displayTasks.map(t => `<div class="monthly-preview-text" style="color: ${t.completed ? '#cbd5e1' : 'var(--text-muted)'}; text-decoration: ${t.completed ? 'line-through' : 'none'};">${t.completed ? '✔' : '◻'} ${t.text}</div>`).join('') + 
+                            (tasks.length > maxDisplay ? `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${tasks.length - maxDisplay} 더보기</div>` : '') +
+                            '</div>';
             }
           }
 
