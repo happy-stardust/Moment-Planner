@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- 💡 죄송합니다! 다시 확실하게 복구해 둔 썸네일 및 홈 화면 아이콘 링크입니다 -->
+  <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
+  <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
+  
   <title>Moment Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,9 +58,9 @@
       color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s;
     }
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
-    /* 💡 수정: 날짜 텍스트 줄바꿈 방지 */
     #week-display { font-size: 0.85rem; min-width: 120px; white-space: nowrap; text-align: center; font-weight: 600; }
 
+    /* 위클리 플래너 뷰 */
     .planner-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .day-column { background-color: var(--card-bg); display: flex; flex-direction: column; min-height: 500px; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height)); background-position: 0 40px; }
 
@@ -81,6 +86,26 @@
     .inline-dot { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 14px; flex-shrink: 0; }
     .inline-task-input { flex: 1; height: 26px; border: none; background: transparent; outline: none; font-size: 0.82rem; font-family: inherit; color: var(--text-main); }
 
+    /* 위클리 회고 뷰 스타일 */
+    .weekly-review-container { display: none; flex-direction: column; height: 100%; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--card-bg); }
+    
+    .review-toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .toggle-mode-btn { background: var(--primary-color); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: 500; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .toggle-mode-btn:hover { transform: translateY(-1px); background: #7a8ba3; }
+
+    .review-table { width: 100%; border-collapse: collapse; height: 100%; }
+    .review-table th { background: #fcfcfd; padding: 14px; font-size: 0.85rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); font-weight: 600; text-align: center; }
+    .review-table th:last-child { border-right: none; }
+    .review-table td { border-bottom: 1px solid var(--line-color); border-right: 1px solid var(--line-color); padding: 0; }
+    .review-table td:last-child { border-right: none; }
+    .review-table tr:last-child td { border-bottom: none; }
+
+    .category-col { width: 120px; background: #f8fafc; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-align: center; vertical-align: middle; }
+    .review-cell { width: calc((100% - 120px) / 3); padding: 12px; vertical-align: top; }
+    
+    .review-textarea { width: 100%; height: 120px; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 0.85rem; color: var(--text-main); line-height: 1.6; }
+    .review-textarea:focus { background: rgba(241, 245, 249, 0.4); border-radius: 6px;}
+
     /* 데일리 뷰 스타일 */
     .daily-view-container { display: none; flex-direction: column; gap: 16px; height: 100%;}
     .daily-day-tabs { display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 4px; }
@@ -91,33 +116,23 @@
     .daily-box { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); overflow: hidden; display: flex; flex-direction: column;}
     .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
 
-    /* 타임블록 */
     .timeblock-table { width: 100%; border-collapse: collapse; }
     .timeblock-table th { background: #fcfcfd; padding: 8px; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-weight: 500; text-align: center;}
     .timeblock-table td { border-bottom: 1px solid var(--line-color); padding: 0; height: 34px; }
-    
     .time-col { width: 40px; text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; background: #fff; border-left: 1px dashed var(--border-color); border-right: 1px dashed var(--border-color);}
     .plan-col, .do-col { position: relative; width: 45%; transition: background-color 0.2s; }
-    
-    /* 💡 수정: 타임블록 입력창 및 색상 버튼 레이아웃 */
     .tb-cell-wrapper { display: flex; width: 100%; height: 100%; align-items: center; position: relative; padding: 0 4px; }
     .tb-input { flex: 1; height: 100%; border: none; background: transparent; padding: 0 8px; font-size: 0.8rem; outline: none; font-family: inherit; color: var(--text-main); text-align: center; z-index: 1;}
     .tb-input:focus { background: rgba(255,255,255,0.4); border-radius: 4px;}
-    
-    .color-cycle-btn { 
-      width: 12px; height: 12px; border-radius: 50%; border: 1px solid #cbd5e1; 
-      cursor: pointer; background-color: #fff; z-index: 2; transition: 0.1s; flex-shrink: 0;
-    }
+    .color-cycle-btn { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #cbd5e1; cursor: pointer; background-color: #fff; z-index: 2; transition: 0.1s; flex-shrink: 0; }
     .color-cycle-btn:hover { transform: scale(1.2); }
 
     .daily-left-col { display: flex; flex-direction: column; gap: 16px; }
     .daily-textarea { width: 100%; border: none; outline: none; font-family: inherit; resize: none; font-size: 0.82rem; color: var(--text-main); background: transparent; }
-
     .kpt-section { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
     .kpt-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
 
-    @media (max-width: 960px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } .daily-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 540px) { .planner-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 960px) { .planner-grid, .daily-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -142,6 +157,10 @@
         <span>jul</span><span>aug</span><span>sep</span><span>oct</span><span>nov</span><span>dec</span>
       </div>
       <div class="week-controls">
+        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; margin-right: 12px;">
+          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 회고 모드 켜기</button>
+        </div>
+        
         <button onclick="changeWeek(-1)">◀ 이전 주</button>
         <span id="week-display" class="active-indicator">로딩 중...</span>
         <button onclick="changeWeek(1)">다음 주 ▶</button>
@@ -149,7 +168,7 @@
       </div>
     </div>
 
-    <!-- 1. 위클리 뷰 -->
+    <!-- 🗓️ 1-A. 위클리 플래너 뷰 -->
     <main class="planner-grid" id="view-weekly">
       <section class="day-column">
         <div class="column-header weekly-todo"><span>weekly todo</span></div>
@@ -180,7 +199,47 @@
       </script>
     </main>
 
-    <!-- 2. 데일리 뷰 -->
+    <!-- 📝 1-B. 위클리 회고(Review) 뷰 -->
+    <main class="weekly-review-container" id="view-weekly-review">
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th class="category-col">카테고리</th>
+            <th><span style="color:var(--primary-color);">Keep</span> (이번 주 잘한 일)</th>
+            <th><span style="color:var(--accent-color);">Problem</span> (아쉬웠던 일)</th>
+            <th><span style="color:#10b981;">Try</span> (다음 주 시도할 점)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="category-col">업무 / 학업</td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="work" data-type="keep" placeholder="예: 기한 내 보고서 완료"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="work" data-type="problem" placeholder="예: 메일 확인으로 흐름 끊김"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="work" data-type="try" placeholder="예: 오전/오후 정해진 시간에만 메일 확인"></textarea></td>
+          </tr>
+          <tr>
+            <td class="category-col">성장 / 자기계발</td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="dev" data-type="keep" placeholder="예: 퇴근 후 1시간 독서"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="dev" data-type="problem" placeholder="예: 늦잠으로 아침 공부 실패"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="dev" data-type="try" placeholder="예: 전날 밤에 미리 책상 세팅해두기"></textarea></td>
+          </tr>
+          <tr>
+            <td class="category-col">건강 / 루틴</td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="health" data-type="keep" placeholder="예: 주 3회 헬스장 출석"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="health" data-type="problem" placeholder="예: 야식 2회 먹음"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="health" data-type="try" placeholder="예: 저녁 8시 이후 양치질 바로 하기"></textarea></td>
+          </tr>
+          <tr>
+            <td class="category-col">개인 / 휴식</td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="personal" data-type="keep" placeholder="예: 주말에 친구들과 재충전"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="personal" data-type="problem" placeholder="예: 유튜브 쇼츠 너무 오래 봄"></textarea></td>
+            <td class="review-cell"><textarea class="review-textarea" data-cat="personal" data-type="try" placeholder="예: 침대엔 폰 두고 가기"></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- 🕒 2. 데일리 뷰 -->
     <main class="daily-view-container" id="view-daily">
       <div class="daily-day-tabs" id="daily-day-tabs">
         <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')">Monday</div>
@@ -229,7 +288,6 @@
           </div>
         </div>
 
-        <!-- 💡 수정: 타임블록 UI (컬러 버튼 추가) -->
         <div class="daily-box">
           <table class="timeblock-table">
             <thead>
@@ -250,9 +308,8 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const STORAGE_KEY = 'planner_all_data_v10'; 
+      const STORAGE_KEY = 'planner_all_data_v11'; 
       const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
-      // 💡 파스텔 컬러 리스트 (투명, 빨강, 노랑, 초록, 파랑, 보라)
       const pastelColors = ['transparent', '#ffe4e6', '#fef08a', '#dcfce3', '#dbeafe', '#f3e8ff'];
 
       let allData = {}; 
@@ -260,6 +317,8 @@
       let currentDate = new Date(); 
       let currentView = 'weekly';
       let currentDailyDay = 'mon'; 
+      
+      let isWeeklyReviewMode = false;
 
       const tbBody = document.getElementById('timeblock-body');
       for(let i = 5; i <= 24; i++) {
@@ -321,20 +380,27 @@
 
         if (!allData[currentWeekKey]) {
           allData[currentWeekKey] = {
-            weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {}
+            weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {},
+            weeklyReview: {
+              work: { keep: '', problem: '', try: '' },
+              dev: { keep: '', problem: '', try: '' },
+              health: { keep: '', problem: '', try: '' },
+              personal: { keep: '', problem: '', try: '' }
+            }
           };
         }
         
+        if(!allData[currentWeekKey].weeklyReview) {
+          allData[currentWeekKey].weeklyReview = {
+            work: { keep: '', problem: '', try: '' }, dev: { keep: '', problem: '', try: '' },
+            health: { keep: '', problem: '', try: '' }, personal: { keep: '', problem: '', try: '' }
+          };
+        }
+
         ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
           if(!allData[currentWeekKey].daily[d]) {
-            allData[currentWeekKey].daily[d] = { 
-              plan: {}, do: {}, planColor: {}, doColor: {}, 
-              memo: '', keep: '', problem: '', try: '' 
-            };
+            allData[currentWeekKey].daily[d] = { plan: {}, do: {}, planColor: {}, doColor: {}, memo: '', keep: '', problem: '', try: '' };
           }
-          // 데이터 구조 호환성 패치 (컬러 데이터가 없는 경우 생성)
-          if(!allData[currentWeekKey].daily[d].planColor) allData[currentWeekKey].daily[d].planColor = {};
-          if(!allData[currentWeekKey].daily[d].doColor) allData[currentWeekKey].daily[d].doColor = {};
         });
         
         renderAll();
@@ -347,9 +413,32 @@
         currentView = viewType;
         document.getElementById('tab-weekly').classList.toggle('active', viewType === 'weekly');
         document.getElementById('tab-daily').classList.toggle('active', viewType === 'daily');
-        document.getElementById('view-weekly').style.display = (viewType === 'weekly') ? 'grid' : 'none';
+        
+        document.getElementById('review-toolbar').style.display = (viewType === 'weekly') ? 'flex' : 'none';
         document.getElementById('view-daily').style.display = (viewType === 'daily') ? 'flex' : 'none';
+        
+        if (viewType === 'weekly') {
+          document.getElementById('view-weekly').style.display = isWeeklyReviewMode ? 'none' : 'grid';
+          document.getElementById('view-weekly-review').style.display = isWeeklyReviewMode ? 'flex' : 'none';
+        } else {
+          document.getElementById('view-weekly').style.display = 'none';
+          document.getElementById('view-weekly-review').style.display = 'none';
+        }
+
         renderAll();
+      }
+
+      window.toggleWeeklyMode = function() {
+        isWeeklyReviewMode = !isWeeklyReviewMode;
+        const btn = document.getElementById('toggle-review-btn');
+        if (isWeeklyReviewMode) {
+          btn.innerText = '📝 계획 모드로 돌아가기';
+          btn.style.backgroundColor = 'var(--text-main)'; 
+        } else {
+          btn.innerText = '🔄 회고 모드 켜기';
+          btn.style.backgroundColor = 'var(--primary-color)';
+        }
+        switchView('weekly'); 
       }
 
       window.jumpToDaily = function(day) {
@@ -381,20 +470,30 @@
 
       function renderAll(focusedDay = null) {
         if (currentView === 'weekly') {
-          days.forEach(day => {
-            const listEl = document.getElementById(`list-${day}`);
-            if (!listEl) return;
-            listEl.innerHTML = '';
-            (allData[currentWeekKey][day] || []).forEach(task => { listEl.appendChild(createHtmlForTask(task, day)); });
-            
-            const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
-            if (inputEl) {
-              inputEl.onkeydown = (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); addInlineTask(day, inputEl.value.trim()); inputEl.value = ''; }
-              };
-              if (focusedDay === day) setTimeout(() => inputEl.focus(), 0);
-            }
-          });
+          if (!isWeeklyReviewMode) {
+            days.forEach(day => {
+              const listEl = document.getElementById(`list-${day}`);
+              if (!listEl) return;
+              listEl.innerHTML = '';
+              (allData[currentWeekKey][day] || []).forEach(task => { listEl.appendChild(createHtmlForTask(task, day)); });
+              
+              const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
+              if (inputEl) {
+                inputEl.onkeydown = (e) => {
+                  if (e.key === 'Enter') { e.preventDefault(); addInlineTask(day, inputEl.value.trim()); inputEl.value = ''; }
+                };
+                if (focusedDay === day) setTimeout(() => inputEl.focus(), 0);
+              }
+            });
+          } else {
+            const reviewData = allData[currentWeekKey].weeklyReview;
+            document.querySelectorAll('.review-textarea').forEach(textarea => {
+              const cat = textarea.dataset.cat;
+              const type = textarea.dataset.type;
+              textarea.value = reviewData[cat][type] || '';
+              textarea.onchange = (e) => { allData[currentWeekKey].weeklyReview[cat][type] = e.target.value; saveAllData(); };
+            });
+          }
         } else {
           renderDailyData();
         }
@@ -410,18 +509,15 @@
         const dailyTodoInput = document.getElementById('daily-todo-input');
         dailyTodoInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addInlineTask(currentDailyDay, dailyTodoInput.value.trim()); dailyTodoInput.value = ''; } };
 
-        // 타임블록 데이터 및 컬러 렌더링
         ['plan', 'do'].forEach(type => {
           document.querySelectorAll(`.${type}-input`).forEach(input => {
             const hr = input.dataset.hour; 
             input.value = dailyInfo[type][hr] || '';
             input.onchange = (e) => { dailyInfo[type][hr] = e.target.value; saveAllData(); };
             
-            // 색상 적용
             const color = dailyInfo[`${type}Color`][hr] || 'transparent';
             const cell = document.getElementById(`${type}-cell-${hr}`);
             const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
-            
             if(cell) cell.style.backgroundColor = (color === 'transparent') ? '' : color;
             if(btn) {
               btn.style.backgroundColor = (color === 'transparent') ? '#fff' : color;
@@ -440,7 +536,6 @@
         document.getElementById('daily-try-input').onchange = (e) => { dailyInfo.try = e.target.value; saveAllData(); };
       }
 
-      // 💡 색상 변경 함수
       window.cycleColor = function(type, hr) {
         const dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
         let currentColor = dailyInfo[`${type}Color`][hr] || 'transparent';
@@ -451,7 +546,6 @@
         dailyInfo[`${type}Color`][hr] = nextColor;
         saveAllData();
 
-        // 즉시 화면 반영
         const cell = document.getElementById(`${type}-cell-${hr}`);
         const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
         if(cell) cell.style.backgroundColor = (nextColor === 'transparent') ? '' : nextColor;
@@ -481,18 +575,14 @@
 
       loadAllData(); goToday(); 
 
-      // 💡 키보드 네비게이션 기능 (화살표 & 엔터 이동)
       document.querySelectorAll('.tb-input').forEach(input => {
         input.addEventListener('keydown', function(e) {
           const currentHour = parseInt(this.dataset.hour);
           const typeClass = this.classList.contains('plan-input') ? '.plan-input' : '.do-input';
           let targetHour = null;
 
-          if (e.key === 'Enter' || e.key === 'ArrowDown') {
-            targetHour = currentHour + 1;
-          } else if (e.key === 'ArrowUp') {
-            targetHour = currentHour - 1;
-          }
+          if (e.key === 'Enter' || e.key === 'ArrowDown') { targetHour = currentHour + 1; } 
+          else if (e.key === 'ArrowUp') { targetHour = currentHour - 1; }
 
           if (targetHour >= 5 && targetHour <= 24) {
             e.preventDefault(); 
