@@ -92,21 +92,19 @@
     .progress-fill { height: 100%; background: #A7D4D3; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .progress-text-display { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; transition: color 0.3s ease; }
 
-    /* 위클리 플래너 뷰 - 💡 background-position 54px로 변경하여 헤더 높이와 동기화 */
+    /* 위클리 플래너 뷰 */
     .planner-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .day-column { background-color: var(--card-bg); display: flex; flex-direction: column; min-height: 500px; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height)); background-position: 0 54px; }
 
-    /* 💡 헤더 높이를 정확하게 54px로 고정하여 밀림 현상 방지 */
     .column-header { height: 54px; padding: 0 14px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); background-color: #fcfcfd; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; transition: 0.2s; }
     .column-header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .column-header.weekly-todo { background-color: #f8fafc; color: var(--primary-color); pointer-events: none;}
     .column-header.clickable { cursor: pointer; }
     .column-header.clickable:hover { background-color: #f1f5f9; }
 
-    /* 💡 padding 제거하여 줄눈 엇나감 완벽 차단 */
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
     
-    /* 💡 빈 화면도 34px 그리드 규격을 지키도록 강제 고정 */
+    /* 💡 빈 화면 텍스트 높이를 34px로 고정하여 줄눈과 일치시킴 */
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
@@ -385,10 +383,9 @@
               </div>
               <div class="progress-bg"><div class="progress-fill" id="daily-progress-bar"></div></div>
             </div>
-            <!-- 💡 padding 제거하여 줄눈 맞춤 -->
             <div class="day-column" style="min-height: 150px; border:none; background-position:0 0; flex:1;">
               <ul class="task-list" id="daily-todo-list"></ul>
-              <div class="inline-input-row">
+              <div class="inline-input-row" style="margin-top:auto; border-top:1px solid #f1f5f9;">
                 <div class="input-spacer"></div><span class="inline-dot">+</span>
                 <input type="text" class="inline-task-input" id="daily-todo-input" placeholder="새 할 일 추가..." />
               </div>
@@ -984,8 +981,8 @@
               const tasks = allData[currentWeekKey][day] || [];
               
               if (tasks.length === 0) {
-                 // 💡 빈 화면일 때도 줄눈이 틀어지지 않도록 고정된 높이를 가진 empty-state 요소 추가
-                 listEl.innerHTML = `<li class="empty-state"></li>`;
+                 // 💡 빈 화면 텍스트 복구
+                 listEl.innerHTML = `<li class="empty-state">아직 할 일이 없어요 🌱</li>`;
               } else {
                  tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
               }
@@ -1201,8 +1198,8 @@
         if (dailyTodoList) {
           dailyTodoList.innerHTML = '';
           if (!dayData || dayData.length === 0) {
-             // 💡 데일리에서도 줄눈 유지를 위해 여백을 없앤 빈 블록 추가
-             dailyTodoList.innerHTML = `<li class="empty-state"></li>`;
+             // 💡 데일리 화면 빈 텍스트 복구
+             dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
           } else {
              dayData.forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
           }
