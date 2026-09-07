@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <title>Moment Planner</title>
+  <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -37,6 +37,12 @@
       padding: 32px 36px; display: flex; flex-direction: column; gap: 20px;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.35s ease-out forwards; }
+
     .planner-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; }
     .title-group { display: flex; align-items: baseline; gap: 16px; }
     .title-group h1 { font-size: 1.45rem; font-weight: 500; color: var(--primary-color); letter-spacing: -0.5px; }
@@ -59,7 +65,7 @@
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
     #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
 
-    /* 🏠 홈 대시보드 (정방형 대형 감성 카드 스타일) */
+    /* 홈 대시보드 */
     .home-view-container { display: none; flex-direction: column; align-items: center; gap: 32px; padding: 10px 0; }
     .home-square-card {
       width: 520px; height: 520px; position: relative; border-radius: 20px; overflow: hidden;
@@ -81,26 +87,41 @@
     .home-quick-tile h3 { font-size: 1rem; font-weight: 600; color: var(--primary-color); }
     .home-quick-tile span { font-size: 0.8rem; color: var(--text-muted); }
 
+    /* 진행률 바 */
+    .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%; }
+    .progress-fill { height: 100%; background: #A7D4D3; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-text-display { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; transition: color 0.3s ease; }
+
     /* 위클리 플래너 뷰 */
     .planner-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .day-column { background-color: var(--card-bg); display: flex; flex-direction: column; min-height: 500px; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height)); background-position: 0 40px; }
 
-    .column-header { height: 40px; padding: 0 14px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); background-color: #fcfcfd; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; transition: 0.2s;}
+    .column-header { padding: 8px 14px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); background-color: #fcfcfd; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; transition: 0.2s; min-height: 40px; }
+    .column-header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .column-header.weekly-todo { background-color: #f8fafc; color: var(--primary-color); pointer-events: none;}
     .column-header.clickable { cursor: pointer; }
-    .column-header.clickable:hover { background-color: var(--primary-color); color: white; }
+    .column-header.clickable:hover { background-color: #f1f5f9; }
 
-    .task-list { list-style: none; position: relative; z-index: 1; }
+    /* 💡 줄눈 깨짐 현상을 없애기 위해 padding-bottom 제거 */
+    .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
+    
+    .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; padding: 16px 0; font-weight: 400; font-style: italic; }
+
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
     .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
 
     .drag-handle { color: #cbd5e1; font-size: 14px; cursor: grab; width: 14px; display: flex; justify-content: center; flex-shrink: 0; }
-    .task-checkbox { appearance: none; width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; display: grid; place-content: center; flex-shrink: 0; cursor: pointer; }
+    .task-checkbox { appearance: none; width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; display: grid; place-content: center; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
     .task-checkbox:checked { background-color: var(--primary-color); border-color: var(--primary-color); }
     .task-checkbox:checked::before { content: "✔"; font-size: 9px; color: white; }
-    .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .task-checkbox:checked + .task-text { text-decoration: line-through; color: #cbd5e1; }
-    .delete-btn { border: none; background: none; color: #e2e8f0; font-size: 11px; padding: 4px; cursor: pointer; }
+    
+    .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; color: var(--text-main); transition: color 0.3s ease; }
+    .task-text::after { content: ''; position: absolute; left: 0; top: 50%; width: 0%; height: 1px; background-color: #cbd5e1; transition: width 0.3s ease; }
+    .task-checkbox:checked + .task-text { color: #cbd5e1; }
+    .task-checkbox:checked + .task-text::after { width: 100%; }
+    
+    .delete-btn { border: none; background: none; color: #e2e8f0; font-size: 11px; padding: 4px; cursor: pointer; transition: 0.2s; }
+    .delete-btn:hover { color: var(--accent-color); }
 
     .inline-input-row { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; position: relative; z-index: 2; }
     .input-spacer { width: 14px; flex-shrink: 0; }
@@ -154,7 +175,7 @@
 
     .daily-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
     .daily-box { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); overflow: hidden; display: flex; flex-direction: column;}
-    .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
+    .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; }
 
     .timeblock-table { width: 100%; border-collapse: collapse; }
     .timeblock-table th { background: #fcfcfd; padding: 8px; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-weight: 500; text-align: center;}
@@ -173,6 +194,29 @@
     .kpt-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
 
     @media (max-width: 960px) { .planner-grid, .daily-grid, .weekly-review-container, .monthly-grid, .home-quick-grid { grid-template-columns: 1fr; } }
+    
+    /* 🔍 검색 모달 CSS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+    .search-modal { background: #fff; width: 90%; max-width: 600px; max-height: 80vh; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: fadeIn 0.2s ease-out; }
+    .search-header { display: flex; justify-content: space-between; align-items: center; }
+    .search-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 600; }
+    .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; transition: 0.2s; }
+    .close-btn:hover { color: var(--accent-color); }
+    .search-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; font-family: inherit; transition: 0.2s; }
+    .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 155, 180, 0.1); }
+    .search-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; min-height: 100px; }
+    .search-result-item { padding: 16px; border: 1px solid var(--line-color); border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fafafa; }
+    .search-result-item:hover { border-color: var(--primary-color); background: #fff; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .res-date { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+    .res-tag { font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; font-weight: 600; letter-spacing: 0.5px; }
+    .tag-memo { background: #e2e8f0; color: #475569; }
+    .tag-keep { background: #DCE2FF; color: #4338ca; }
+    .tag-problem { background: #FAD2E1; color: #be123c; }
+    .tag-try { background: #DFEED4; color: #15803d; }
+    .tag-todo { background: #fef9c3; color: #a16207; } 
+    .res-text { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; word-break: break-all;}
+    .highlight { background: rgba(250, 210, 225, 0.6); font-weight: 600; border-radius: 2px; padding: 0 2px;}
   </style>
 </head>
 <body>
@@ -191,7 +235,6 @@
       </nav>
     </header>
 
-    <!-- 💡 홈 화면일 땐 사라지는 서브바 영역 -->
     <div class="sub-bar" id="sub-bar">
       <div class="month-list" id="month-list">
         <span onclick="jumpToMonth(0)">jan</span><span onclick="jumpToMonth(1)">feb</span><span onclick="jumpToMonth(2)">mar</span>
@@ -208,13 +251,16 @@
         <span id="week-display" class="active-indicator">로딩 중...</span>
         <button onclick="changePeriod(1)">다음 ▶</button>
         <button onclick="goToday()" style="margin-left:4px;">오늘</button>
+        
+        <button onclick="openSearchModal()" style="margin-left:12px; font-weight:600;" title="과거 메모 및 회고 검색">🔍 검색</button>
+        <button onclick="exportData()" style="margin-left:4px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">💾 백업</button>
+        <button onclick="document.getElementById('import-file').click()" style="border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">📂 복원</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
       </div>
     </div>
 
     <!-- 🏠 0. 정방형 대형 감성 홈 대시보드 뷰 -->
-    <main class="home-view-container" id="view-home">
-      
-      <!-- 🖼️ [여기에 핀터레스트 이미지 주소를 넣어주세요] 아래 src 속성 따옴표 안에 원하는 이미지 URL을 붙여넣으세요! -->
+    <main class="home-view-container fade-in" id="view-home">
       <div class="home-square-card">
         <img src="https://i.pinimg.com/1200x/e7/b7/20/e7b7207a188e36e7c457ae65f83c8d62.jpg" alt="Mood Image">
         <div class="home-square-content">
@@ -242,7 +288,13 @@
     <!-- 🗓️ 1-A. 위클리 플래너 뷰 -->
     <main class="planner-grid" id="view-weekly">
       <section class="day-column">
-        <div class="column-header weekly-todo"><span>weekly todo</span></div>
+        <div class="column-header weekly-todo">
+          <div class="column-header-top">
+            <span>weekly todo</span>
+            <span id="progress-text-weekly" class="progress-text-display"></span>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" id="progress-bar-weekly"></div></div>
+        </div>
         <ul class="task-list" id="list-weekly" data-day="weekly"></ul>
         <div class="inline-input-row">
           <div class="input-spacer"></div><span class="inline-dot">+</span>
@@ -256,8 +308,11 @@
           document.write(`
             <section class="day-column">
               <div class="column-header clickable" onclick="jumpToDailyFromWeekly('${day}')" title="해당 요일 데일리로 점프">
-                <!-- 💡 자바스크립트로 날짜가 자동 주입되는 영역 -->
-                <span id="header-text-${day}">로딩중...</span>
+                <div class="column-header-top">
+                  <span id="header-text-${day}">로딩중...</span>
+                  <span id="progress-text-${day}" class="progress-text-display"></span>
+                </div>
+                <div class="progress-bg"><div class="progress-fill" id="progress-bar-${day}"></div></div>
               </div>
               <ul class="task-list" id="list-${day}" data-day="${day}"></ul>
               <div class="inline-input-row">
@@ -319,7 +374,13 @@
       <div class="daily-grid">
         <div class="daily-left-col">
           <div class="daily-box" style="min-height: 200px;">
-            <div class="daily-box-header">Daily Todo <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(위클리 자동 연동)</span></div>
+            <div class="daily-box-header">
+              <div class="column-header-top">
+                <span>Daily Todo <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(위클리 자동 연동)</span></span>
+                <span id="daily-progress-text" class="progress-text-display"></span>
+              </div>
+              <div class="progress-bg"><div class="progress-fill" id="daily-progress-bar"></div></div>
+            </div>
             <div class="day-column" style="min-height: 150px; border:none; background-position:0 0; flex:1;">
               <ul class="task-list" id="daily-todo-list" style="padding-top:8px;"></ul>
               <div class="inline-input-row" style="margin-top:auto; border-top:1px solid #f1f5f9;">
@@ -369,23 +430,29 @@
     </main>
   </div>
 
+  <!-- 🔍 검색 모달 -->
+  <div id="search-modal" class="modal-overlay" onclick="closeSearchModal(event)">
+    <div class="search-modal" onclick="event.stopPropagation()">
+      <div class="search-header">
+        <h3>기록 검색</h3>
+        <button onclick="closeSearchModal()" class="close-btn">✕</button>
+      </div>
+      <input type="text" id="search-input" class="search-input" placeholder="검색어를 입력하세요 (할일, 메모, KPT 내용)..." onkeyup="if(event.key==='Enter') executeSearch()" />
+      <div id="search-results" class="search-results">
+        <div class="empty-state" style="margin-top:40px;">찾고 싶은 키워드를 검색해보세요 🔍</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const STORAGE_KEY = 'planner_all_data_v30'; // 새 버전
+      const STORAGE_KEY = 'planner_all_data_v31';
       const allDaysList = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
       
       const pastelColors = [
         'transparent', 
-         '#DCE2FF', // 지정 블루
-        '#DFEED4', // 지정 올리브 그린
-        '#EBEED4', // 지정 베이지 그린
-        '#FFEFE7', 
-        '#DAE7E6', 
-        '#F5ECC2', 
-        '#E4F1FE', 
-        '#ECECEC', 
-        '#E3DAE7', 
-        '#ECD9DD'
+       '#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6', 
+        '#F5ECC2', '#E4F1FE', '#ECECEC'
       ];
 
       let allData = {}; 
@@ -430,7 +497,6 @@
         return `${temp.getFullYear()}-${String(temp.getMonth() + 1).padStart(2, '0')}-${String(temp.getDate()).padStart(2, '0')}`;
       }
 
-      // 💡 ISO 기준 주차(Week of Year) 계산 로직 (2026-W37 형태를 위함)
       function getISOWeekInfo(d) {
         const date = new Date(d.getTime());
         date.setHours(0, 0, 0, 0);
@@ -455,12 +521,10 @@
             else span.classList.remove('active-indicator');
           });
         } else {
-          // 💡 2026-W37 형태의 ISO 주차 표시 반영
           const info = getISOWeekInfo(currentDate);
           weekDisplay.innerText = `${info.year}-W${info.week}`;
 
           const monthSpans = document.querySelectorAll('#month-list span');
-          // 주차 이동 중에도 현재 월 탭을 정확히 하이라이트
           monthSpans.forEach((span, idx) => {
             if (idx === currentDate.getMonth()) span.classList.add('active-indicator');
             else span.classList.remove('active-indicator');
@@ -468,7 +532,6 @@
         }
       }
 
-      // 💡 위클리 탭의 각 요일 컬럼 헤더에 동적인 날짜(예: 09/07 MON) 주입
       function updateWeeklyHeaders() {
         if (!currentWeekKey) return;
         const parts = currentWeekKey.split('-');
@@ -497,7 +560,7 @@
       window.loadWeek = function() {
         currentWeekKey = getMondayStr(currentDate);
         updateDateUI();
-        updateWeeklyHeaders(); // 💡 주차 변경 시 위클리 헤더 날짜 재계산
+        updateWeeklyHeaders(); 
 
         if (!allData[currentWeekKey]) {
           allData[currentWeekKey] = {
@@ -578,10 +641,19 @@
           const tabEl = document.getElementById(`tab-${v}`);
           const viewEl = document.getElementById(`view-${v}`);
           if (tabEl) tabEl.classList.toggle('active', v === viewType);
-          if (viewEl) viewEl.style.display = (v === viewType) ? (v === 'weekly' ? (isWeeklyReviewMode ? 'none' : 'grid') : 'flex') : 'none';
+          
+          if (viewEl) {
+            if (v === viewType) {
+              viewEl.style.display = (v === 'weekly' ? (isWeeklyReviewMode ? 'none' : 'grid') : 'flex');
+              viewEl.classList.remove('fade-in');
+              void viewEl.offsetWidth; 
+              viewEl.classList.add('fade-in');
+            } else {
+              viewEl.style.display = 'none';
+            }
+          }
         });
         
-        // 💡 홈 화면일 때 Sub-bar 숨김 처리
         const subBar = document.getElementById('sub-bar');
         if (subBar) {
           subBar.style.display = (viewType === 'home') ? 'none' : 'flex';
@@ -594,8 +666,22 @@
         if (reviewToolbar) reviewToolbar.style.display = (viewType === 'weekly') ? 'flex' : 'none';
         
         if (viewType === 'weekly') {
-          if (viewWeekly) viewWeekly.style.display = isWeeklyReviewMode ? 'none' : 'grid';
-          if (viewWeeklyReview) viewWeeklyReview.style.display = isWeeklyReviewMode ? 'grid' : 'none';
+          if (viewWeekly) {
+            viewWeekly.style.display = isWeeklyReviewMode ? 'none' : 'grid';
+            if(!isWeeklyReviewMode) {
+                viewWeekly.classList.remove('fade-in');
+                void viewWeekly.offsetWidth;
+                viewWeekly.classList.add('fade-in');
+            }
+          }
+          if (viewWeeklyReview) {
+            viewWeeklyReview.style.display = isWeeklyReviewMode ? 'grid' : 'none';
+            if(isWeeklyReviewMode) {
+                viewWeeklyReview.classList.remove('fade-in');
+                void viewWeeklyReview.offsetWidth;
+                viewWeeklyReview.classList.add('fade-in');
+            }
+          }
         } else {
           if (viewWeekly) viewWeekly.style.display = 'none';
           if (viewWeeklyReview) viewWeeklyReview.style.display = 'none';
@@ -635,6 +721,244 @@
         renderDailyData();
       }
 
+      window.exportData = function() {
+        const dataStr = JSON.stringify(allData);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const todayStr = new Date().toISOString().slice(0,10);
+        a.download = `moment_planner_backup_${todayStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      window.importData = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            if (importedData && typeof importedData === 'object') {
+              allData = importedData;
+              saveAllData();
+              loadWeek();
+              switchView(currentView);
+              alert("데이터가 성공적으로 복원되었습니다! ✨");
+            } else {
+              alert("올바른 백업 파일 형식이 아닙니다.");
+            }
+          } catch (err) {
+            alert("파일을 읽는 중 오류가 발생했습니다.");
+          }
+          event.target.value = '';
+        };
+        reader.readAsText(file);
+      };
+
+      // 💡 [Round 2] 통합 검색 모달 함수
+      window.openSearchModal = function() {
+        const modal = document.getElementById('search-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('search-input').focus(), 100);
+      }
+
+      window.closeSearchModal = function(e) {
+        if(e && e.target !== e.currentTarget) return;
+        document.getElementById('search-modal').style.display = 'none';
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-results').innerHTML = '<div class="empty-state" style="margin-top:40px;">찾고 싶은 메모나 투두 키워드를 검색해보세요 🔍</div>';
+      }
+
+      // 💡 위클리 커스텀 리뷰로 바로 이동하는 타임머신 함수 추가
+      window.jumpToWeeklyReview = function(weekKey) {
+         currentDate = new Date(weekKey);
+         closeSearchModal();
+         loadWeek();
+         isWeeklyReviewMode = true;
+         const btn = document.getElementById('toggle-review-btn');
+         if (btn) {
+           btn.innerText = '📝 계획 모드로 돌아가기';
+           btn.style.backgroundColor = 'var(--text-main)'; 
+         }
+         switchView('weekly');
+      }
+
+      window.executeSearch = function() {
+        const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+        const resultsContainer = document.getElementById('search-results');
+        if(!keyword) return;
+
+        let resultsHtml = '';
+        const dayNames = { mon: '월', tue: '화', wed: '수', thur: '목', fri: '금', sat: '토', sun: '일' };
+        
+        for(const weekKey in allData) {
+          const weekData = allData[weekKey];
+
+          // 1. 위클리 투두 (Weekly Todo) 검색
+          const weeklyTasks = weekData['weekly'] || [];
+          weeklyTasks.forEach(task => {
+            if(task.text.toLowerCase().includes(keyword)) {
+              const regex = new RegExp(`(${keyword})`, 'gi');
+              const highlightedText = task.text.replace(regex, '<span class="highlight">$1</span>');
+              resultsHtml += `
+                <div class="search-result-item" onclick="jumpToSearchResult('${weekKey}', 'mon')">
+                  <div class="res-header">
+                    <span class="res-date">${weekKey} 주차</span>
+                    <span class="res-tag tag-todo">Weekly Todo</span>
+                  </div>
+                  <div class="res-text">${task.completed ? '✔ ' : '◻ '}${highlightedText}</div>
+                </div>
+              `;
+            }
+          });
+
+          // 💡 2. 위클리 KPT 종합 회고 (Custom Review) 검색 로직 추가
+          const customReview = weekData.customWeeklyReview || [];
+          customReview.forEach(review => {
+            const reviewDateStr = `${weekKey} 주간 회고`;
+            const fields = [
+              { key: 'category', label: 'Category' },
+              { key: 'keep', label: 'Keep' },
+              { key: 'problem', label: 'Problem' },
+              { key: 'try', label: 'Try' }
+            ];
+
+            fields.forEach(field => {
+              const text = review[field.key] || '';
+              if(text.toLowerCase().includes(keyword)) {
+                const regex = new RegExp(`(${keyword})`, 'gi');
+                const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
+                const tagClass = field.key === 'category' ? 'tag-memo' : `tag-${field.key}`;
+
+                resultsHtml += `
+                  <div class="search-result-item" onclick="jumpToWeeklyReview('${weekKey}')">
+                    <div class="res-header">
+                      <span class="res-date">${reviewDateStr}</span>
+                      <span class="res-tag ${tagClass}">Weekly ${field.label}</span>
+                    </div>
+                    <div class="res-text">${highlightedText}</div>
+                  </div>
+                `;
+              }
+            });
+          });
+
+          // 3. 데일리 투두, KPT, Memo 검색
+          if(!weekData.daily) continue;
+
+          ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach((day, index) => {
+             const parts = weekKey.split('-');
+             const dateObj = new Date(parts[0], parts[1]-1, parts[2]);
+             dateObj.setDate(dateObj.getDate() + index);
+             const dateStr = `${dateObj.getFullYear()}.${String(dateObj.getMonth()+1).padStart(2,'0')}.${String(dateObj.getDate()).padStart(2,'0')} (${dayNames[day]})`;
+
+             const dailyTasks = weekData[day] || [];
+             dailyTasks.forEach(task => {
+               if(task.text.toLowerCase().includes(keyword)) {
+                 const regex = new RegExp(`(${keyword})`, 'gi');
+                 const highlightedText = task.text.replace(regex, '<span class="highlight">$1</span>');
+                 resultsHtml += `
+                   <div class="search-result-item" onclick="jumpToSearchResult('${weekKey}', '${day}')">
+                     <div class="res-header">
+                       <span class="res-date">${dateStr}</span>
+                       <span class="res-tag tag-todo">Daily Todo</span>
+                     </div>
+                     <div class="res-text">${task.completed ? '✔ ' : '◻ '}${highlightedText}</div>
+                   </div>
+                 `;
+               }
+             });
+
+             const dInfo = weekData.daily[day];
+             if(!dInfo) return;
+
+             const fields = [
+               { key: 'memo', label: 'Memo' },
+               { key: 'keep', label: 'Keep' },
+               { key: 'problem', label: 'Problem' },
+               { key: 'try', label: 'Try' }
+             ];
+
+             fields.forEach(field => {
+               const text = dInfo[field.key] || '';
+               if(text.toLowerCase().includes(keyword)) {
+                 const regex = new RegExp(`(${keyword})`, 'gi');
+                 const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
+
+                 resultsHtml += `
+                   <div class="search-result-item" onclick="jumpToSearchResult('${weekKey}', '${day}')">
+                     <div class="res-header">
+                       <span class="res-date">${dateStr}</span>
+                       <span class="res-tag tag-${field.key}">${field.label}</span>
+                     </div>
+                     <div class="res-text">${highlightedText}</div>
+                   </div>
+                 `;
+               }
+             });
+          });
+        }
+
+        if(resultsHtml === '') {
+          resultsContainer.innerHTML = '<div class="empty-state" style="margin-top:40px;">검색 결과가 없습니다 🥲</div>';
+        } else {
+          resultsContainer.innerHTML = resultsHtml;
+        }
+      }
+
+      window.jumpToSearchResult = function(weekKey, day) {
+         currentDate = new Date(weekKey);
+         closeSearchModal();
+         loadWeek();
+         setDailyDay(day);
+         switchView('daily');
+      }
+
+      function getProgressMessage(percent, total) {
+        if (total === 0) return '';
+        if (percent === 0) return '⏰ R U ready?';
+        if (percent < 10) return '🌟 오늘 하루 화이팅!!';
+        if (percent < 30) return '💍 최고의 하루를 만드는 중!';
+        if (percent < 50) return '👑 항상 응원해!';
+        if (percent < 60) return '✨ 절반을 넘기다니!!';
+        if (percent < 80) return '🍋 자랑스러워!';
+        if (percent < 90) return '🌿 잘 하고 있어!!';
+        if (percent < 100) return '🎀 정말 놀라워요!';
+        return '🌷 마법같은 일이야';
+      }
+
+      function updateProgress(day) {
+        const tasks = allData[currentWeekKey][day] || [];
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.completed).length;
+        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+        
+        const msg = total === 0 ? '' : getProgressMessage(percent, total);
+        const pbWidth = total === 0 ? '0%' : `${percent}%`;
+
+        const pbWeekly = document.getElementById(`progress-bar-${day}`);
+        const ptWeekly = document.getElementById(`progress-text-${day}`);
+        if (pbWeekly) pbWeekly.style.width = pbWidth;
+        if (ptWeekly) {
+          ptWeekly.innerText = msg;
+          ptWeekly.style.color = percent === 100 ? 'var(--accent-color)' : 'var(--text-muted)';
+        }
+
+        if (currentDailyDay === day) {
+          const pbDaily = document.getElementById('daily-progress-bar');
+          const ptDaily = document.getElementById('daily-progress-text');
+          if (pbDaily) pbDaily.style.width = pbWidth;
+          if (ptDaily) {
+            ptDaily.innerText = msg;
+            ptDaily.style.color = percent === 100 ? 'var(--accent-color)' : 'var(--text-muted)';
+          }
+        }
+      }
+
       function createHtmlForTask(task, day) {
         const li = document.createElement('li');
         li.className = 'task-item';
@@ -657,7 +981,12 @@
               const listEl = document.getElementById(`list-${day}`);
               if (!listEl) return;
               listEl.innerHTML = '';
-              (allData[currentWeekKey][day] || []).forEach(task => { listEl.appendChild(createHtmlForTask(task, day)); });
+              const tasks = allData[currentWeekKey][day] || [];
+              
+              // 💡 "아직 할 일이 없어요" 메시지를 삭제하여 빈 화면 시 입력칸과 배경 줄눈이 완벽히 일치하도록 수정
+              tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
+              
+              updateProgress(day);
             });
             if (focusedDay) {
               const inputEl = document.getElementById(`input-${focusedDay}`);
@@ -861,7 +1190,10 @@
         const dailyTodoList = document.getElementById('daily-todo-list');
         if (dailyTodoList) {
           dailyTodoList.innerHTML = '';
-          (dayData || []).forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
+          if (dayData && dayData.length > 0) {
+             dayData.forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
+          }
+          updateProgress(currentDailyDay);
         }
 
         ['plan', 'do'].forEach(type => {
@@ -924,6 +1256,7 @@
         if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
         allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, completed: false });
         saveAllData(); 
+        
         if (currentView === 'weekly') renderAll(day);
         else renderDailyData();
       }
@@ -934,17 +1267,20 @@
           task.completed = !task.completed;
           allData[currentWeekKey][day].sort((a, b) => { if (a.completed === b.completed) return 0; return a.completed ? 1 : -1; });
           saveAllData(); 
-          renderAll();
+          
+          if (currentView === 'weekly') renderAll();
+          else renderDailyData();
         }
       }
 
       function deleteTask(day, id) {
         allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
         saveAllData(); 
-        renderAll();
+        
+        if (currentView === 'weekly') renderAll();
+        else renderDailyData();
       }
 
-      // 💡 여기서 최초 앱 로딩 시 데이터를 완전히 셋업하고 홈 화면으로 넘어가게 순서 고정
       loadAllData();
       loadWeek();
       switchView('home');
@@ -974,6 +1310,9 @@
                 if (movedItem) {
                   plannerData[toDay].splice(newIndex, 0, movedItem);
                   saveAllData();
+                  updateProgress(fromDay);
+                  updateProgress(toDay);
+                  if(currentView === 'weekly') renderAll();
                 }
               }
             });
