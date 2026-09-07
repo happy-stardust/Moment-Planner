@@ -3,270 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
-  <title>Time Goal Planner - Weekly</title>
+  <title>Moment Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   
   <style>
     :root {
-      --primary-color: #8b9bb4;
-      --accent-color: #e58b88;
-      --border-color: #e2e8f0;
-      --line-color: #f1f5f9;
-      --text-main: #334155;
-      --text-muted: #94a3b8;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --row-height: 34px;
+      --primary-color: #8b9bb4; --accent-color: #e58b88;
+      --border-color: #e2e8f0; --line-color: #f1f5f9;
+      --text-main: #334155; --text-muted: #94a3b8;
+      --bg-color: #f8fafc; --card-bg: #ffffff;
+      --row-height: 34px; --plan-bg: #f8fafc; --do-bg: #f1f5f9;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      padding: 24px 16px;
-      min-height: 100vh;
+      background-color: var(--bg-color); color: var(--text-main);
+      display: flex; justify-content: center; padding: 24px 16px; min-height: 100vh;
       -webkit-touch-callout: none;
     }
 
     .planner-container {
-      width: 100%;
-      max-width: 1240px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      padding: 32px 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      width: 100%; max-width: 1400px; background: var(--card-bg);
+      border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      padding: 32px 36px; display: flex; flex-direction: column; gap: 20px;
     }
 
-    .planner-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 16px;
-    }
+    .planner-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; }
+    .title-group { display: flex; align-items: baseline; gap: 16px; }
+    .title-group h1 { font-size: 1.45rem; font-weight: 500; color: var(--primary-color); letter-spacing: -0.5px; }
+    .title-group span { font-size: 0.95rem; color: var(--text-muted); font-weight: 400; }
 
-    .title-group {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-    }
+    .nav-tabs { display: flex; gap: 18px; }
+    .nav-tab { font-size: 0.85rem; color: #cbd5e1; text-decoration: none; cursor: pointer; padding-bottom: 4px; transition: 0.2s; }
+    .nav-tab:hover { color: var(--primary-color); }
+    .nav-tab.active { color: var(--accent-color); font-weight: 600; border-bottom: 2px solid var(--accent-color); }
 
-    .title-group h1 {
-      font-size: 1.45rem;
-      font-weight: 500;
-      color: var(--primary-color);
-      letter-spacing: -0.5px;
-    }
+    .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; }
+    .month-list { display: flex; gap: 10px; }
+    .sub-bar .active-indicator { color: var(--primary-color); font-weight: 600; text-decoration: underline; }
 
-    .title-group span {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      font-weight: 400;
+    .week-controls { display: flex; align-items: center; gap: 8px; }
+    .week-controls button {
+      background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px;
+      color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s;
     }
+    .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
+    /* 💡 수정: 날짜 텍스트 줄바꿈 방지 */
+    #week-display { font-size: 0.85rem; min-width: 120px; white-space: nowrap; text-align: center; font-weight: 600; }
 
-    .nav-tabs {
-      display: flex;
-      gap: 18px;
+    .planner-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+    .day-column { background-color: var(--card-bg); display: flex; flex-direction: column; min-height: 500px; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height)); background-position: 0 40px; }
+
+    .column-header { height: 40px; padding: 0 14px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); background-color: #fcfcfd; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; transition: 0.2s;}
+    .column-header.weekly-todo { background-color: #f8fafc; color: var(--primary-color); pointer-events: none;}
+    .column-header.clickable { cursor: pointer; }
+    .column-header.clickable:hover { background-color: var(--primary-color); color: white; }
+
+    .task-list { list-style: none; padding-bottom: 20px; margin-bottom: -20px; position: relative; z-index: 1; }
+    .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: var(--card-bg); }
+    .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
+
+    .drag-handle { color: #cbd5e1; font-size: 14px; cursor: grab; width: 14px; display: flex; justify-content: center; flex-shrink: 0; }
+    .task-checkbox { appearance: none; width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; display: grid; place-content: center; flex-shrink: 0; cursor: pointer; }
+    .task-checkbox:checked { background-color: var(--primary-color); border-color: var(--primary-color); }
+    .task-checkbox:checked::before { content: "✔"; font-size: 9px; color: white; }
+    .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-checkbox:checked + .task-text { text-decoration: line-through; color: #cbd5e1; }
+    .delete-btn { border: none; background: none; color: #e2e8f0; font-size: 11px; padding: 4px; cursor: pointer; }
+
+    .inline-input-row { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; position: relative; z-index: 2; }
+    .input-spacer { width: 14px; flex-shrink: 0; }
+    .inline-dot { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 14px; flex-shrink: 0; }
+    .inline-task-input { flex: 1; height: 26px; border: none; background: transparent; outline: none; font-size: 0.82rem; font-family: inherit; color: var(--text-main); }
+
+    /* 데일리 뷰 스타일 */
+    .daily-view-container { display: none; flex-direction: column; gap: 16px; height: 100%;}
+    .daily-day-tabs { display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 4px; }
+    .day-tab { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); cursor: pointer; background: var(--bg-color); transition: 0.2s; }
+    .day-tab.active { background: var(--primary-color); color: white; }
+
+    .daily-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
+    .daily-box { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); overflow: hidden; display: flex; flex-direction: column;}
+    .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
+
+    /* 타임블록 */
+    .timeblock-table { width: 100%; border-collapse: collapse; }
+    .timeblock-table th { background: #fcfcfd; padding: 8px; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-weight: 500; text-align: center;}
+    .timeblock-table td { border-bottom: 1px solid var(--line-color); padding: 0; height: 34px; }
+    
+    .time-col { width: 40px; text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; background: #fff; border-left: 1px dashed var(--border-color); border-right: 1px dashed var(--border-color);}
+    .plan-col, .do-col { position: relative; width: 45%; transition: background-color 0.2s; }
+    
+    /* 💡 수정: 타임블록 입력창 및 색상 버튼 레이아웃 */
+    .tb-cell-wrapper { display: flex; width: 100%; height: 100%; align-items: center; position: relative; padding: 0 4px; }
+    .tb-input { flex: 1; height: 100%; border: none; background: transparent; padding: 0 8px; font-size: 0.8rem; outline: none; font-family: inherit; color: var(--text-main); text-align: center; z-index: 1;}
+    .tb-input:focus { background: rgba(255,255,255,0.4); border-radius: 4px;}
+    
+    .color-cycle-btn { 
+      width: 12px; height: 12px; border-radius: 50%; border: 1px solid #cbd5e1; 
+      cursor: pointer; background-color: #fff; z-index: 2; transition: 0.1s; flex-shrink: 0;
     }
+    .color-cycle-btn:hover { transform: scale(1.2); }
 
-    .nav-tab {
-      font-size: 0.85rem;
-      color: #cbd5e1;
-      text-decoration: none;
-      cursor: pointer;
-      padding-bottom: 4px;
-    }
+    .daily-left-col { display: flex; flex-direction: column; gap: 16px; }
+    .daily-textarea { width: 100%; border: none; outline: none; font-family: inherit; resize: none; font-size: 0.82rem; color: var(--text-main); background: transparent; }
 
-    .nav-tab.active {
-      color: var(--accent-color);
-      font-weight: 600;
-      border-bottom: 2px solid var(--accent-color);
-    }
+    .kpt-section { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
+    .kpt-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
 
-    .sub-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      padding: 0 4px;
-    }
-
-    .month-list, .week-list {
-      display: flex;
-      gap: 10px;
-    }
-
-    .sub-bar .active-indicator {
-      color: var(--primary-color);
-      font-weight: 600;
-      text-decoration: underline;
-    }
-
-    .planner-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: auto auto;
-      gap: 1px;
-      background-color: var(--border-color);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .day-column {
-      background-color: var(--card-bg);
-      display: flex;
-      flex-direction: column;
-      min-height: 500px;
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent,
-        transparent calc(var(--row-height) - 1px),
-        var(--line-color) calc(var(--row-height) - 1px),
-        var(--line-color) var(--row-height)
-      );
-      background-position: 0 40px; 
-    }
-
-    .column-header {
-      height: 40px;
-      padding: 0 14px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-main);
-      background-color: #fcfcfd;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-    }
-
-    .column-header.weekly-todo {
-      background-color: #f8fafc;
-      color: var(--primary-color);
-    }
-
-    .task-list {
-      list-style: none;
-      min-height: 40px;
-    }
-
-    .task-item {
-      height: var(--row-height);
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      gap: 8px;
-      font-size: 0.82rem;
-      position: relative;
-      background-color: var(--card-bg);
-    }
-
-    .sortable-ghost {
-      opacity: 0.4;
-      background-color: #e2e8f0;
-    }
-
-    .drag-handle {
-      color: #cbd5e1;
-      font-size: 14px;
-      cursor: grab;
-      padding-right: 4px;
-    }
-
-    .task-checkbox {
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 3px;
-      display: grid;
-      place-content: center;
-      flex-shrink: 0;
-    }
-
-    .task-checkbox:checked {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-
-    .task-checkbox:checked::before {
-      content: "✔";
-      font-size: 9px;
-      color: white;
-    }
-
-    .task-text {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .task-checkbox:checked + .task-text {
-      text-decoration: line-through;
-      color: #cbd5e1;
-    }
-
-    .delete-btn {
-      border: none;
-      background: none;
-      color: #e2e8f0;
-      font-size: 11px;
-      padding: 4px;
-    }
-
-    .inline-input-row {
-      height: var(--row-height);
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      gap: 8px;
-    }
-
-    .inline-dot {
-      width: 14px;
-      height: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #cbd5e1;
-      font-size: 13px;
-      flex-shrink: 0;
-      margin-left: 18px; 
-    }
-
-    .inline-task-input {
-      flex: 1;
-      height: 26px;
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 0.82rem;
-      font-family: inherit;
-      color: var(--text-main);
-    }
-
-    @media (max-width: 960px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 960px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } .daily-grid { grid-template-columns: 1fr; } }
     @media (max-width: 540px) { .planner-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -275,221 +125,400 @@
   <div class="planner-container">
     <header class="planner-header">
       <div class="title-group">
-        <h1>time goal planner</h1>
-        <span>weekly time management</span>
+        <h1>Moment planner</h1>
+        <span>time block management</span>
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab">quarterly planner</span>
         <span class="nav-tab">monthly planner</span>
-        <span class="nav-tab active">weekly planner</span>
-        <span class="nav-tab">daily planner</span>
+        <span class="nav-tab active" id="tab-weekly" onclick="switchView('weekly')">weekly planner</span>
+        <span class="nav-tab" id="tab-daily" onclick="switchView('daily')">daily planner</span>
       </nav>
     </header>
 
     <div class="sub-bar">
-      <div class="month-list">
+      <div class="month-list" id="month-list">
         <span>jan</span><span>feb</span><span>mar</span><span>apr</span><span>may</span><span>jun</span>
-        <span>jul</span><span>aug</span><span class="active-indicator">sep</span><span>oct</span><span>nov</span><span>dec</span>
+        <span>jul</span><span>aug</span><span>sep</span><span>oct</span><span>nov</span><span>dec</span>
       </div>
-      <div class="week-list">
-        <span class="active-indicator">1/5</span><span>2/5</span><span>3/5</span><span>4/5</span><span>5/5</span>
+      <div class="week-controls">
+        <button onclick="changeWeek(-1)">◀ 이전 주</button>
+        <span id="week-display" class="active-indicator">로딩 중...</span>
+        <button onclick="changeWeek(1)">다음 주 ▶</button>
+        <button onclick="goToday()" style="margin-left:4px;">오늘</button>
       </div>
     </div>
 
-    <main class="planner-grid">
+    <!-- 1. 위클리 뷰 -->
+    <main class="planner-grid" id="view-weekly">
       <section class="day-column">
         <div class="column-header weekly-todo"><span>weekly todo</span></div>
         <ul class="task-list" id="list-weekly" data-day="weekly"></ul>
         <div class="inline-input-row">
-          <span class="inline-dot">+</span>
+          <div class="input-spacer"></div><span class="inline-dot">+</span>
           <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="weekly" />
         </div>
       </section>
+      
+      <script>
+        const weekdays = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+        const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+        weekdays.forEach(day => {
+          document.write(`
+            <section class="day-column">
+              <div class="column-header clickable" onclick="jumpToDaily('${day}')" title="${capitalize(day)} 데일리로 점프">
+                <span>${capitalize(day)}</span>
+              </div>
+              <ul class="task-list" id="list-${day}" data-day="${day}"></ul>
+              <div class="inline-input-row">
+                <div class="input-spacer"></div><span class="inline-dot">+</span>
+                <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="${day}" />
+              </div>
+            </section>
+          `);
+        });
+      </script>
+    </main>
 
-      <section class="day-column">
-        <div class="column-header"><span>Mon</span></div>
-        <ul class="task-list" id="list-mon" data-day="mon"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="mon" />
-        </div>
-      </section>
+    <!-- 2. 데일리 뷰 -->
+    <main class="daily-view-container" id="view-daily">
+      <div class="daily-day-tabs" id="daily-day-tabs">
+        <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')">Monday</div>
+        <div class="day-tab" id="dt-tue" onclick="setDailyDay('tue')">Tuesday</div>
+        <div class="day-tab" id="dt-wed" onclick="setDailyDay('wed')">Wednesday</div>
+        <div class="day-tab" id="dt-thur" onclick="setDailyDay('thur')">Thursday</div>
+        <div class="day-tab" id="dt-fri" onclick="setDailyDay('fri')">Friday</div>
+        <div class="day-tab" id="dt-sat" onclick="setDailyDay('sat')">Saturday</div>
+        <div class="day-tab" id="dt-sun" onclick="setDailyDay('sun')">Sunday</div>
+      </div>
 
-      <section class="day-column">
-        <div class="column-header"><span>Tue</span></div>
-        <ul class="task-list" id="list-tue" data-day="tue"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="tue" />
-        </div>
-      </section>
+      <div class="daily-grid">
+        <div class="daily-left-col">
+          <div class="daily-box" style="min-height: 200px;">
+            <div class="daily-box-header">Daily Todo <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(위클리 자동 연동)</span></div>
+            <div class="day-column" style="min-height: 150px; border:none; background-position:0 0; flex:1;">
+              <ul class="task-list" id="daily-todo-list" style="padding-top:8px;"></ul>
+              <div class="inline-input-row" style="margin-top:auto; border-top:1px solid #f1f5f9;">
+                <div class="input-spacer"></div><span class="inline-dot">+</span>
+                <input type="text" class="inline-task-input" id="daily-todo-input" placeholder="새 할 일 추가..." />
+              </div>
+            </div>
+          </div>
+          
+          <div class="daily-box" style="min-height: 120px;">
+            <div class="daily-box-header">Daily Memo</div>
+            <textarea class="daily-textarea" id="daily-memo-input" style="padding: 12px 16px; height: 100%;" placeholder="간단한 메모를 남겨보세요."></textarea>
+          </div>
 
-      <section class="day-column">
-        <div class="column-header"><span>Wed</span></div>
-        <ul class="task-list" id="list-wed" data-day="wed"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="wed" />
+          <div class="daily-box" style="flex: 1;">
+            <div class="daily-box-header">Daily Review (KPT)</div>
+            <div style="display: flex; flex-direction: column; padding: 12px 16px; gap: 6px; height: 100%;">
+              <div class="kpt-section">
+                <span class="kpt-title" style="color: var(--primary-color);">Keep (유지할 점)</span>
+                <textarea class="daily-textarea" id="daily-keep-input" style="min-height: 38px;" placeholder="오늘 하루 잘했던 점은?"></textarea>
+              </div>
+              <div class="kpt-section">
+                <span class="kpt-title" style="color: var(--accent-color);">Problem (아쉬운 점)</span>
+                <textarea class="daily-textarea" id="daily-problem-input" style="min-height: 38px;" placeholder="계획대로 안 되었거나 아쉬웠던 점은?"></textarea>
+              </div>
+              <div class="kpt-section" style="border-bottom: none; padding-bottom: 0;">
+                <span class="kpt-title" style="color: #10b981;">Try (시도할 점)</span>
+                <textarea class="daily-textarea" id="daily-try-input" style="min-height: 38px;" placeholder="내일은 무엇을 다르게 시도해볼까?"></textarea>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
 
-      <section class="day-column">
-        <div class="column-header"><span>Thur</span></div>
-        <ul class="task-list" id="list-thur" data-day="thur"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="thur" />
+        <!-- 💡 수정: 타임블록 UI (컬러 버튼 추가) -->
+        <div class="daily-box">
+          <table class="timeblock-table">
+            <thead>
+              <tr>
+                <th>Plan <span style="font-weight:normal;color:#94a3b8;">(계획)</span></th>
+                <th style="width:50px;">Time</th>
+                <th>Do <span style="font-weight:normal;color:#94a3b8;">(실행)</span></th>
+              </tr>
+            </thead>
+            <tbody id="timeblock-body">
+              <!-- JS 자동 생성 -->
+            </tbody>
+          </table>
         </div>
-      </section>
-
-      <section class="day-column">
-        <div class="column-header"><span>Fri</span></div>
-        <ul class="task-list" id="list-fri" data-day="fri"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="fri" />
-        </div>
-      </section>
-
-      <section class="day-column">
-        <div class="column-header"><span>Sat</span></div>
-        <ul class="task-list" id="list-sat" data-day="sat"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="sat" />
-        </div>
-      </section>
-
-      <section class="day-column">
-        <div class="column-header"><span>Sun</span></div>
-        <ul class="task-list" id="list-sun" data-day="sun"></ul>
-        <div class="inline-input-row">
-          <span class="inline-dot">+</span>
-          <input type="text" class="inline-task-input" placeholder="새 할 일..." data-day="sun" />
-        </div>
-      </section>
+      </div>
     </main>
   </div>
 
   <script>
-    // 💡 화면부터 무조건 띄우도록 전체 코드를 감쌉니다.
     document.addEventListener("DOMContentLoaded", function() {
-      const STORAGE_KEY = 'planner_weekly_data_v4';
+      const STORAGE_KEY = 'planner_all_data_v10'; 
       const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+      // 💡 파스텔 컬러 리스트 (투명, 빨강, 노랑, 초록, 파랑, 보라)
+      const pastelColors = ['transparent', '#ffe4e6', '#fef08a', '#dcfce3', '#dbeafe', '#f3e8ff'];
 
-      let plannerData = {
-        weekly: [
-          { id: '1', text: '콘텐츠 - 영상 대본 초안 완성하기', completed: false },
-          { id: '2', text: '루틴 - 이번 주 3번 운동 가기', completed: false }
-        ],
-        mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: []
-      };
+      let allData = {}; 
+      let currentWeekKey = ''; 
+      let currentDate = new Date(); 
+      let currentView = 'weekly';
+      let currentDailyDay = 'mon'; 
 
-      function loadData() {
+      const tbBody = document.getElementById('timeblock-body');
+      for(let i = 5; i <= 24; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="plan-col" id="plan-cell-${i}">
+            <div class="tb-cell-wrapper">
+              <input type="text" class="tb-input plan-input" data-hour="${i}" placeholder=""/>
+              <div class="color-cycle-btn" data-type="plan" data-hour="${i}" onclick="cycleColor('plan', ${i})" title="색상 변경"></div>
+            </div>
+          </td>
+          <td class="time-col">${i}</td>
+          <td class="do-col" id="do-cell-${i}">
+            <div class="tb-cell-wrapper">
+              <input type="text" class="tb-input do-input" data-hour="${i}" placeholder=""/>
+              <div class="color-cycle-btn" data-type="do" data-hour="${i}" onclick="cycleColor('do', ${i})" title="색상 변경"></div>
+            </div>
+          </td>
+        `;
+        tbBody.appendChild(tr);
+      }
+
+      function getMondayStr(d) {
+        let temp = new Date(d);
+        let day = temp.getDay();
+        temp.setDate(temp.getDate() - day + (day === 0 ? -6 : 1));
+        return `${temp.getFullYear()}-${String(temp.getMonth() + 1).padStart(2, '0')}-${String(temp.getDate()).padStart(2, '0')}`;
+      }
+
+      function updateDateUI() {
+        let temp = new Date(currentDate);
+        let day = temp.getDay();
+        temp.setDate(temp.getDate() - day + (day === 0 ? -6 : 1));
+
+        const month = temp.getMonth() + 1;
+        const year = temp.getFullYear();
+        const firstDay = new Date(year, month - 1, 1).getDay();
+        const offsetDate = temp.getDate() + firstDay - 1;
+        const weekOfMonth = Math.floor(offsetDate / 7) + 1;
+
+        document.getElementById('week-display').innerText = `${year}년 ${month}월 ${weekOfMonth}주차`;
+
+        const monthSpans = document.querySelectorAll('#month-list span');
+        monthSpans.forEach((span, idx) => {
+          if (idx === month - 1) span.classList.add('active-indicator');
+          else span.classList.remove('active-indicator');
+        });
+      }
+
+      function loadAllData() {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          try { plannerData = JSON.parse(saved); } catch (e) {}
+        if (saved) { try { allData = JSON.parse(saved); } catch (e) { allData = {}; } }
+      }
+      function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); }
+
+      window.loadWeek = function() {
+        currentWeekKey = getMondayStr(currentDate);
+        updateDateUI();
+
+        if (!allData[currentWeekKey]) {
+          allData[currentWeekKey] = {
+            weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {}
+          };
+        }
+        
+        ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
+          if(!allData[currentWeekKey].daily[d]) {
+            allData[currentWeekKey].daily[d] = { 
+              plan: {}, do: {}, planColor: {}, doColor: {}, 
+              memo: '', keep: '', problem: '', try: '' 
+            };
+          }
+          // 데이터 구조 호환성 패치 (컬러 데이터가 없는 경우 생성)
+          if(!allData[currentWeekKey].daily[d].planColor) allData[currentWeekKey].daily[d].planColor = {};
+          if(!allData[currentWeekKey].daily[d].doColor) allData[currentWeekKey].daily[d].doColor = {};
+        });
+        
+        renderAll();
+      }
+
+      window.changeWeek = function(offset) { currentDate.setDate(currentDate.getDate() + (offset * 7)); loadWeek(); }
+      window.goToday = function() { currentDate = new Date(); loadWeek(); }
+
+      window.switchView = function(viewType) {
+        currentView = viewType;
+        document.getElementById('tab-weekly').classList.toggle('active', viewType === 'weekly');
+        document.getElementById('tab-daily').classList.toggle('active', viewType === 'daily');
+        document.getElementById('view-weekly').style.display = (viewType === 'weekly') ? 'grid' : 'none';
+        document.getElementById('view-daily').style.display = (viewType === 'daily') ? 'flex' : 'none';
+        renderAll();
+      }
+
+      window.jumpToDaily = function(day) {
+        setDailyDay(day);
+        switchView('daily');
+      }
+
+      window.setDailyDay = function(day) {
+        currentDailyDay = day;
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`dt-${day}`).classList.add('active');
+        renderDailyData();
+      }
+
+      function createHtmlForTask(task, day) {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        li.dataset.id = task.id;
+        li.innerHTML = `
+          <div class="drag-handle">⋮</div>
+          <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
+          <span class="task-text">${task.text}</span>
+          <button class="delete-btn">✕</button>
+        `;
+        li.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(day, task.id));
+        li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(day, task.id));
+        return li;
+      }
+
+      function renderAll(focusedDay = null) {
+        if (currentView === 'weekly') {
+          days.forEach(day => {
+            const listEl = document.getElementById(`list-${day}`);
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            (allData[currentWeekKey][day] || []).forEach(task => { listEl.appendChild(createHtmlForTask(task, day)); });
+            
+            const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
+            if (inputEl) {
+              inputEl.onkeydown = (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addInlineTask(day, inputEl.value.trim()); inputEl.value = ''; }
+              };
+              if (focusedDay === day) setTimeout(() => inputEl.focus(), 0);
+            }
+          });
+        } else {
+          renderDailyData();
         }
       }
 
-      function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
+      function renderDailyData() {
+        const dayData = allData[currentWeekKey][currentDailyDay];
+        const dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
+
+        const dailyTodoList = document.getElementById('daily-todo-list');
+        dailyTodoList.innerHTML = '';
+        (dayData || []).forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
+        const dailyTodoInput = document.getElementById('daily-todo-input');
+        dailyTodoInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addInlineTask(currentDailyDay, dailyTodoInput.value.trim()); dailyTodoInput.value = ''; } };
+
+        // 타임블록 데이터 및 컬러 렌더링
+        ['plan', 'do'].forEach(type => {
+          document.querySelectorAll(`.${type}-input`).forEach(input => {
+            const hr = input.dataset.hour; 
+            input.value = dailyInfo[type][hr] || '';
+            input.onchange = (e) => { dailyInfo[type][hr] = e.target.value; saveAllData(); };
+            
+            // 색상 적용
+            const color = dailyInfo[`${type}Color`][hr] || 'transparent';
+            const cell = document.getElementById(`${type}-cell-${hr}`);
+            const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
+            
+            if(cell) cell.style.backgroundColor = (color === 'transparent') ? '' : color;
+            if(btn) {
+              btn.style.backgroundColor = (color === 'transparent') ? '#fff' : color;
+              btn.style.borderColor = (color === 'transparent') ? '#cbd5e1' : color;
+            }
+          });
+        });
+
+        document.getElementById('daily-memo-input').value = dailyInfo.memo || '';
+        document.getElementById('daily-memo-input').onchange = (e) => { dailyInfo.memo = e.target.value; saveAllData(); };
+        document.getElementById('daily-keep-input').value = dailyInfo.keep || '';
+        document.getElementById('daily-keep-input').onchange = (e) => { dailyInfo.keep = e.target.value; saveAllData(); };
+        document.getElementById('daily-problem-input').value = dailyInfo.problem || '';
+        document.getElementById('daily-problem-input').onchange = (e) => { dailyInfo.problem = e.target.value; saveAllData(); };
+        document.getElementById('daily-try-input').value = dailyInfo.try || '';
+        document.getElementById('daily-try-input').onchange = (e) => { dailyInfo.try = e.target.value; saveAllData(); };
       }
 
-      function render(focusedDay = null) {
-        days.forEach(day => {
-          const listEl = document.getElementById(`list-${day}`);
-          if (!listEl) return;
-          listEl.innerHTML = '';
+      // 💡 색상 변경 함수
+      window.cycleColor = function(type, hr) {
+        const dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
+        let currentColor = dailyInfo[`${type}Color`][hr] || 'transparent';
+        let currentIndex = pastelColors.indexOf(currentColor);
+        if (currentIndex === -1) currentIndex = 0;
+        let nextColor = pastelColors[(currentIndex + 1) % pastelColors.length];
 
-          (plannerData[day] || []).forEach(task => {
-            const li = document.createElement('li');
-            li.className = 'task-item';
-            li.dataset.id = task.id;
+        dailyInfo[`${type}Color`][hr] = nextColor;
+        saveAllData();
 
-            li.innerHTML = `
-              <div class="drag-handle">⋮</div>
-              <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
-              <span class="task-text">${task.text}</span>
-              <button class="delete-btn">✕</button>
-            `;
-
-            li.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(day, task.id));
-            li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(day, task.id));
-            listEl.appendChild(li);
-          });
-
-          const inputEl = document.querySelector(`.inline-task-input[data-day="${day}"]`);
-          if (inputEl) {
-            inputEl.onkeydown = (e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addInlineTask(day, inputEl.value.trim());
-                inputEl.value = '';
-              }
-            };
-            if (focusedDay === day) setTimeout(() => inputEl.focus(), 0);
-          }
-        });
+        // 즉시 화면 반영
+        const cell = document.getElementById(`${type}-cell-${hr}`);
+        const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
+        if(cell) cell.style.backgroundColor = (nextColor === 'transparent') ? '' : nextColor;
+        if(btn) {
+          btn.style.backgroundColor = (nextColor === 'transparent') ? '#fff' : nextColor;
+          btn.style.borderColor = (nextColor === 'transparent') ? '#cbd5e1' : nextColor;
+        }
       }
 
       function addInlineTask(day, text) {
         if (!text) return;
-        plannerData[day].push({ id: Date.now().toString(), text: text, completed: false });
-        saveData();
-        render(day);
+        allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, completed: false });
+        saveAllData(); renderAll(day);
       }
-
       function toggleTask(day, id) {
-        const task = plannerData[day].find(t => t.id === id);
+        const task = allData[currentWeekKey][day].find(t => t.id === id);
         if (task) {
           task.completed = !task.completed;
-          saveData();
-          render();
+          allData[currentWeekKey][day].sort((a, b) => { if (a.completed === b.completed) return 0; return a.completed ? 1 : -1; });
+          saveAllData(); renderAll();
         }
       }
-
       function deleteTask(day, id) {
-        plannerData[day] = plannerData[day].filter(t => t.id !== id);
-        saveData();
-        render();
+        allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
+        saveAllData(); renderAll();
       }
 
-      // 화면 먼저 그리기
-      loadData();
-      render();
+      loadAllData(); goToday(); 
 
-      // 💡 만약 터치 라이브러리 로딩에 실패해도 앱 전체가 뻗지 않도록 예외 처리
+      // 💡 키보드 네비게이션 기능 (화살표 & 엔터 이동)
+      document.querySelectorAll('.tb-input').forEach(input => {
+        input.addEventListener('keydown', function(e) {
+          const currentHour = parseInt(this.dataset.hour);
+          const typeClass = this.classList.contains('plan-input') ? '.plan-input' : '.do-input';
+          let targetHour = null;
+
+          if (e.key === 'Enter' || e.key === 'ArrowDown') {
+            targetHour = currentHour + 1;
+          } else if (e.key === 'ArrowUp') {
+            targetHour = currentHour - 1;
+          }
+
+          if (targetHour >= 5 && targetHour <= 24) {
+            e.preventDefault(); 
+            const targetInput = document.querySelector(`${typeClass}[data-hour="${targetHour}"]`);
+            if (targetInput) targetInput.focus();
+          }
+        });
+      });
+
       try {
         if (typeof Sortable !== 'undefined') {
-          const lists = document.querySelectorAll('.task-list');
+          const lists = document.querySelectorAll('#view-weekly .task-list');
           lists.forEach(list => {
             new Sortable(list, {
-              group: 'shared',
-              animation: 150,
-              handle: '.drag-handle', // 전체 말고 점자(⋮) 부분만 잡고 끌게 변경
-              ghostClass: 'sortable-ghost',
+              group: 'shared', animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost', emptyInsertThreshold: 50,
               onEnd: function (evt) {
-                const fromDay = evt.from.dataset.day;
-                const toDay = evt.to.dataset.day;
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-
-                if (fromDay === toDay) {
-                  const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
-                  plannerData[fromDay].splice(newIndex, 0, movedItem);
-                } else {
-                  const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
-                  plannerData[toDay].splice(newIndex, 0, movedItem);
-                }
-                saveData();
+                const fromDay = evt.from.dataset.day; const toDay = evt.to.dataset.day;
+                const plannerData = allData[currentWeekKey]; 
+                const movedItem = plannerData[fromDay].splice(evt.oldIndex, 1)[0];
+                plannerData[toDay].splice(evt.newIndex, 0, movedItem);
+                saveAllData();
               }
             });
           });
         }
-      } catch (e) {
-        console.error("드래그 기능 초기화 실패:", e);
-      }
+      } catch (e) {}
     });
   </script>
 </body>
