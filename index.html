@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -156,6 +156,8 @@
     .daily-kpt-summary-box { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; flex: 1; background: #fafafa; }
     .summary-day-card { background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; }
     .summary-day-title { font-size: 0.78rem; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* 💡 KPT 요약 화면 줄바꿈 및 색상 분리 스타일 (정상 동작하게 복구) */
     .summary-kpt-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.4; margin-bottom: 8px; word-break: keep-all; }
 
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
@@ -635,14 +637,12 @@
         });
       }
 
-      // 💡 데이터 무결성 검증 추가
+      // 💡 [수정] 무결성 검증 - 강제로 지우지 않고 안전하게 빈 배열만 할당
       function loadAllData() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) { try { allData = JSON.parse(saved); } catch (e) { allData = {}; } }
         
-        if (allData.schedules && Array.isArray(allData.schedules)) {
-            allData.schedules = allData.schedules.filter(s => s && typeof s === 'object' && s.id && s.start && s.end);
-        } else {
+        if (!Array.isArray(allData.schedules)) {
             allData.schedules = [];
         }
 
@@ -652,28 +652,16 @@
             
             if (!allData[k].daily) allData[k].daily = {};
             
-            const days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+            const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
             days.forEach(d => {
-                if (allData[k][d] && Array.isArray(allData[k][d])) {
-                    allData[k][d] = allData[k][d].filter(t => t && typeof t === 'object' && t.id);
-                } else {
+                if (!Array.isArray(allData[k][d])) {
                     allData[k][d] = []; 
+                } else {
+                    // 유효하지 않은 데이터(null 등)만 부드럽게 걸러냄
+                    allData[k][d] = allData[k][d].filter(t => t !== null && t !== undefined);
                 }
-                
-                if (!allData[k].daily[d]) {
-                    allData[k].daily[d] = { plan: {}, do: {}, planColor: {}, doColor: {}, memo: '', keep: '', problem: '', try: '' };
-                }
-                if (!allData[k].daily[d].planColor) allData[k].daily[d].planColor = {};
-                if (!allData[k].daily[d].doColor) allData[k].daily[d].doColor = {};
             });
-            
-            if (allData[k]['weekly'] && Array.isArray(allData[k]['weekly'])) {
-                allData[k]['weekly'] = allData[k]['weekly'].filter(t => t && typeof t === 'object' && t.id);
-            } else {
-                allData[k]['weekly'] = [];
-            }
         }
-        saveAllData(); 
       }
       function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); }
 
@@ -755,7 +743,10 @@
               for(let wKey of weekKeys) {
                   const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
                   for(let day of days) {
-                      const tasks = (allData[wKey][day] || []).filter(t => t && typeof t === 'object');
+                      let rawList = allData[wKey][day];
+                      if (!Array.isArray(rawList)) rawList = [];
+                      const tasks = rawList.filter(t => t && typeof t === 'object');
+                      
                       for(let task of tasks) {
                           if (task.state === 'in-progress' && !task.autoMigrated) {
                               let taskDate = new Date(wKey); 
@@ -779,7 +770,7 @@
                                   
                                   initWeekDataIfNeeded(nextWKey);
                                   
-                                  if (!allData[nextWKey][nextDay]) allData[nextWKey][nextDay] = [];
+                                  if (!Array.isArray(allData[nextWKey][nextDay])) allData[nextWKey][nextDay] = [];
                                   const newId = 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5);
                                   allData[nextWKey][nextDay].push({
                                       id: newId,
@@ -1328,7 +1319,8 @@
       }
 
       function updateProgress(day) {
-        const tasks = (allData[currentWeekKey][day] || []).filter(t => t && typeof t === 'object');
+        const rawTasks = Array.isArray(allData[currentWeekKey][day]) ? allData[currentWeekKey][day] : [];
+        const tasks = rawTasks.filter(t => t && typeof t === 'object');
         const total = tasks.length;
         const completed = tasks.filter(t => ['done', 'canceled', 'postponed'].includes(t.state)).length;
         const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -1375,7 +1367,7 @@
               targetDay = targetDate.getDay() === 0 ? 'sun' : dayNames[targetDate.getDay()];
           }
           
-          if (!allData[weekKey][targetDay]) allData[weekKey][targetDay] = [];
+          if (!Array.isArray(allData[weekKey][targetDay])) allData[weekKey][targetDay] = [];
           
           const newId = explicitId ? explicitId : ('mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5));
           
@@ -1448,7 +1440,7 @@
                   const mWeekKey = getMondayStr(new Date(task.autoMigratedDate));
                   if (allData[mWeekKey]) {
                       ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-                          if (allData[mWeekKey][d]) {
+                          if (Array.isArray(allData[mWeekKey][d])) {
                               allData[mWeekKey][d] = allData[mWeekKey][d].filter(t => t && t.id !== task.autoMigratedTaskId);
                           }
                       });
@@ -1464,7 +1456,7 @@
                   const pWeekKey = getMondayStr(new Date(task.postponedTo));
                   if (allData[pWeekKey]) {
                       ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-                          if (allData[pWeekKey][d]) {
+                          if (Array.isArray(allData[pWeekKey][d])) {
                               allData[pWeekKey][d] = allData[pWeekKey][d].filter(t => t && t.id !== task.migratedTaskId);
                           }
                       });
@@ -1503,12 +1495,14 @@
           if (sortTaskTimer[day]) clearTimeout(sortTaskTimer[day]);
           
           sortTaskTimer[day] = setTimeout(() => {
-              allData[currentWeekKey][day].sort((a, b) => {
-                  const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
-                  const stateA = (a && a.state) ? a.state : 'todo';
-                  const stateB = (b && b.state) ? b.state : 'todo';
-                  return (w[stateA] || 2) - (w[stateB] || 2);
-              });
+              if(Array.isArray(allData[currentWeekKey][day])) {
+                  allData[currentWeekKey][day].sort((a, b) => {
+                      const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+                      const stateA = (a && a.state) ? a.state : 'todo';
+                      const stateB = (b && b.state) ? b.state : 'todo';
+                      return (w[stateA] || 2) - (w[stateB] || 2);
+                  });
+              }
               saveAllData();
               try { renderAll(); } catch(err){}
           }, 800);
@@ -1552,71 +1546,242 @@
         return li;
       }
 
-      // 💡 [핵심 방어 3] 회고 화면 렌더링 시 완벽한 예외 처리 적용
-      function renderWeeklyReviewData() {
+      function renderMonthlyCalendar() {
+        const grid = document.getElementById('monthly-calendar-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
         try {
-            const summaryBox = document.getElementById('daily-kpt-summary-content');
-            if (!summaryBox) return;
-            summaryBox.innerHTML = '';
-            const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thur: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
-            
-            // 데이터가 문자열이 아니어도 안전하게 변환
-            const formatText = (txt) => {
-                if (txt == null) return '';
-                return String(txt).replace(/\n/g, '<br>');
-            };
+            const weekdaysHeader = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            weekdaysHeader.forEach(wd => {
+              const div = document.createElement('div');
+              div.className = 'monthly-weekday-header';
+              div.innerText = wd;
+              grid.appendChild(div);
+            });
 
-            const weekData = allData[currentWeekKey] || {};
-            const dailyData = weekData.daily || {};
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
 
-            ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-              const daily = dailyData[d] || {};
-              if (daily.keep || daily.problem || daily.try) {
-                const card = document.createElement('div');
-                card.className = 'summary-day-card';
-                card.innerHTML = `
-                  <div class="summary-day-title">${dayNames[d]}</div>
-                  ${daily.keep ? `<div class="summary-kpt-text"><b style="display:block; color:var(--primary-color); margin-bottom:2px;">Keep</b>${formatText(daily.keep)}</div>` : ''}
-                  ${daily.problem ? `<div class="summary-kpt-text"><b style="display:block; color:var(--accent-color); margin-bottom:2px;">Problem</b>${formatText(daily.problem)}</div>` : ''}
-                  ${daily.try ? `<div class="summary-kpt-text"><b style="display:block; color:#10b981; margin-bottom:2px;">Try</b>${formatText(daily.try)}</div>` : ''}
-                `;
-                summaryBox.appendChild(card);
+            const firstDayOfMonth = new Date(year, month, 1);
+            let startingDay = firstDayOfMonth.getDay();
+            startingDay = (startingDay === 0) ? 6 : startingDay - 1;
+
+            const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+            const lastDayOfPrevMonth = new Date(year, month, 0).getDate();
+            const todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
+
+            let totalCells = Math.ceil((startingDay + lastDayOfMonth) / 7) * 7;
+
+            for (let i = 0; i < totalCells; i++) {
+              let cellDate, isOtherMonth = false, cellMonth = month, cellYear = year;
+
+              if (i < startingDay) {
+                cellDate = lastDayOfPrevMonth - startingDay + i + 1;
+                isOtherMonth = true;
+                cellMonth = month - 1;
+                if (cellMonth < 0) { cellMonth = 11; cellYear--; }
+              } else if (i < startingDay + lastDayOfMonth) {
+                cellDate = i - startingDay + 1;
+              } else {
+                cellDate = i - (startingDay + lastDayOfMonth) + 1;
+                isOtherMonth = true;
+                cellMonth = month + 1;
+                if (cellMonth > 11) { cellMonth = 0; cellYear++; }
               }
-            });
-            
-            if(summaryBox.innerHTML === '') {
-              summaryBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding-top:40px;">아직 작성된 데일리 회고(KPT)가 없습니다.<br>데일리 페이지에서 회고를 작성해보세요!</div>`;
-            }
 
-            const tbody = document.getElementById('custom-kpt-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            const reviewRows = weekData.customWeeklyReview || [];
+              const cellDateObj = new Date(cellYear, cellMonth, cellDate);
+              const cellDateStr = formatDateStr(cellDateObj);
+              
+              const cellDiv = document.createElement('div');
+              cellDiv.className = `monthly-day-cell ${isOtherMonth ? 'other-month' : ''}`;
+              if (cellDateStr === todayStr) cellDiv.classList.add('today');
 
-            reviewRows.forEach((row) => {
-              if (!row) return;
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td>
-                  <div class="cat-input-wrapper">
-                    <input type="text" class="cat-name-input" value="${row.category || ''}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명">
-                    <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
-                  </div>
-                </td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep || ''}</textarea></td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem || ''}</textarea></td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try || ''}</textarea></td>
+              let weekBadgeHtml = '';
+              if (cellDateObj.getDay() === 1 && !isOtherMonth) {
+                const wInfo = getISOWeekInfo(cellDateObj);
+                weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.week}</span><br>`;
+              }
+
+              let previewHtml = '<div class="monthly-tasks-container">';
+              
+              const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+              
+              daySchedules.sort((a, b) => {
+                  const aAll = a && a.isAllDay !== false;
+                  const bAll = b && b.isAllDay !== false;
+                  if (aAll && !bAll) return -1;
+                  if (!aAll && bAll) return 1;
+                  if (!aAll && !bAll) return ((a && a.startHour) || 0) - ((b && b.startHour) || 0);
+                  return 0;
+              });
+
+              daySchedules.forEach(s => {
+                  if (s && s.isAllDay === false) {
+                      let displayH = s.startHour > 24 ? s.startHour - 24 : (s.startHour || 0);
+                      previewHtml += `<div class="monthly-preview-text schedule-bar outline" style="border-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">[${displayH}시] ${s.title}</div>`;
+                  } else if (s) {
+                      previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
+                  }
+              });
+
+              const mondayKeyForThisDate = getMondayStr(cellDateObj);
+              if (allData[mondayKeyForThisDate]) {
+                const dNamesMap = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+                const targetDayKey = dNamesMap[(cellDateObj.getDay() === 0 ? 6 : cellDateObj.getDay() - 1)];
+                
+                let rawList = allData[mondayKeyForThisDate][targetDayKey];
+                if (!Array.isArray(rawList)) rawList = [];
+                const tasks = rawList.filter(t => t && typeof t === 'object');
+                
+                if (tasks.length > 0) {
+                  const maxDisplay = 4 - daySchedules.length; 
+                  const displayTasks = tasks.slice(0, maxDisplay > 0 ? maxDisplay : 0);
+                  
+                  if (maxDisplay > 0) {
+                      const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
+                      previewHtml += displayTasks.map(t => {
+                          const sym = symMap[t.state || 'todo'] || '◻';
+                          const isStrike = ['done', 'canceled', 'postponed'].includes(t.state);
+                          return `<div class="monthly-preview-text" style="color: ${isStrike ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${isStrike ? 'line-through' : 'none'};">${sym} ${t.text || ''}</div>`;
+                      }).join('');
+                  }
+                  
+                  const remaining = tasks.length - (maxDisplay > 0 ? maxDisplay : 0);
+                  if (remaining > 0) {
+                      previewHtml += `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${remaining} 더보기</div>`;
+                  }
+                }
+              }
+              previewHtml += '</div>';
+
+              cellDiv.innerHTML = `
+                <div>
+                  ${weekBadgeHtml}
+                  <span class="monthly-day-number">${cellDate}</span>
+                </div>
+                ${previewHtml}
               `;
-              tbody.appendChild(tr);
-            });
+
+              cellDiv.onclick = () => {
+                currentDate = new Date(cellYear, cellMonth, cellDate);
+                const dayIdx = cellDateObj.getDay();
+                const targetDayStr = (dayIdx === 0) ? 'sun' : ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'][dayIdx - 1];
+                
+                loadWeek();
+                setDailyDay(targetDayStr);
+                switchView('daily');
+              };
+
+              grid.appendChild(cellDiv);
+            }
         } catch (e) {
-            console.error("renderWeeklyReviewData Error:", e);
+            console.error("Monthly 렌더링 에러: ", e);
+            grid.innerHTML = `<div style="padding: 20px; color: var(--accent-color); font-weight: bold;">캘린더를 그리는 중 오류가 발생했습니다.<br>이전 데이터 충돌일 수 있습니다. 복구를 위해 캐시를 비우거나 백업해주세요.</div>`;
+        }
+      }
+
+      function renderAll(focusedDay = null) {
+       try {
+        if (currentView === 'weekly') {
+          if (!isWeeklyReviewMode) {
+            allDaysList.forEach(day => {
+              const listEl = document.getElementById(`list-${day}`);
+              if (!listEl) return;
+              listEl.innerHTML = '';
+              
+              if (day !== 'weekly') {
+                 const parts = currentWeekKey.split('-');
+                 const monDate = new Date(parts[0], parts[1]-1, parts[2]);
+                 const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day);
+                 monDate.setDate(monDate.getDate() + dayOffset);
+                 const cellDateStr = formatDateStr(monDate);
+                 
+                 const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+                 
+                 daySchedules.sort((a, b) => {
+                     const aAll = a && a.isAllDay !== false;
+                     const bAll = b && b.isAllDay !== false;
+                     if (aAll && !bAll) return -1;
+                     if (!aAll && bAll) return 1;
+                     if (!aAll && !bAll) return ((a && a.startHour) || 0) - ((b && b.startHour) || 0);
+                     return 0;
+                 });
+                 
+                 daySchedules.forEach(s => {
+                    if(!s) return;
+                    const schLi = document.createElement('li');
+                    schLi.className = 'schedule-bar' + (s.isAllDay === false ? ' outline' : '');
+                    if (s.isAllDay === false) {
+                        schLi.style.borderColor = s.color;
+                        let displayH = s.startHour > 24 ? s.startHour - 24 : (s.startHour || 0);
+                        schLi.innerText = `[${displayH}시] ${s.title}`;
+                    } else {
+                        schLi.style.backgroundColor = s.color;
+                        schLi.innerText = s.title;
+                    }
+                    schLi.onclick = () => openScheduleModal(s.id);
+                    listEl.appendChild(schLi);
+                 });
+              }
+
+              let rawTasks = allData[currentWeekKey][day];
+              if (!Array.isArray(rawTasks)) rawTasks = [];
+              const tasks = rawTasks.filter(t => t && typeof t === 'object');
+              
+              if (tasks.length === 0 && listEl.children.length === 0) {
+                 listEl.innerHTML = `<li class="empty-state">아직 할 일이 없어요 🌱</li>`;
+              } else {
+                 tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
+              }
+              
+              updateProgress(day);
+            });
+            if (focusedDay) {
+              const inputEl = document.getElementById(`input-${focusedDay}`);
+              if (inputEl) setTimeout(() => inputEl.focus(), 0);
+            }
+          } else {
+            renderWeeklyReviewData();
+          }
+        } else if (currentView === 'monthly') {
+          renderMonthlyCalendar();
+        } else if (currentView === 'daily') {
+          renderDailyData();
+        }
+       } catch (e) {
+           console.error("renderAll Error: ", e);
+       }
+      }
+
+      function setupInputListeners() {
+        allDaysList.forEach(day => {
+          const inputEl = document.getElementById(`input-${day}`);
+          if (inputEl) {
+            inputEl.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addInlineTask(day, inputEl.value.trim());
+                inputEl.value = '';
+              }
+            };
+          }
+        });
+
+        const dailyTodoInput = document.getElementById('daily-todo-input');
+        if (dailyTodoInput) {
+          dailyTodoInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addInlineTask(currentDailyDay, dailyTodoInput.value.trim());
+              dailyTodoInput.value = '';
+            }
+          };
         }
       }
 
       window.addCustomKptRow = function() {
-        if (!allData[currentWeekKey]) initWeekDataIfNeeded(currentWeekKey);
-        if (!allData[currentWeekKey].customWeeklyReview) allData[currentWeekKey].customWeeklyReview = [];
+        if(!allData[currentWeekKey].customWeeklyReview) allData[currentWeekKey].customWeeklyReview = [];
         allData[currentWeekKey].customWeeklyReview.push({
           id: Date.now().toString(), category: '새 항목', keep: '', problem: '', try: ''
         });
@@ -1626,30 +1791,25 @@
 
       window.deleteCustomKptRow = function(id) {
         if(!confirm("이 항목을 삭제하시겠습니까?")) return;
-        if (allData[currentWeekKey] && allData[currentWeekKey].customWeeklyReview) {
-            allData[currentWeekKey].customWeeklyReview = allData[currentWeekKey].customWeeklyReview.filter(r => r && r.id !== id);
-            saveAllData();
-            renderWeeklyReviewData();
-        }
+        allData[currentWeekKey].customWeeklyReview = allData[currentWeekKey].customWeeklyReview.filter(r => r && r.id !== id);
+        saveAllData();
+        renderWeeklyReviewData();
       }
 
       window.updateCustomCategory = function(id, val) {
-        const weekData = allData[currentWeekKey] || {};
-        const customRev = weekData.customWeeklyReview || [];
-        const item = customRev.find(r => r && r.id === id);
+        const item = allData[currentWeekKey].customWeeklyReview.find(r => r && r.id === id);
         if(item) { item.category = val; saveAllData(); }
       }
 
       window.updateCustomKpt = function(id, type, val) {
-        const weekData = allData[currentWeekKey] || {};
-        const customRev = weekData.customWeeklyReview || [];
-        const item = customRev.find(r => r && r.id === id);
+        const item = allData[currentWeekKey].customWeeklyReview.find(r => r && r.id === id);
         if(item) { item[type] = val; saveAllData(); }
       }
 
       function renderDailyData() {
        try {
-        const dayData = allData[currentWeekKey][currentDailyDay] || [];
+        let dayData = allData[currentWeekKey][currentDailyDay];
+        if (!Array.isArray(dayData)) dayData = [];
         
         let dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
         if (!dailyInfo) {
@@ -1692,12 +1852,12 @@
               dailyTodoList.appendChild(schLi);
           });
 
-          if ((!dayData || dayData.length === 0) && allDaySchedules.length === 0) {
+          const safeTasks = dayData.filter(t => t && typeof t === 'object');
+          if (safeTasks.length === 0 && allDaySchedules.length === 0) {
              dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
           } else {
-             const safeTasks = Array.isArray(dayData) ? dayData : [];
              safeTasks.forEach(task => {
-                 if(task && typeof task === 'object') dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay));
+                 dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay));
              });
           }
           updateProgress(currentDailyDay);
@@ -1762,7 +1922,7 @@
 
       function addInlineTask(day, text) {
         if (!text) return;
-        if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
+        if (!Array.isArray(allData[currentWeekKey][day])) allData[currentWeekKey][day] = [];
         allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, state: 'todo' });
         
         allData[currentWeekKey][day].sort((a, b) => {
@@ -1800,8 +1960,8 @@
                 const toDay = evt.to.dataset.day;
                 const plannerData = allData[currentWeekKey];
 
-                if (!plannerData[fromDay]) plannerData[fromDay] = [];
-                if (!plannerData[toDay]) plannerData[toDay] = [];
+                if (!Array.isArray(plannerData[fromDay])) plannerData[fromDay] = [];
+                if (!Array.isArray(plannerData[toDay])) plannerData[toDay] = [];
 
                 const draggedElement = evt.item;
                 const taskId = draggedElement.dataset.id;
