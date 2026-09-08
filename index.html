@@ -104,10 +104,13 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; }
-    .schedule-bar.outline { background-color: transparent !important; border-width: 1.5px; border-style: solid; color: var(--text-main) !important; box-shadow: none; padding: 3px 7px; }
+    /* 위클리 화면 그리드(34px) 밀림 방지를 위해 전체 높이를 강제 고정 */
+    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; height: calc(var(--row-height) - 6px); display: flex; align-items: center; box-sizing: border-box; }
+    .schedule-bar.outline { background-color: transparent !important; border: 1.5px solid var(--primary-color); color: var(--text-main) !important; box-shadow: none; padding: 0 7px; }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
-    .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; }
+    
+    /* 먼슬리 달력 안에서는 고정 높이를 풀고 다시 작게 표시 */
+    .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; height: auto; display: block; padding: 2px 4px; }
     .monthly-preview-text.schedule-bar.outline { padding: 1px 5px; border-width: 1.5px; }
 
     .daily-allday-banner { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
