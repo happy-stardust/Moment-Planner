@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -156,8 +156,6 @@
     .daily-kpt-summary-box { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; flex: 1; background: #fafafa; }
     .summary-day-card { background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; }
     .summary-day-title { font-size: 0.78rem; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    /* 💡 [수정됨] 회고 요약 영역 시인성 개선 */
     .summary-kpt-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.4; margin-bottom: 8px; }
 
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
@@ -1497,59 +1495,144 @@
         li.innerHTML = `
           <div class="drag-handle">⋮</div>
           <div class="task-custom-checkbox" title="${getTooltipText(task)}" onclick="toggleTaskState('${day}', '${task.id}')"></div>
-          <span class="task-text">${task.text}</span>
+          <span class="task-text">${task.text || ''}</span>
           <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
         `;
         return li;
       }
 
-      function renderWeeklyReviewData() {
-        const summaryBox = document.getElementById('daily-kpt-summary-content');
-        if (!summaryBox) return;
-        summaryBox.innerHTML = '';
-        const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thur: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
-        
-        const formatText = (txt) => txt ? txt.replace(/\n/g, '<br>') : '';
+      // 💡 [수정] 방어 로직이 적용된 먼슬리 캘린더 그리기
+      function renderMonthlyCalendar() {
+        const grid = document.getElementById('monthly-calendar-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
 
-        // 💡 [수정됨] 회고 모드 KPT 요약 화면 줄바꿈 및 색상 분리
-        ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-          const daily = allData[currentWeekKey].daily[d];
-          if (daily && (daily.keep || daily.problem || daily.try)) {
-            const card = document.createElement('div');
-            card.className = 'summary-day-card';
-            card.innerHTML = `
-              <div class="summary-day-title">${dayNames[d]}</div>
-              ${daily.keep ? `<div class="summary-kpt-text"><b style="display:block; color:var(--primary-color); margin-bottom:2px;">Keep</b>${formatText(daily.keep)}</div>` : ''}
-              ${daily.problem ? `<div class="summary-kpt-text"><b style="display:block; color:var(--accent-color); margin-bottom:2px;">Problem</b>${formatText(daily.problem)}</div>` : ''}
-              ${daily.try ? `<div class="summary-kpt-text"><b style="display:block; color:#10b981; margin-bottom:2px;">Try</b>${formatText(daily.try)}</div>` : ''}
-            `;
-            summaryBox.appendChild(card);
-          }
-        });
-        if(summaryBox.innerHTML === '') {
-          summaryBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding-top:40px;">아직 작성된 데일리 회고(KPT)가 없습니다.<br>데일리 페이지에서 회고를 작성해보세요!</div>`;
+        try {
+            const weekdaysHeader = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            weekdaysHeader.forEach(wd => {
+              const div = document.createElement('div');
+              div.className = 'monthly-weekday-header';
+              div.innerText = wd;
+              grid.appendChild(div);
+            });
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            let startingDay = firstDayOfMonth.getDay();
+            startingDay = (startingDay === 0) ? 6 : startingDay - 1;
+
+            const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+            const lastDayOfPrevMonth = new Date(year, month, 0).getDate();
+            const todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
+
+            let totalCells = Math.ceil((startingDay + lastDayOfMonth) / 7) * 7;
+
+            for (let i = 0; i < totalCells; i++) {
+              let cellDate, isOtherMonth = false, cellMonth = month, cellYear = year;
+
+              if (i < startingDay) {
+                cellDate = lastDayOfPrevMonth - startingDay + i + 1;
+                isOtherMonth = true;
+                cellMonth = month - 1;
+                if (cellMonth < 0) { cellMonth = 11; cellYear--; }
+              } else if (i < startingDay + lastDayOfMonth) {
+                cellDate = i - startingDay + 1;
+              } else {
+                cellDate = i - (startingDay + lastDayOfMonth) + 1;
+                isOtherMonth = true;
+                cellMonth = month + 1;
+                if (cellMonth > 11) { cellMonth = 0; cellYear++; }
+              }
+
+              const cellDateObj = new Date(cellYear, cellMonth, cellDate);
+              const cellDateStr = formatDateStr(cellDateObj);
+              
+              const cellDiv = document.createElement('div');
+              cellDiv.className = `monthly-day-cell ${isOtherMonth ? 'other-month' : ''}`;
+              if (cellDateStr === todayStr) cellDiv.classList.add('today');
+
+              let weekBadgeHtml = '';
+              if (cellDateObj.getDay() === 1 && !isOtherMonth) {
+                const wInfo = getISOWeekInfo(cellDateObj);
+                weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.week}</span><br>`;
+              }
+
+              let previewHtml = '<div class="monthly-tasks-container">';
+              
+              // 💡 안전한 필터링
+              const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+              
+              daySchedules.sort((a, b) => {
+                  const aAll = a.isAllDay !== false;
+                  const bAll = b.isAllDay !== false;
+                  if (aAll && !bAll) return -1;
+                  if (!aAll && bAll) return 1;
+                  if (!aAll && !bAll) return (a.startHour || 0) - (b.startHour || 0);
+                  return 0;
+              });
+
+              daySchedules.forEach(s => {
+                  if (s.isAllDay === false) {
+                      let displayH = s.startHour > 24 ? s.startHour - 24 : s.startHour;
+                      previewHtml += `<div class="monthly-preview-text schedule-bar outline" style="border-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">[${displayH}시] ${s.title}</div>`;
+                  } else {
+                      previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
+                  }
+              });
+
+              const mondayKeyForThisDate = getMondayStr(cellDateObj);
+              if (allData[mondayKeyForThisDate]) {
+                const dNamesMap = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+                const targetDayKey = dNamesMap[(cellDateObj.getDay() === 0 ? 6 : cellDateObj.getDay() - 1)];
+                const tasks = (allData[mondayKeyForThisDate][targetDayKey] || []).filter(t => t && typeof t === 'object');
+                
+                if (tasks.length > 0) {
+                  const maxDisplay = 4 - daySchedules.length; 
+                  const displayTasks = tasks.slice(0, maxDisplay > 0 ? maxDisplay : 0);
+                  
+                  if (maxDisplay > 0) {
+                      const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
+                      previewHtml += displayTasks.map(t => {
+                          const sym = symMap[t.state || 'todo'] || '◻';
+                          const isStrike = ['done', 'canceled', 'postponed'].includes(t.state);
+                          return `<div class="monthly-preview-text" style="color: ${isStrike ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${isStrike ? 'line-through' : 'none'};">${sym} ${t.text || ''}</div>`;
+                      }).join('');
+                  }
+                  
+                  const remaining = tasks.length - (maxDisplay > 0 ? maxDisplay : 0);
+                  if (remaining > 0) {
+                      previewHtml += `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${remaining} 더보기</div>`;
+                  }
+                }
+              }
+              previewHtml += '</div>';
+
+              cellDiv.innerHTML = `
+                <div>
+                  ${weekBadgeHtml}
+                  <span class="monthly-day-number">${cellDate}</span>
+                </div>
+                ${previewHtml}
+              `;
+
+              cellDiv.onclick = () => {
+                currentDate = new Date(cellYear, cellMonth, cellDate);
+                const dayIdx = cellDateObj.getDay();
+                const targetDayStr = (dayIdx === 0) ? 'sun' : ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'][dayIdx - 1];
+                
+                loadWeek();
+                setDailyDay(targetDayStr);
+                switchView('daily');
+              };
+
+              grid.appendChild(cellDiv);
+            }
+        } catch (e) {
+            console.error("Monthly 렌더링 에러: ", e);
+            grid.innerHTML = `<div style="padding: 20px; color: var(--accent-color); font-weight: bold;">캘린더를 그리는 중 오류가 발생했습니다.<br>이전 데이터 충돌일 수 있습니다. 복구를 위해 캐시를 비우거나 백업해주세요.</div>`;
         }
-
-        const tbody = document.getElementById('custom-kpt-tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        const reviewRows = allData[currentWeekKey].customWeeklyReview || [];
-
-        reviewRows.forEach((row) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>
-              <div class="cat-input-wrapper">
-                <input type="text" class="cat-name-input" value="${row.category}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명">
-                <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
-              </div>
-            </td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep}</textarea></td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem}</textarea></td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try}</textarea></td>
-          `;
-          tbody.appendChild(tr);
-        });
       }
 
       function renderAll(focusedDay = null) {
@@ -1574,7 +1657,7 @@
                      const bAll = b.isAllDay !== false;
                      if (aAll && !bAll) return -1;
                      if (!aAll && bAll) return 1;
-                     if (!aAll && !bAll) return a.startHour - b.startHour;
+                     if (!aAll && !bAll) return (a.startHour || 0) - (b.startHour || 0);
                      return 0;
                  });
                  
@@ -1641,146 +1724,6 @@
             }
           };
         }
-      }
-
-      window.addCustomKptRow = function() {
-        if(!allData[currentWeekKey].customWeeklyReview) allData[currentWeekKey].customWeeklyReview = [];
-        allData[currentWeekKey].customWeeklyReview.push({
-          id: Date.now().toString(), category: '새 항목', keep: '', problem: '', try: ''
-        });
-        saveAllData();
-        renderWeeklyReviewData();
-      }
-
-      window.deleteCustomKptRow = function(id) {
-        if(!confirm("이 항목을 삭제하시겠습니까?")) return;
-        allData[currentWeekKey].customWeeklyReview = allData[currentWeekKey].customWeeklyReview.filter(r => r.id !== id);
-        saveAllData();
-        renderWeeklyReviewData();
-      }
-
-      window.updateCustomCategory = function(id, val) {
-        const item = allData[currentWeekKey].customWeeklyReview.find(r => r.id === id);
-        if(item) { item.category = val; saveAllData(); }
-      }
-
-      window.updateCustomKpt = function(id, type, val) {
-        const item = allData[currentWeekKey].customWeeklyReview.find(r => r.id === id);
-        if(item) { item[type] = val; saveAllData(); }
-      }
-
-      function renderDailyData() {
-        const dayData = allData[currentWeekKey][currentDailyDay];
-        const dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
-
-        const dailyTodoList = document.getElementById('daily-todo-list');
-        if (dailyTodoList) {
-          dailyTodoList.innerHTML = '';
-          
-          const parts = currentWeekKey.split('-');
-          const monDate = new Date(parts[0], parts[1]-1, parts[2]);
-          const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(currentDailyDay);
-          monDate.setDate(monDate.getDate() + dayOffset);
-          const cellDateStr = formatDateStr(monDate);
-          
-          const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
-          
-          daySchedules.sort((a, b) => {
-              const aAll = a.isAllDay !== false;
-              const bAll = b.isAllDay !== false;
-              if (aAll && !bAll) return -1;
-              if (!aAll && bAll) return 1;
-              if (!aAll && !bAll) return a.startHour - b.startHour;
-              return 0;
-          });
-          
-          const allDaySchedules = daySchedules.filter(s => s.isAllDay !== false);
-          allDaySchedules.forEach(s => {
-              const schLi = document.createElement('li');
-              schLi.className = 'daily-allday-banner';
-              schLi.style.backgroundColor = s.color;
-              schLi.innerHTML = `<span style="font-size:14px;">🚩</span> <span>${s.title}</span>`;
-              schLi.onclick = () => openScheduleModal(s.id);
-              dailyTodoList.appendChild(schLi);
-          });
-
-          if ((!dayData || dayData.length === 0) && allDaySchedules.length === 0) {
-             dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
-          } else {
-             (dayData || []).forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
-          }
-          updateProgress(currentDailyDay);
-        }
-
-        ['plan', 'do'].forEach(type => {
-          document.querySelectorAll(`.${type}-input`).forEach(input => {
-            const hr = input.dataset.hour; 
-            input.value = dailyInfo[type][hr] || '';
-            input.onchange = (e) => { dailyInfo[type][hr] = e.target.value; saveAllData(); };
-            
-            const colorKey = `${type}Color`;
-            if(!dailyInfo[colorKey]) dailyInfo[colorKey] = {};
-            const color = dailyInfo[colorKey][hr] || 'transparent';
-
-            const cell = document.getElementById(`${type}-cell-${hr}`);
-            const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
-            if(cell) cell.style.backgroundColor = (color === 'transparent') ? '' : color;
-            if(btn) {
-              btn.style.backgroundColor = (color === 'transparent') ? '#fff' : color;
-              btn.style.borderColor = (color === 'transparent') ? '#cbd5e1' : color;
-            }
-          });
-        });
-
-        const memoInput = document.getElementById('daily-memo-input');
-        if(memoInput) { memoInput.value = dailyInfo.memo || ''; memoInput.onchange = (e) => { dailyInfo.memo = e.target.value; saveAllData(); }; }
-        
-        const keepInput = document.getElementById('daily-keep-input');
-        if(keepInput) { keepInput.value = dailyInfo.keep || ''; keepInput.onchange = (e) => { dailyInfo.keep = e.target.value; saveAllData(); }; }
-        
-        const probInput = document.getElementById('daily-problem-input');
-        if(probInput) { probInput.value = dailyInfo.problem || ''; probInput.onchange = (e) => { dailyInfo.problem = e.target.value; saveAllData(); }; }
-        
-        const tryInput = document.getElementById('daily-try-input');
-        if(tryInput) { tryInput.value = dailyInfo.try || ''; tryInput.onchange = (e) => { dailyInfo.try = e.target.value; saveAllData(); }; }
-      }
-
-      window.cycleColor = function(type, hr) {
-        const dailyInfo = allData[currentWeekKey].daily[currentDailyDay];
-        const colorKey = `${type}Color`;
-        if(!dailyInfo[colorKey]) dailyInfo[colorKey] = {};
-
-        let currentColor = dailyInfo[colorKey][hr] || 'transparent';
-        let currentIndex = pastelColors.indexOf(currentColor);
-        if (currentIndex === -1) currentIndex = 0;
-        let nextColor = pastelColors[(currentIndex + 1) % pastelColors.length];
-
-        dailyInfo[colorKey][hr] = nextColor;
-        saveAllData();
-
-        const cell = document.getElementById(`${type}-cell-${hr}`);
-        const btn = document.querySelector(`.color-cycle-btn[data-type="${type}"][data-hour="${hr}"]`);
-        if(cell) cell.style.backgroundColor = (nextColor === 'transparent') ? '' : nextColor;
-        if(btn) {
-          btn.style.backgroundColor = (nextColor === 'transparent') ? '#fff' : nextColor;
-          btn.style.borderColor = (nextColor === 'transparent') ? '#cbd5e1' : nextColor;
-        }
-      }
-
-      function addInlineTask(day, text) {
-        if (!text) return;
-        if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
-        allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, state: 'todo' });
-        
-        allData[currentWeekKey][day].sort((a, b) => {
-            const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
-            return (w[a.state] || 2) - (w[b.state] || 2);
-        });
-
-        saveAllData(); 
-        
-        if (currentView === 'weekly') renderAll(day);
-        else renderDailyData();
       }
 
       loadAllData();
