@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22> 🎀 </text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22> 🍒 </text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -698,6 +698,7 @@
         initWeekDataIfNeeded(currentWeekKey);
       }
 
+      // 💡 [수정] 전역 삭제 함수 - 이제 정상적으로 동작합니다!
       window.deleteTask = function(day, id) {
         allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
         saveAllData(); 
@@ -777,7 +778,11 @@
         } else if (currentView === 'weekly' || currentView === 'daily') {
           currentDate.setDate(currentDate.getDate() + (offset * 7));
           loadWeek();
-          renderAll();
+          if (currentView === 'daily') {
+            setDailyDay('mon'); // 💡 주 이동 시 월요일로 자동 리셋
+          } else {
+            renderAll();
+          }
         }
       }
 
@@ -825,7 +830,8 @@
           renderMonthlyCalendar();
         } else {
           loadWeek();
-          renderAll();
+          if (currentView === 'daily') setDailyDay('mon'); // 💡 월 이동 시 월요일로 리셋
+          else renderAll();
         }
       }
 
@@ -1008,9 +1014,8 @@
           document.getElementById('schedule-modal').style.display = 'none';
       }
 
-      // 💡 [수정됨] 일정을 수정하거나 지울 때 데일리 플랜(타임블록)에서 구버전 텍스트를 청소하는 함수
       function removeScheduleFromTimeblocks(sch) {
-          if (sch.isAllDay !== false) return; // 종일 일정은 타임블록에 안 들어가므로 패스
+          if (sch.isAllDay !== false) return; 
           let curr = new Date(sch.start);
           let endD = new Date(sch.end);
           while(curr <= endD) {
@@ -1053,7 +1058,7 @@
           if (id) {
               const oldSch = allData.schedules.find(s => s.id === id);
               if(oldSch) {
-                  removeScheduleFromTimeblocks(oldSch); // 과거 기록 청소
+                  removeScheduleFromTimeblocks(oldSch); 
                   oldSch.title = title; oldSch.start = startStr; oldSch.end = endStr; 
                   oldSch.color = selectedSchColor; oldSch.isAllDay = isAllDay;
                   oldSch.startHour = startHour; oldSch.endHour = endHour;
@@ -1101,7 +1106,7 @@
           if(!confirm('해당 일정을 정말 삭제하시겠습니까?')) return;
           
           const schToRemove = allData.schedules.find(s => s.id === id);
-          if (schToRemove) removeScheduleFromTimeblocks(schToRemove); // 삭제 시에도 청소
+          if (schToRemove) removeScheduleFromTimeblocks(schToRemove); 
           
           allData.schedules = allData.schedules.filter(s => s.id !== id);
           saveAllData();
@@ -1441,6 +1446,8 @@
 
               if (taskDate < today && !task.autoMigrated) {
                   const newId = 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5);
+                  
+                  // 💡 [수정] 과거 항목을 오늘로 보낼 때, 대상 배열이 즉시 정렬되도록 addTaskToSpecificDate 내부에 정렬 추가됨
                   addTaskToSpecificDate(new Date(), task.text, null, 'in-progress', newId);
                   task.autoMigrated = true;
                   task.autoMigratedTaskId = newId;
@@ -1529,7 +1536,6 @@
                  
                  const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
                  
-                 // 💡 [수정됨] 위클리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
                  daySchedules.sort((a, b) => {
                      const aAll = a.isAllDay !== false;
                      const bAll = b.isAllDay !== false;
@@ -1664,7 +1670,6 @@
           
           const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
           
-          // 💡 [수정됨] 먼슬리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
           daySchedules.sort((a, b) => {
               const aAll = a.isAllDay !== false;
               const bAll = b.isAllDay !== false;
@@ -1828,7 +1833,6 @@
           
           const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
           
-          // 💡 [수정됨] 데일리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
           daySchedules.sort((a, b) => {
               const aAll = a.isAllDay !== false;
               const bAll = b.isAllDay !== false;
