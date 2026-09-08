@@ -65,7 +65,6 @@
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
     #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
 
-    /* 홈 대시보드 */
     .home-view-container { display: none; flex-direction: column; align-items: center; gap: 32px; padding: 10px 0; }
     .home-square-card {
       width: 520px; height: 520px; position: relative; border-radius: 20px; overflow: hidden;
@@ -87,12 +86,10 @@
     .home-quick-tile h3 { font-size: 1rem; font-weight: 600; color: var(--primary-color); }
     .home-quick-tile span { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* 진행률 바 */
     .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 4px; overflow: hidden; width: 100%; }
     .progress-fill { height: 100%; background: #A7D4D3; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .progress-text-display { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; transition: color 0.3s ease; }
 
-    /* 위클리 플래너 뷰 */
     .planner-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .day-column { background-color: var(--card-bg); display: flex; flex-direction: column; min-height: 500px; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height)); background-position: 0 54px; }
 
@@ -105,24 +102,34 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    /* 💡 일정 바 (Schedule Bar) 공통 스타일 - 화이트 텍스트 강제 고정! */
     .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
-    /* 💡 먼슬리 전용 일정 바 여백 조절 및 화이트 텍스트 재강조 */
     .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; padding: 2px 6px; color: #ffffff !important; }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
     .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
 
     .drag-handle { color: #cbd5e1; font-size: 14px; cursor: grab; width: 14px; display: flex; justify-content: center; flex-shrink: 0; }
-    .task-checkbox { appearance: none; width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; display: grid; place-content: center; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
-    .task-checkbox:checked { background-color: var(--primary-color); border-color: var(--primary-color); }
-    .task-checkbox:checked::before { content: "✔"; font-size: 9px; color: white; }
     
+    .task-custom-checkbox { 
+      width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; 
+      display: grid; place-content: center; flex-shrink: 0; cursor: pointer; transition: 0.2s; 
+      font-size: 10px; font-weight: bold; background-color: transparent; color: transparent;
+    }
+    .task-item.state-done .task-custom-checkbox { background-color: var(--primary-color); border-color: var(--primary-color); color: white; }
+    .task-item.state-done .task-custom-checkbox::before { content: "✔"; font-size: 9px; }
+    .task-item.state-in-progress .task-custom-checkbox { border-color: var(--accent-color); color: var(--accent-color); }
+    .task-item.state-in-progress .task-custom-checkbox::before { content: "●"; font-size: 8px; }
+    .task-item.state-canceled .task-custom-checkbox { border-color: #cbd5e1; background-color: #f8fafc; color: #94a3b8; }
+    .task-item.state-canceled .task-custom-checkbox::before { content: "✕"; font-size: 9px; }
+    .task-item.state-postponed .task-custom-checkbox { border-color: var(--primary-color); color: var(--primary-color); }
+    .task-item.state-postponed .task-custom-checkbox::before { content: "❯"; font-size: 9px; margin-left: 1px; }
+
     .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; color: var(--text-main); transition: color 0.3s ease; }
     .task-text::after { content: ''; position: absolute; left: 0; top: 50%; width: 0%; height: 1px; background-color: #cbd5e1; transition: width 0.3s ease; }
-    .task-checkbox:checked + .task-text { color: #cbd5e1; }
-    .task-checkbox:checked + .task-text::after { width: 100%; }
+    
+    .task-item:not(.state-todo) .task-text { color: #cbd5e1; }
+    .task-item:not(.state-todo) .task-text::after { width: 100%; }
     
     .delete-btn { border: none; background: none; color: #e2e8f0; font-size: 11px; padding: 4px; cursor: pointer; transition: 0.2s; }
     .delete-btn:hover { color: var(--accent-color); }
@@ -132,7 +139,6 @@
     .inline-dot { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 14px; flex-shrink: 0; }
     .inline-task-input { flex: 1; height: 26px; border: none; background: transparent; outline: none; font-size: 0.82rem; font-family: inherit; color: var(--text-main); }
 
-    /* 위클리 회고 뷰 스타일 */
     .weekly-review-container { display: none; grid-template-columns: 1.2fr 2fr; gap: 20px; height: 100%; }
     .review-toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
     .toggle-mode-btn { background: var(--primary-color); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 0.82rem; cursor: pointer; font-weight: 500; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -157,7 +163,6 @@
     .add-row-btn { width: 100%; padding: 10px; background: #f8fafc; border: none; border-top: 1px solid var(--border-color); color: var(--primary-color); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .add-row-btn:hover { background: #f1f5f9; }
 
-    /* 먼슬리 캘린더 뷰 스타일 */
     .monthly-view-container { display: none; flex-direction: column; gap: 16px; }
     .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .monthly-weekday-header { background: #fcfcfd; padding: 10px; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
@@ -168,11 +173,9 @@
     .monthly-day-cell.today .monthly-day-number { background: var(--accent-color); color: white; }
     
     .monthly-tasks-container { display: flex; flex-direction: column; gap: 3px; overflow: hidden; flex: 1;}
-    /* 💡 가독성을 위해 background(회색박스) 제거 및 투두 텍스트 기본색 지정 */
     .monthly-preview-text { font-size: 0.72rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 4px; border-radius: 3px; flex-shrink: 0;}
     .monthly-week-badge { font-size: 0.7rem; color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-bottom: 4px; display: inline-block; flex-shrink: 0;}
 
-    /* 데일리 뷰 스타일 */
     .daily-view-container { display: none; flex-direction: column; gap: 16px; height: 100%;}
     .daily-top-nav-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 4px; }
     .daily-day-tabs { display: flex; gap: 6px; }
@@ -204,7 +207,6 @@
 
     @media (max-width: 960px) { .planner-grid, .daily-grid, .weekly-review-container, .monthly-grid, .home-quick-grid { grid-template-columns: 1fr; } }
     
-    /* 🔍 검색 & 일정 모달 CSS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
     .search-modal { background: #fff; width: 90%; max-width: 600px; max-height: 80vh; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: fadeIn 0.2s ease-out; }
     .search-header { display: flex; justify-content: space-between; align-items: center; }
@@ -227,7 +229,6 @@
     .res-text { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; word-break: break-all;}
     .highlight { background: rgba(250, 210, 225, 0.6); font-weight: 600; border-radius: 2px; padding: 0 2px;}
 
-    /* 💡 일정 모달 색상 팔레트 스타일 */
     .sch-color-opt { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .sch-color-opt:hover { transform: scale(1.1); }
     .sch-color-opt.selected { border-color: var(--text-main); transform: scale(1.1); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
@@ -454,7 +455,7 @@
     </div>
   </div>
 
-  <!-- 💡 일정 추가/수정 모달 -->
+  <!-- 🗓️ 일정 추가/수정 모달 -->
   <div id="schedule-modal" class="modal-overlay" onclick="closeScheduleModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 400px;">
       <div class="search-header">
@@ -478,6 +479,21 @@
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
         <button id="sch-delete-btn" onclick="deleteSchedule()" style="display:none; background:#ffe4e6; color:#be123c; border:none; padding:10px 16px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">삭제</button>
         <button onclick="saveSchedule()" style="background:var(--primary-color); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 💡 보류(미루기) 모달 -->
+  <div id="postpone-modal" class="modal-overlay" onclick="closePostponeModal(event)">
+    <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
+      <div class="search-header">
+        <h3 style="color: var(--text-main);">언제로 미룰까요? 🗓️</h3>
+        <button onclick="closePostponeModal()" class="close-btn">✕</button>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">선택한 날짜에 할 일이 새롭게 복사됩니다.</div>
+      <input type="date" id="postpone-date" class="search-input" />
+      <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button onclick="confirmPostpone()" style="background:var(--primary-color); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">이동하기</button>
       </div>
     </div>
   </div>
@@ -602,15 +618,11 @@
       }
       function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); }
 
-      window.loadWeek = function() {
-        currentWeekKey = getMondayStr(currentDate);
-        updateDateUI();
-        updateWeeklyHeaders(); 
-
+      function initWeekDataIfNeeded(weekKey) {
         if (!allData.schedules) allData.schedules = [];
 
         let recentWeekKey = null;
-        let pastKeys = Object.keys(allData).filter(k => k !== 'schedules' && k < currentWeekKey && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
+        let pastKeys = Object.keys(allData).filter(k => k !== 'schedules' && k < weekKey && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
         if (pastKeys.length > 0) {
             recentWeekKey = pastKeys[pastKeys.length - 1];
         }
@@ -620,41 +632,100 @@
             inheritedCategories = allData[recentWeekKey].customWeeklyReview.map(r => r.category);
         }
 
-        if (!allData[currentWeekKey]) {
-          allData[currentWeekKey] = {
-            weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {},
-            customWeeklyReview: inheritedCategories.map((cat, idx) => ({
-              id: Date.now().toString() + idx,
-              category: cat,
-              keep: '', problem: '', try: ''
-            }))
-          };
+        if (!allData[weekKey]) {
+            allData[weekKey] = {
+                weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {},
+                customWeeklyReview: inheritedCategories.map((cat, idx) => ({
+                    id: Date.now().toString() + idx,
+                    category: cat,
+                    keep: '', problem: '', try: ''
+                }))
+            };
         } else {
-          if (!allData[currentWeekKey].customWeeklyReview) {
-             allData[currentWeekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
-              id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
-            }));
-          } else {
-             const hasContent = allData[currentWeekKey].customWeeklyReview.some(r => r.keep.trim() !== '' || r.problem.trim() !== '' || r.try.trim() !== '');
-             if (!hasContent && pastKeys.length > 0) {
-                 allData[currentWeekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
-                  id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
+            if (!allData[weekKey].customWeeklyReview) {
+                allData[weekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
+                    id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
                 }));
-             }
-          }
+            } else {
+                const hasContent = allData[weekKey].customWeeklyReview.some(r => r.keep.trim() !== '' || r.problem.trim() !== '' || r.try.trim() !== '');
+                if (!hasContent && pastKeys.length > 0) {
+                    allData[weekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
+                        id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
+                    }));
+                }
+            }
         }
 
         allDaysList.forEach(d => {
-          if(!allData[currentWeekKey][d]) allData[currentWeekKey][d] = [];
+            if(!allData[weekKey][d]) allData[weekKey][d] = [];
         });
 
         ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-          if(!allData[currentWeekKey].daily[d]) {
-            allData[currentWeekKey].daily[d] = { plan: {}, do: {}, planColor: {}, doColor: {}, memo: '', keep: '', problem: '', try: '' };
-          }
-          if(!allData[currentWeekKey].daily[d].planColor) allData[currentWeekKey].daily[d].planColor = {};
-          if(!allData[currentWeekKey].daily[d].doColor) allData[currentWeekKey].daily[d].doColor = {};
+            if(!allData[weekKey].daily[d]) {
+                allData[weekKey].daily[d] = { plan: {}, do: {}, planColor: {}, doColor: {}, memo: '', keep: '', problem: '', try: '' };
+            }
+            if(!allData[weekKey].daily[d].planColor) allData[weekKey].daily[d].planColor = {};
+            if(!allData[weekKey].daily[d].doColor) allData[currentWeekKey].daily[d].doColor = {}; 
         });
+      }
+
+      window.loadWeek = function() {
+        currentWeekKey = getMondayStr(currentDate);
+        updateDateUI();
+        updateWeeklyHeaders(); 
+        initWeekDataIfNeeded(currentWeekKey);
+      }
+
+      function processAutoMigrations() {
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          let anyMigrationOccurred = false;
+          
+          let keepRunning = true;
+          while(keepRunning) {
+              keepRunning = false;
+              const weekKeys = Object.keys(allData).filter(k => k !== 'schedules' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
+              
+              for(let wKey of weekKeys) {
+                  const days = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+                  for(let day of days) {
+                      const tasks = allData[wKey][day] || [];
+                      for(let task of tasks) {
+                          if (task.state === 'in-progress' && !task.autoMigrated) {
+                              let taskDate = new Date(wKey); 
+                              if (day !== 'weekly') {
+                                  const offset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day);
+                                  taskDate.setDate(taskDate.getDate() + offset);
+                              }
+                              taskDate.setHours(0,0,0,0);
+                              
+                              if (taskDate < today) {
+                                  task.autoMigrated = true; 
+                                  keepRunning = true;
+                                  anyMigrationOccurred = true;
+                                  
+                                  let nextDate = new Date(taskDate);
+                                  if (day === 'weekly') nextDate.setDate(nextDate.getDate() + 7);
+                                  else nextDate.setDate(nextDate.getDate() + 1);
+                                  
+                                  const nextWKey = getMondayStr(nextDate);
+                                  const nextDay = day === 'weekly' ? 'weekly' : ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'][nextDate.getDay()];
+                                  
+                                  initWeekDataIfNeeded(nextWKey);
+                                  
+                                  if (!allData[nextWKey][nextDay]) allData[nextWKey][nextDay] = [];
+                                  allData[nextWKey][nextDay].push({
+                                      id: 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5),
+                                      text: task.text,
+                                      state: 'in-progress'
+                                  });
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+          if (anyMigrationOccurred) saveAllData();
       }
 
       window.changePeriod = function(offset) {
@@ -958,6 +1029,8 @@
         let resultsHtml = '';
         const dayNames = { mon: '월', tue: '화', wed: '수', thur: '목', fri: '금', sat: '토', sun: '일' };
         
+        const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
+
         for(const weekKey in allData) {
           if (weekKey === 'schedules') continue; 
           const weekData = allData[weekKey];
@@ -967,13 +1040,14 @@
             if(task.text.toLowerCase().includes(keyword)) {
               const regex = new RegExp(`(${keyword})`, 'gi');
               const highlightedText = task.text.replace(regex, '<span class="highlight">$1</span>');
+              const sym = symMap[task.state || 'todo'] || '◻';
               resultsHtml += `
                 <div class="search-result-item" onclick="jumpToSearchResult('${weekKey}', 'mon')">
                   <div class="res-header">
                     <span class="res-date">${weekKey} 주차</span>
                     <span class="res-tag tag-todo">Weekly Todo</span>
                   </div>
-                  <div class="res-text">${task.completed ? '✔ ' : '◻ '}${highlightedText}</div>
+                  <div class="res-text">${sym} ${highlightedText}</div>
                 </div>
               `;
             }
@@ -1022,13 +1096,14 @@
                if(task.text.toLowerCase().includes(keyword)) {
                  const regex = new RegExp(`(${keyword})`, 'gi');
                  const highlightedText = task.text.replace(regex, '<span class="highlight">$1</span>');
+                 const sym = symMap[task.state || 'todo'] || '◻';
                  resultsHtml += `
                    <div class="search-result-item" onclick="jumpToSearchResult('${weekKey}', '${day}')">
                      <div class="res-header">
                        <span class="res-date">${dateStr}</span>
                        <span class="res-tag tag-todo">Daily Todo</span>
                      </div>
-                     <div class="res-text">${task.completed ? '✔ ' : '◻ '}${highlightedText}</div>
+                     <div class="res-text">${sym} ${highlightedText}</div>
                    </div>
                  `;
                }
@@ -1095,7 +1170,7 @@
       function updateProgress(day) {
         const tasks = allData[currentWeekKey][day] || [];
         const total = tasks.length;
-        const completed = tasks.filter(t => t.completed).length;
+        const completed = tasks.filter(t => ['done', 'canceled', 'postponed'].includes(t.state)).length;
         const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
         
         const msg = total === 0 ? '' : getProgressMessage(percent, total);
@@ -1120,18 +1195,115 @@
         }
       }
 
+      function getTaskDate(weekKey, day) {
+          const parts = weekKey.split('-');
+          const monDate = new Date(parts[0], parts[1]-1, parts[2]);
+          if(day !== 'weekly') {
+              const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day);
+              monDate.setDate(monDate.getDate() + dayOffset);
+          }
+          return monDate;
+      }
+
+      function addTaskToSpecificDate(targetDate, text, specificDay = null) {
+          const weekKey = getMondayStr(targetDate);
+          initWeekDataIfNeeded(weekKey);
+          
+          let targetDay = specificDay;
+          if (!targetDay) {
+              const dayNames = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
+              targetDay = targetDate.getDay() === 0 ? 'sun' : dayNames[targetDate.getDay()];
+          }
+          
+          if (!allData[weekKey][targetDay]) allData[weekKey][targetDay] = [];
+          allData[weekKey][targetDay].push({ 
+              id: 'mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5), 
+              text: text, 
+              state: 'todo' 
+          });
+      }
+
+      let postponeTarget = null;
+      window.openPostponeModal = function(day, id) {
+          postponeTarget = { day, id };
+          document.getElementById('postpone-modal').style.display = 'flex';
+          
+          let defaultDate = new Date();
+          if (day !== 'weekly') {
+              defaultDate = getTaskDate(currentWeekKey, day);
+          }
+          defaultDate.setDate(defaultDate.getDate() + 1);
+          document.getElementById('postpone-date').value = formatDateStr(defaultDate);
+      }
+
+      window.closePostponeModal = function(e) {
+          if(e && e.target !== e.currentTarget) return;
+          document.getElementById('postpone-modal').style.display = 'none';
+          renderAll(); 
+      }
+
+      window.confirmPostpone = function() {
+          const targetDateStr = document.getElementById('postpone-date').value;
+          if(!targetDateStr) return alert('날짜를 선택해주세요.');
+          const targetDate = new Date(targetDateStr);
+          
+          const task = allData[currentWeekKey][postponeTarget.day].find(t => t.id === postponeTarget.id);
+          if(task && !task.migrated) {
+              addTaskToSpecificDate(targetDate, task.text);
+              task.migrated = true;
+              saveAllData();
+          }
+          document.getElementById('postpone-modal').style.display = 'none';
+          renderAll();
+      }
+
+      // 💡 [수정됨] 토글 로직을 개편하여 잠금장치 버그 해결 & UI 즉각 반영
+      window.toggleTaskState = function(day, id) {
+          const task = allData[currentWeekKey][day].find(t => t.id === id);
+          if (!task) return;
+
+          if (task.completed === true) { task.state = 'done'; delete task.completed; }
+          if (task.completed === false) { task.state = 'todo'; delete task.completed; }
+          if (!task.state) task.state = 'todo';
+
+          const states = ['todo', 'done', 'in-progress', 'canceled', 'postponed'];
+          let currentIndex = states.indexOf(task.state);
+          let nextIndex = (currentIndex + 1) % states.length;
+          task.state = states[nextIndex];
+          
+          // 보류 상태에서 다른 상태로 벗어나면 이동 잠금 해제 (언제든 다시 미룰 수 있게)
+          if (task.state !== 'postponed') {
+              task.migrated = false; 
+          }
+          
+          saveAllData();
+          renderAll(); // 화면을 먼저 갱신해서 체크박스를 바로 '❯' 기호로 변경함
+
+          if (task.state === 'postponed') {
+              if (!task.migrated) {
+                  // 약간의 딜레이를 주어 체크박스 렌더링이 완료된 후 달력 모달이 부드럽게 뜨게 함
+                  setTimeout(() => {
+                      openPostponeModal(day, task.id);
+                  }, 10);
+              }
+          }
+      }
+
       function createHtmlForTask(task, day) {
         const li = document.createElement('li');
-        li.className = 'task-item';
+        
+        if (task.completed === true) { task.state = 'done'; delete task.completed; }
+        if (task.completed === false) { task.state = 'todo'; delete task.completed; }
+        if (!task.state) task.state = 'todo';
+
+        li.className = `task-item state-${task.state}`;
         li.dataset.id = task.id;
         li.innerHTML = `
           <div class="drag-handle">⋮</div>
-          <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} />
+          <div class="task-custom-checkbox" onclick="toggleTaskState('${day}', '${task.id}')"></div>
           <span class="task-text">${task.text}</span>
-          <button class="delete-btn">✕</button>
+          <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
         `;
-        li.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(day, task.id));
-        li.querySelector('.delete-btn').addEventListener('click', () => deleteTask(day, task.id));
         return li;
       }
 
@@ -1284,8 +1456,12 @@
               const displayTasks = tasks.slice(0, maxDisplay > 0 ? maxDisplay : 0);
               
               if (maxDisplay > 0) {
-                  // 💡 먼슬리 할일(Todo) 가독성을 위해 텍스트 기본색 지정 (배경색은 CSS에서 제거됨)
-                  previewHtml += displayTasks.map(t => `<div class="monthly-preview-text" style="color: ${t.completed ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${t.completed ? 'line-through' : 'none'};">${t.completed ? '✔' : '◻'} ${t.text}</div>`).join('');
+                  const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
+                  previewHtml += displayTasks.map(t => {
+                      const sym = symMap[t.state || 'todo'] || '◻';
+                      const isStrike = (t.state && t.state !== 'todo');
+                      return `<div class="monthly-preview-text" style="color: ${isStrike ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${isStrike ? 'line-through' : 'none'};">${sym} ${t.text}</div>`;
+                  }).join('');
               }
               
               const remaining = tasks.length - (maxDisplay > 0 ? maxDisplay : 0);
@@ -1488,23 +1664,11 @@
       function addInlineTask(day, text) {
         if (!text) return;
         if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
-        allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, completed: false });
+        allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, state: 'todo' });
         saveAllData(); 
         
         if (currentView === 'weekly') renderAll(day);
         else renderDailyData();
-      }
-
-      function toggleTask(day, id) {
-        const task = allData[currentWeekKey][day].find(t => t.id === id);
-        if (task) {
-          task.completed = !task.completed;
-          allData[currentWeekKey][day].sort((a, b) => { if (a.completed === b.completed) return 0; return a.completed ? 1 : -1; });
-          saveAllData(); 
-          
-          if (currentView === 'weekly') renderAll();
-          else renderDailyData();
-        }
       }
 
       function deleteTask(day, id) {
@@ -1516,6 +1680,7 @@
       }
 
       loadAllData();
+      processAutoMigrations();
       loadWeek();
       switchView('home');
       setupInputListeners();
@@ -1534,8 +1699,6 @@
               onEnd: function (evt) {
                 const fromDay = evt.from.dataset.day; 
                 const toDay = evt.to.dataset.day;
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
                 const plannerData = allData[currentWeekKey];
 
                 if (!plannerData[fromDay]) plannerData[fromDay] = [];
