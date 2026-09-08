@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22> 🍒 </text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -698,7 +698,6 @@
         initWeekDataIfNeeded(currentWeekKey);
       }
 
-      // 💡 [수정] 전역 삭제 함수 - 이제 정상적으로 동작합니다!
       window.deleteTask = function(day, id) {
         allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
         saveAllData(); 
@@ -753,13 +752,10 @@
                                   task.autoMigratedTaskId = newId;
                                   task.autoMigratedDate = formatDateStr(nextDate);
                                   
+                                  // 💡 [수정] 5단계 계급 정렬 적용 (진행중 > 할일 > 완료 > 취소 > 보류)
                                   allData[nextWKey][nextDay].sort((a, b) => {
-                                      const getWeight = (state) => {
-                                          if (state === 'in-progress') return -1; 
-                                          if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
-                                          return 0; 
-                                      };
-                                      return getWeight(a.state) - getWeight(b.state);
+                                      const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+                                      return (w[a.state] || 2) - (w[b.state] || 2);
                                   });
                               }
                           }
@@ -779,7 +775,7 @@
           currentDate.setDate(currentDate.getDate() + (offset * 7));
           loadWeek();
           if (currentView === 'daily') {
-            setDailyDay('mon'); // 💡 주 이동 시 월요일로 자동 리셋
+            setDailyDay('mon'); 
           } else {
             renderAll();
           }
@@ -830,7 +826,7 @@
           renderMonthlyCalendar();
         } else {
           loadWeek();
-          if (currentView === 'daily') setDailyDay('mon'); // 💡 월 이동 시 월요일로 리셋
+          if (currentView === 'daily') setDailyDay('mon'); 
           else renderAll();
         }
       }
@@ -1326,6 +1322,7 @@
           return monDate;
       }
 
+      // 💡 [수정] 대상을 복사할 때 배열 정렬 로직도 5단계 우선순위로 변경
       function addTaskToSpecificDate(targetDate, text, specificDay = null, initialState = 'todo', explicitId = null) {
           const weekKey = getMondayStr(targetDate);
           initWeekDataIfNeeded(weekKey);
@@ -1347,12 +1344,8 @@
           });
 
           allData[weekKey][targetDay].sort((a, b) => {
-              const getWeight = (state) => {
-                  if (state === 'in-progress') return -1; 
-                  if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
-                  return 0; 
-              };
-              return getWeight(a.state) - getWeight(b.state);
+              const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+              return (w[a.state] || 2) - (w[b.state] || 2);
           });
       }
 
@@ -1446,8 +1439,6 @@
 
               if (taskDate < today && !task.autoMigrated) {
                   const newId = 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5);
-                  
-                  // 💡 [수정] 과거 항목을 오늘로 보낼 때, 대상 배열이 즉시 정렬되도록 addTaskToSpecificDate 내부에 정렬 추가됨
                   addTaskToSpecificDate(new Date(), task.text, null, 'in-progress', newId);
                   task.autoMigrated = true;
                   task.autoMigratedTaskId = newId;
@@ -1467,14 +1458,11 @@
 
           if (sortTaskTimer[day]) clearTimeout(sortTaskTimer[day]);
           
+          // 💡 [수정] 5단계 계급 정렬 적용 (진행중 > 할일 > 완료 > 취소 > 보류)
           sortTaskTimer[day] = setTimeout(() => {
               allData[currentWeekKey][day].sort((a, b) => {
-                  const getWeight = (state) => {
-                      if (state === 'in-progress') return -1; 
-                      if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
-                      return 0; 
-                  };
-                  return getWeight(a.state) - getWeight(b.state);
+                  const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+                  return (w[a.state] || 2) - (w[b.state] || 2);
               });
               saveAllData();
               renderAll(); 
@@ -1915,10 +1903,17 @@
         }
       }
 
+      // 💡 [수정됨] 새 항목 추가 시에도 5단계 정렬 로직 적용
       function addInlineTask(day, text) {
         if (!text) return;
         if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
         allData[currentWeekKey][day].push({ id: Date.now().toString(), text: text, state: 'todo' });
+        
+        allData[currentWeekKey][day].sort((a, b) => {
+            const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+            return (w[a.state] || 2) - (w[b.state] || 2);
+        });
+
         saveAllData(); 
         
         if (currentView === 'weekly') renderAll(day);
