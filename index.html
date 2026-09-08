@@ -156,7 +156,9 @@
     .daily-kpt-summary-box { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; flex: 1; background: #fafafa; }
     .summary-day-card { background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; }
     .summary-day-title { font-size: 0.78rem; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .summary-kpt-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.4; margin-bottom: 3px; }
+    
+    /* 💡 [수정됨] 회고 요약 영역 시인성 개선 */
+    .summary-kpt-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.4; margin-bottom: 8px; }
 
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
     .custom-kpt-table th { background: #fcfcfd; padding: 12px; font-size: 0.82rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); font-weight: 600; text-align: center; }
@@ -752,7 +754,6 @@
                                   task.autoMigratedTaskId = newId;
                                   task.autoMigratedDate = formatDateStr(nextDate);
                                   
-                                  // 💡 [수정] 5단계 계급 정렬 적용 (진행중 > 할일 > 완료 > 취소 > 보류)
                                   allData[nextWKey][nextDay].sort((a, b) => {
                                       const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
                                       return (w[a.state] || 2) - (w[b.state] || 2);
@@ -774,11 +775,8 @@
         } else if (currentView === 'weekly' || currentView === 'daily') {
           currentDate.setDate(currentDate.getDate() + (offset * 7));
           loadWeek();
-          if (currentView === 'daily') {
-            setDailyDay('mon'); 
-          } else {
-            renderAll();
-          }
+          if (currentView === 'daily') setDailyDay('mon'); 
+          else renderAll();
         }
       }
 
@@ -1322,7 +1320,6 @@
           return monDate;
       }
 
-      // 💡 [수정] 대상을 복사할 때 배열 정렬 로직도 5단계 우선순위로 변경
       function addTaskToSpecificDate(targetDate, text, specificDay = null, initialState = 'todo', explicitId = null) {
           const weekKey = getMondayStr(targetDate);
           initWeekDataIfNeeded(weekKey);
@@ -1458,7 +1455,6 @@
 
           if (sortTaskTimer[day]) clearTimeout(sortTaskTimer[day]);
           
-          // 💡 [수정] 5단계 계급 정렬 적용 (진행중 > 할일 > 완료 > 취소 > 보류)
           sortTaskTimer[day] = setTimeout(() => {
               allData[currentWeekKey][day].sort((a, b) => {
                   const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
@@ -1505,6 +1501,55 @@
           <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
         `;
         return li;
+      }
+
+      function renderWeeklyReviewData() {
+        const summaryBox = document.getElementById('daily-kpt-summary-content');
+        if (!summaryBox) return;
+        summaryBox.innerHTML = '';
+        const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thur: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+        
+        const formatText = (txt) => txt ? txt.replace(/\n/g, '<br>') : '';
+
+        // 💡 [수정됨] 회고 모드 KPT 요약 화면 줄바꿈 및 색상 분리
+        ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
+          const daily = allData[currentWeekKey].daily[d];
+          if (daily && (daily.keep || daily.problem || daily.try)) {
+            const card = document.createElement('div');
+            card.className = 'summary-day-card';
+            card.innerHTML = `
+              <div class="summary-day-title">${dayNames[d]}</div>
+              ${daily.keep ? `<div class="summary-kpt-text"><b style="display:block; color:var(--primary-color); margin-bottom:2px;">Keep</b>${formatText(daily.keep)}</div>` : ''}
+              ${daily.problem ? `<div class="summary-kpt-text"><b style="display:block; color:var(--accent-color); margin-bottom:2px;">Problem</b>${formatText(daily.problem)}</div>` : ''}
+              ${daily.try ? `<div class="summary-kpt-text"><b style="display:block; color:#10b981; margin-bottom:2px;">Try</b>${formatText(daily.try)}</div>` : ''}
+            `;
+            summaryBox.appendChild(card);
+          }
+        });
+        if(summaryBox.innerHTML === '') {
+          summaryBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding-top:40px;">아직 작성된 데일리 회고(KPT)가 없습니다.<br>데일리 페이지에서 회고를 작성해보세요!</div>`;
+        }
+
+        const tbody = document.getElementById('custom-kpt-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        const reviewRows = allData[currentWeekKey].customWeeklyReview || [];
+
+        reviewRows.forEach((row) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div class="cat-input-wrapper">
+                <input type="text" class="cat-name-input" value="${row.category}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명">
+                <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
+              </div>
+            </td>
+            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep}</textarea></td>
+            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem}</textarea></td>
+            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try}</textarea></td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
 
       function renderAll(focusedDay = null) {
@@ -1596,187 +1641,6 @@
             }
           };
         }
-      }
-
-      function renderMonthlyCalendar() {
-        const grid = document.getElementById('monthly-calendar-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-
-        const weekdaysHeader = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        weekdaysHeader.forEach(wd => {
-          const div = document.createElement('div');
-          div.className = 'monthly-weekday-header';
-          div.innerText = wd;
-          grid.appendChild(div);
-        });
-
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-
-        const firstDayOfMonth = new Date(year, month, 1);
-        let startingDay = firstDayOfMonth.getDay();
-        startingDay = (startingDay === 0) ? 6 : startingDay - 1;
-
-        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-        const lastDayOfPrevMonth = new Date(year, month, 0).getDate();
-        const todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
-
-        let totalCells = Math.ceil((startingDay + lastDayOfMonth) / 7) * 7;
-
-        for (let i = 0; i < totalCells; i++) {
-          let cellDate, isOtherMonth = false, cellMonth = month, cellYear = year;
-
-          if (i < startingDay) {
-            cellDate = lastDayOfPrevMonth - startingDay + i + 1;
-            isOtherMonth = true;
-            cellMonth = month - 1;
-            if (cellMonth < 0) { cellMonth = 11; cellYear--; }
-          } else if (i < startingDay + lastDayOfMonth) {
-            cellDate = i - startingDay + 1;
-          } else {
-            cellDate = i - (startingDay + lastDayOfMonth) + 1;
-            isOtherMonth = true;
-            cellMonth = month + 1;
-            if (cellMonth > 11) { cellMonth = 0; cellYear++; }
-          }
-
-          const cellDateObj = new Date(cellYear, cellMonth, cellDate);
-          const cellDateStr = formatDateStr(cellDateObj);
-          
-          const cellDiv = document.createElement('div');
-          cellDiv.className = `monthly-day-cell ${isOtherMonth ? 'other-month' : ''}`;
-          if (cellDateStr === todayStr) cellDiv.classList.add('today');
-
-          let weekBadgeHtml = '';
-          if (cellDateObj.getDay() === 1 && !isOtherMonth) {
-            const wInfo = getISOWeekInfo(cellDateObj);
-            weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.week}</span><br>`;
-          }
-
-          let previewHtml = '<div class="monthly-tasks-container">';
-          
-          const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
-          
-          daySchedules.sort((a, b) => {
-              const aAll = a.isAllDay !== false;
-              const bAll = b.isAllDay !== false;
-              if (aAll && !bAll) return -1;
-              if (!aAll && bAll) return 1;
-              if (!aAll && !bAll) return a.startHour - b.startHour;
-              return 0;
-          });
-
-          daySchedules.forEach(s => {
-              if (s.isAllDay === false) {
-                  let displayH = s.startHour > 24 ? s.startHour - 24 : s.startHour;
-                  previewHtml += `<div class="monthly-preview-text schedule-bar outline" style="border-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">[${displayH}시] ${s.title}</div>`;
-              } else {
-                  previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
-              }
-          });
-
-          const mondayKeyForThisDate = getMondayStr(cellDateObj);
-          if (allData[mondayKeyForThisDate]) {
-            const dNamesMap = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
-            const targetDayKey = dNamesMap[(cellDateObj.getDay() === 0 ? 6 : cellDateObj.getDay() - 1)];
-            const tasks = allData[mondayKeyForThisDate][targetDayKey] || [];
-            
-            if (tasks.length > 0) {
-              const maxDisplay = 4 - daySchedules.length; 
-              const displayTasks = tasks.slice(0, maxDisplay > 0 ? maxDisplay : 0);
-              
-              if (maxDisplay > 0) {
-                  const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
-                  previewHtml += displayTasks.map(t => {
-                      const sym = symMap[t.state || 'todo'] || '◻';
-                      const isStrike = ['done', 'canceled', 'postponed'].includes(t.state);
-                      return `<div class="monthly-preview-text" style="color: ${isStrike ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${isStrike ? 'line-through' : 'none'};">${sym} ${t.text}</div>`;
-                  }).join('');
-              }
-              
-              const remaining = tasks.length - (maxDisplay > 0 ? maxDisplay : 0);
-              if (remaining > 0) {
-                  previewHtml += `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${remaining} 더보기</div>`;
-              }
-            }
-          }
-          previewHtml += '</div>';
-
-          cellDiv.innerHTML = `
-            <div>
-              ${weekBadgeHtml}
-              <span class="monthly-day-number">${cellDate}</span>
-            </div>
-            ${previewHtml}
-          `;
-
-          cellDiv.onclick = () => {
-            currentDate = new Date(cellYear, cellMonth, cellDate);
-            const dayIdx = cellDateObj.getDay();
-            const targetDayStr = (dayIdx === 0) ? 'sun' : ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'][dayIdx - 1];
-            
-            loadWeek();
-            setDailyDay(targetDayStr);
-            switchView('daily');
-          };
-
-          grid.appendChild(cellDiv);
-        }
-      }
-
-      window.jumpToWeeklyFromMonthly = function(dateStr) {
-        currentDate = new Date(dateStr);
-        loadWeek();
-        switchView('weekly');
-      }
-
-      function renderWeeklyReviewData() {
-        const summaryBox = document.getElementById('daily-kpt-summary-content');
-        if (!summaryBox) return;
-        summaryBox.innerHTML = '';
-        const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thur: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
-        
-        const formatText = (txt) => txt ? txt.replace(/\n/g, '<br>') : '';
-
-        ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
-          const daily = allData[currentWeekKey].daily[d];
-          if (daily && (daily.keep || daily.problem || daily.try)) {
-            const card = document.createElement('div');
-            card.className = 'summary-day-card';
-            card.innerHTML = `
-              <div class="summary-day-title">${dayNames[d]}</div>
-              ${daily.keep ? `<div class="summary-kpt-text"><b>Keep:</b> ${formatText(daily.keep)}</div>` : ''}
-              ${daily.problem ? `<div class="summary-kpt-text"><b>Problem:</b> ${formatText(daily.problem)}</div>` : ''}
-              ${daily.try ? `<div class="summary-kpt-text"><b>Try:</b> ${formatText(daily.try)}</div>` : ''}
-            `;
-            summaryBox.appendChild(card);
-          }
-        });
-        if(summaryBox.innerHTML === '') {
-          summaryBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding-top:40px;">아직 작성된 데일리 회고(KPT)가 없습니다.<br>데일리 페이지에서 회고를 작성해보세요!</div>`;
-        }
-
-        const tbody = document.getElementById('custom-kpt-tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        const reviewRows = allData[currentWeekKey].customWeeklyReview || [];
-
-        reviewRows.forEach((row) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>
-              <div class="cat-input-wrapper">
-                <input type="text" class="cat-name-input" value="${row.category}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명">
-                <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
-              </div>
-            </td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep}</textarea></td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem}</textarea></td>
-            <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try}</textarea></td>
-          `;
-          tbody.appendChild(tr);
-        });
       }
 
       window.addCustomKptRow = function() {
@@ -1903,7 +1767,6 @@
         }
       }
 
-      // 💡 [수정됨] 새 항목 추가 시에도 5단계 정렬 로직 적용
       function addInlineTask(day, text) {
         if (!text) return;
         if (!allData[currentWeekKey][day]) allData[currentWeekKey][day] = [];
