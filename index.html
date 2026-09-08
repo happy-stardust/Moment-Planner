@@ -213,6 +213,7 @@
     .search-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 600; }
     .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; transition: 0.2s; }
     .close-btn:hover { color: var(--accent-color); }
+    
     .search-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; font-family: inherit; transition: 0.2s; }
     .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 155, 180, 0.1); }
     .search-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; min-height: 100px; }
@@ -441,7 +442,6 @@
     </main>
   </div>
 
-  <!-- 🔍 검색 모달 -->
   <div id="search-modal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
@@ -455,7 +455,6 @@
     </div>
   </div>
 
-  <!-- 🗓️ 일정 추가/수정 모달 -->
   <div id="schedule-modal" class="modal-overlay" onclick="closeScheduleModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 400px;">
       <div class="search-header">
@@ -483,7 +482,7 @@
     </div>
   </div>
 
-  <!-- 💡 보류(미루기) 모달 -->
+  <!-- 보류(미루기) 모달 -->
   <div id="postpone-modal" class="modal-overlay" onclick="closePostponeModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
@@ -1257,7 +1256,6 @@
           renderAll();
       }
 
-      // 💡 [수정됨] 토글 로직을 개편하여 잠금장치 버그 해결 & UI 즉각 반영
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t.id === id);
           if (!task) return;
@@ -1271,17 +1269,22 @@
           let nextIndex = (currentIndex + 1) % states.length;
           task.state = states[nextIndex];
           
-          // 보류 상태에서 다른 상태로 벗어나면 이동 잠금 해제 (언제든 다시 미룰 수 있게)
           if (task.state !== 'postponed') {
               task.migrated = false; 
           }
           
+          // 💡 [버그 수정] todo(빈 네모)가 아닌 항목들은 배열 하단으로 정렬
+          allData[currentWeekKey][day].sort((a, b) => {
+              const aHandled = (a.state && a.state !== 'todo') ? 1 : 0;
+              const bHandled = (b.state && b.state !== 'todo') ? 1 : 0;
+              return aHandled - bHandled;
+          });
+          
           saveAllData();
-          renderAll(); // 화면을 먼저 갱신해서 체크박스를 바로 '❯' 기호로 변경함
+          renderAll(); 
 
           if (task.state === 'postponed') {
               if (!task.migrated) {
-                  // 약간의 딜레이를 주어 체크박스 렌더링이 완료된 후 달력 모달이 부드럽게 뜨게 함
                   setTimeout(() => {
                       openPostponeModal(day, task.id);
                   }, 10);
