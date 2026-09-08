@@ -157,7 +157,6 @@
     .summary-day-card { background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; }
     .summary-day-title { font-size: 0.78rem; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
     
-    /* 💡 KPT 요약 화면 줄바꿈 및 색상 분리 스타일 정상 적용 */
     .summary-kpt-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.4; margin-bottom: 8px; word-break: keep-all; }
 
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
@@ -636,7 +635,6 @@
         });
       }
 
-      // 💡 [수정] 무결성 검증 - customWeeklyReview 배열 강제 코팅 추가
       function loadAllData() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) { try { allData = JSON.parse(saved); } catch (e) { allData = {}; } }
@@ -660,7 +658,6 @@
                 }
             });
 
-            // 회고용 배열 백신 (여기서 에러가 발생했었음!)
             if (!Array.isArray(allData[k].customWeeklyReview)) {
                 allData[k].customWeeklyReview = [];
             } else {
@@ -1554,7 +1551,6 @@
         return li;
       }
 
-      // 💡 [수정] 회고록의 텍스트가 줄바꿈 되고 색상이 잘 나오도록 복구 + 에러 차단
       function renderWeeklyReviewData() {
         try {
             const summaryBox = document.getElementById('daily-kpt-summary-content');
@@ -1782,6 +1778,172 @@
         if (currentView === 'weekly') renderAll(day);
         else renderDailyData();
       }
+
+      // ==========================================
+      // 여기서부터 추가된 렌더링 및 이벤트 함수입니다.
+      // ==========================================
+
+      window.renderAll = function(specificDay = null) {
+        if (currentView === 'monthly') {
+          renderMonthlyCalendar();
+          return;
+        }
+        if (currentView === 'weekly') {
+          if (isWeeklyReviewMode) {
+            renderWeeklyReviewData();
+          } else {
+            const daysToRender = specificDay ? [specificDay] : allDaysList;
+            daysToRender.forEach(day => {
+              const listEl = document.getElementById(`list-${day}`);
+              if (listEl) {
+                listEl.innerHTML = '';
+                const tasks = (allData[currentWeekKey][day] || []).filter(t => t && typeof t === 'object');
+                
+                if (day !== 'weekly') {
+                  const parts = currentWeekKey.split('-');
+                  const monDate = new Date(parts[0], parts[1]-1, parts[2]);
+                  const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day);
+                  monDate.setDate(monDate.getDate() + dayOffset);
+                  const cellDateStr = formatDateStr(monDate);
+                  
+                  const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+                  
+                  daySchedules.forEach(s => {
+                    if(s.isAllDay !== false) {
+                      const schLi = document.createElement('li');
+                      schLi.className = 'schedule-bar';
+                      schLi.style.backgroundColor = s.color;
+                      schLi.innerText = '🚩 ' + s.title;
+                      schLi.onclick = () => openScheduleModal(s.id);
+                      listEl.appendChild(schLi);
+                    }
+                  });
+                }
+
+                if (tasks.length === 0 && listEl.children.length === 0) {
+                  listEl.innerHTML = `<li class="empty-state">할 일이 없습니다</li>`;
+                } else {
+                  tasks.forEach(task => {
+                    listEl.appendChild(createHtmlForTask(task, day));
+                  });
+                }
+                updateProgress(day);
+              }
+            });
+          }
+        } else if (currentView === 'daily') {
+          renderDailyData();
+        }
+      };
+
+      window.renderMonthlyCalendar = function() {
+        const grid = document.getElementById('monthly-calendar-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        
+        const startDayOfWeek = firstDay.getDay(); 
+        let startOffset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+        
+        const startDate = new Date(year, month, 1 - startOffset);
+
+        const weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+        weekdays.forEach(day => {
+          const header = document.createElement('div');
+          header.className = 'monthly-weekday-header';
+          header.innerText = day;
+          grid.appendChild(header);
+        });
+
+        let currentRenderDate = new Date(startDate);
+        const todayStr = formatDateStr(new Date());
+
+        for (let i = 0; i < 42; i++) { 
+          const cell = document.createElement('div');
+          cell.className = 'monthly-day-cell';
+          if (currentRenderDate.getMonth() !== month) cell.classList.add('other-month');
+          
+          const dateStr = formatDateStr(currentRenderDate);
+          if (dateStr === todayStr) cell.classList.add('today');
+          
+          const numDiv = document.createElement('div');
+          numDiv.className = 'monthly-day-number';
+          numDiv.innerText = currentRenderDate.getDate();
+          cell.appendChild(numDiv);
+
+          const tasksContainer = document.createElement('div');
+          tasksContainer.className = 'monthly-tasks-container';
+          
+          const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && dateStr >= s.start && dateStr <= s.end);
+          daySchedules.forEach(s => {
+            const schDiv = document.createElement('div');
+            schDiv.className = 'monthly-preview-text schedule-bar';
+            schDiv.style.backgroundColor = s.color;
+            schDiv.innerText = s.title;
+            tasksContainer.appendChild(schDiv);
+          });
+
+          const wKey = getMondayStr(currentRenderDate);
+          const dayName = currentRenderDate.getDay() === 0 ? 'sun' : ['mon','tue','wed','thur','fri','sat'][currentRenderDate.getDay()-1];
+          if (allData[wKey] && allData[wKey][dayName]) {
+            const tasks = allData[wKey][dayName].filter(t => t && t.state !== 'done' && t.state !== 'canceled');
+            tasks.slice(0, 3).forEach(t => { 
+              const tDiv = document.createElement('div');
+              tDiv.className = 'monthly-preview-text';
+              tDiv.innerText = `• ${t.text}`;
+              tasksContainer.appendChild(tDiv);
+            });
+            if(tasks.length > 3) {
+              const moreDiv = document.createElement('div');
+              moreDiv.className = 'monthly-preview-text';
+              moreDiv.style.color = 'var(--text-muted)';
+              moreDiv.innerText = `+${tasks.length - 3} 더보기`;
+              tasksContainer.appendChild(moreDiv);
+            }
+          }
+
+          cell.appendChild(tasksContainer);
+          
+          const clickDate = new Date(currentRenderDate);
+          cell.onclick = () => {
+            currentDate = new Date(clickDate);
+            loadWeek();
+            const dayIdx = clickDate.getDay();
+            const targetDayStr = (dayIdx === 0) ? 'sun' : ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'][dayIdx - 1];
+            setDailyDay(targetDayStr);
+            switchView('daily');
+          };
+
+          grid.appendChild(cell);
+          currentRenderDate.setDate(currentRenderDate.getDate() + 1);
+        }
+      };
+
+      window.setupInputListeners = function() {
+        document.querySelectorAll('.inline-task-input').forEach(input => {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              const text = this.value.trim();
+              if (text) {
+                if (this.id === 'daily-todo-input') {
+                  addInlineTask(currentDailyDay, text);
+                } else {
+                  const day = this.dataset.day;
+                  addInlineTask(day, text);
+                }
+                this.value = ''; 
+              }
+            }
+          });
+        });
+      };
+
+      // ==========================================
+      // 초기화 및 실행 블록
+      // ==========================================
 
       loadAllData();
       processAutoMigrations();
