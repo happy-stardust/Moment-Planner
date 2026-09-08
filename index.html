@@ -88,7 +88,7 @@
     .home-quick-tile span { font-size: 0.8rem; color: var(--text-muted); }
 
     /* 진행률 바 */
-    .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%; }
+    .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 4px; overflow: hidden; width: 100%; }
     .progress-fill { height: 100%; background: #A7D4D3; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .progress-text-display { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; transition: color 0.3s ease; }
 
@@ -104,6 +104,12 @@
 
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
+
+    /* 💡 일정 바 (Schedule Bar) 공통 스타일 - 화이트 텍스트 강제 고정! */
+    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; }
+    .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
+    /* 💡 먼슬리 전용 일정 바 여백 조절 및 화이트 텍스트 재강조 */
+    .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; padding: 2px 6px; color: #ffffff !important; }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
     .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
@@ -162,7 +168,8 @@
     .monthly-day-cell.today .monthly-day-number { background: var(--accent-color); color: white; }
     
     .monthly-tasks-container { display: flex; flex-direction: column; gap: 3px; overflow: hidden; flex: 1;}
-    .monthly-preview-text { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--line-color); padding: 2px 4px; border-radius: 3px; flex-shrink: 0;}
+    /* 💡 가독성을 위해 background(회색박스) 제거 및 투두 텍스트 기본색 지정 */
+    .monthly-preview-text { font-size: 0.72rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 4px; border-radius: 3px; flex-shrink: 0;}
     .monthly-week-badge { font-size: 0.7rem; color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-bottom: 4px; display: inline-block; flex-shrink: 0;}
 
     /* 데일리 뷰 스타일 */
@@ -197,7 +204,7 @@
 
     @media (max-width: 960px) { .planner-grid, .daily-grid, .weekly-review-container, .monthly-grid, .home-quick-grid { grid-template-columns: 1fr; } }
     
-    /* 🔍 검색 모달 CSS */
+    /* 🔍 검색 & 일정 모달 CSS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
     .search-modal { background: #fff; width: 90%; max-width: 600px; max-height: 80vh; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: fadeIn 0.2s ease-out; }
     .search-header { display: flex; justify-content: space-between; align-items: center; }
@@ -219,6 +226,11 @@
     .tag-todo { background: #fef9c3; color: #a16207; } 
     .res-text { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; word-break: break-all;}
     .highlight { background: rgba(250, 210, 225, 0.6); font-weight: 600; border-radius: 2px; padding: 0 2px;}
+
+    /* 💡 일정 모달 색상 팔레트 스타일 */
+    .sch-color-opt { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .sch-color-opt:hover { transform: scale(1.1); }
+    .sch-color-opt.selected { border-color: var(--text-main); transform: scale(1.1); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
@@ -254,7 +266,8 @@
         <button onclick="changePeriod(1)">다음 ▶</button>
         <button onclick="goToday()" style="margin-left:4px;">오늘</button>
         
-        <button onclick="openSearchModal()" style="margin-left:12px; font-weight:600;" title="과거 메모 및 회고 검색">🔍 검색</button>
+        <button onclick="openScheduleModal()" style="margin-left:12px; font-weight:600; color: #475569;" title="새로운 일정 추가">🗓️ 일정 추가</button>
+        <button onclick="openSearchModal()" style="margin-left:4px; font-weight:600;" title="과거 메모 및 회고 검색">🔍 검색</button>
         <button onclick="exportData()" style="margin-left:4px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">💾 백업</button>
         <button onclick="document.getElementById('import-file').click()" style="border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">📂 복원</button>
         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
@@ -427,6 +440,7 @@
     </main>
   </div>
 
+  <!-- 🔍 검색 모달 -->
   <div id="search-modal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
@@ -436,6 +450,34 @@
       <input type="text" id="search-input" class="search-input" placeholder="검색어를 입력하세요 (할일, 메모, KPT 내용)..." onkeyup="if(event.key==='Enter') executeSearch()" />
       <div id="search-results" class="search-results">
         <div class="empty-state" style="margin-top:40px; height:auto; line-height:normal;">찾고 싶은 키워드를 검색해보세요 🔍</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 💡 일정 추가/수정 모달 -->
+  <div id="schedule-modal" class="modal-overlay" onclick="closeScheduleModal(event)">
+    <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 400px;">
+      <div class="search-header">
+        <h3 id="sch-modal-title">일정 추가</h3>
+        <button onclick="closeScheduleModal()" class="close-btn">✕</button>
+      </div>
+      <input type="hidden" id="sch-id" />
+      <input type="text" id="sch-title" class="search-input" placeholder="일정 이름 (예: 제주도 여행)" />
+      
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="date" id="sch-start" class="search-input" style="flex:1;" />
+        <span style="color:var(--text-muted); font-weight:bold;">~</span>
+        <input type="date" id="sch-end" class="search-input" style="flex:1;" />
+      </div>
+
+      <div>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">일정 색상</span>
+        <div id="sch-color-picker" style="display: flex; gap: 10px; margin-top: 8px;"></div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+        <button id="sch-delete-btn" onclick="deleteSchedule()" style="display:none; background:#ffe4e6; color:#be123c; border:none; padding:10px 16px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">삭제</button>
+        <button onclick="saveSchedule()" style="background:var(--primary-color); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">저장</button>
       </div>
     </div>
   </div>
@@ -450,6 +492,9 @@
         '#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6', 
         '#F5ECC2', '#E4F1FE', '#ECECEC'
       ];
+
+      const scheduleColors = ['#8b9bb4', '#e58b88', '#A7D4D3', '#B5B1D8', '#facc15']; 
+      let selectedSchColor = scheduleColors[0];
 
       let allData = {}; 
       let currentWeekKey = ''; 
@@ -490,7 +535,11 @@
         let temp = new Date(d);
         let day = temp.getDay();
         temp.setDate(temp.getDate() - day + (day === 0 ? -6 : 1));
-        return `${temp.getFullYear()}-${String(temp.getMonth() + 1).padStart(2, '0')}-${String(temp.getDate()).padStart(2, '0')}`;
+        return formatDateStr(temp);
+      }
+
+      function formatDateStr(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       }
 
       function getISOWeekInfo(d) {
@@ -558,9 +607,10 @@
         updateDateUI();
         updateWeeklyHeaders(); 
 
-        // 💡 [수정됨] 타임머신 로직 강화: 가장 최근의 과거 데이터를 찾아서 빈 화면에 덮어씌움
+        if (!allData.schedules) allData.schedules = [];
+
         let recentWeekKey = null;
-        let pastKeys = Object.keys(allData).filter(k => k < currentWeekKey && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
+        let pastKeys = Object.keys(allData).filter(k => k !== 'schedules' && k < currentWeekKey && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
         if (pastKeys.length > 0) {
             recentWeekKey = pastKeys[pastKeys.length - 1];
         }
@@ -580,7 +630,6 @@
             }))
           };
         } else {
-          // 이미 만들어진 주차라도 안의 내용이 비어있다면 최신 카테고리로 덮어쓰기
           if (!allData[currentWeekKey].customWeeklyReview) {
              allData[currentWeekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
               id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
@@ -793,6 +842,88 @@
         reader.readAsText(file);
       };
 
+      function renderSchColors() {
+          const picker = document.getElementById('sch-color-picker');
+          if(!picker) return;
+          picker.innerHTML = '';
+          scheduleColors.forEach(c => {
+              const div = document.createElement('div');
+              div.className = 'sch-color-opt' + (c === selectedSchColor ? ' selected' : '');
+              div.style.backgroundColor = c;
+              div.onclick = () => { selectedSchColor = c; renderSchColors(); };
+              picker.appendChild(div);
+          });
+      }
+
+      window.openScheduleModal = function(id = null) {
+          document.getElementById('schedule-modal').style.display = 'flex';
+          if (id) {
+              const sch = allData.schedules.find(s => s.id === id);
+              document.getElementById('sch-modal-title').innerText = '일정 수정';
+              document.getElementById('sch-id').value = sch.id;
+              document.getElementById('sch-title').value = sch.title;
+              document.getElementById('sch-start').value = sch.start;
+              document.getElementById('sch-end').value = sch.end;
+              selectedSchColor = sch.color;
+              document.getElementById('sch-delete-btn').style.display = 'block';
+          } else {
+              document.getElementById('sch-modal-title').innerText = '일정 추가';
+              document.getElementById('sch-id').value = '';
+              document.getElementById('sch-title').value = '';
+              const todayStr = formatDateStr(currentDate);
+              document.getElementById('sch-start').value = todayStr;
+              document.getElementById('sch-end').value = todayStr;
+              selectedSchColor = scheduleColors[0];
+              document.getElementById('sch-delete-btn').style.display = 'none';
+          }
+          renderSchColors();
+      };
+
+      window.closeScheduleModal = function(e) {
+          if(e && e.target !== e.currentTarget) return;
+          document.getElementById('schedule-modal').style.display = 'none';
+      }
+
+      window.saveSchedule = function() {
+          const id = document.getElementById('sch-id').value;
+          const title = document.getElementById('sch-title').value.trim();
+          const start = document.getElementById('sch-start').value;
+          const end = document.getElementById('sch-end').value;
+
+          if(!title || !start || !end) return alert('제목과 날짜를 모두 입력해주세요.');
+          if(start > end) return alert('종료일이 시작일보다 빠를 수 없습니다.');
+
+          if(!allData.schedules) allData.schedules = [];
+
+          if (id) {
+              const sch = allData.schedules.find(s => s.id === id);
+              if(sch) {
+                  sch.title = title; sch.start = start; sch.end = end; sch.color = selectedSchColor;
+              }
+          } else {
+              allData.schedules.push({
+                  id: 'sch_' + Date.now(),
+                  title, start, end, color: selectedSchColor
+              });
+          }
+          saveAllData();
+          closeScheduleModal();
+          
+          if(currentView === 'monthly') renderMonthlyCalendar();
+          else renderAll();
+      }
+
+      window.deleteSchedule = function() {
+          const id = document.getElementById('sch-id').value;
+          if(!confirm('해당 일정을 정말 삭제하시겠습니까?')) return;
+          allData.schedules = allData.schedules.filter(s => s.id !== id);
+          saveAllData();
+          closeScheduleModal();
+          
+          if(currentView === 'monthly') renderMonthlyCalendar();
+          else renderAll();
+      }
+
       window.openSearchModal = function() {
         const modal = document.getElementById('search-modal');
         modal.style.display = 'flex';
@@ -828,6 +959,7 @@
         const dayNames = { mon: '월', tue: '화', wed: '수', thur: '목', fri: '금', sat: '토', sun: '일' };
         
         for(const weekKey in allData) {
+          if (weekKey === 'schedules') continue; 
           const weekData = allData[weekKey];
 
           const weeklyTasks = weekData['weekly'] || [];
@@ -1010,9 +1142,27 @@
               const listEl = document.getElementById(`list-${day}`);
               if (!listEl) return;
               listEl.innerHTML = '';
-              const tasks = allData[currentWeekKey][day] || [];
               
-              if (tasks.length === 0) {
+              if (day !== 'weekly') {
+                 const parts = currentWeekKey.split('-');
+                 const monDate = new Date(parts[0], parts[1]-1, parts[2]);
+                 const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day);
+                 monDate.setDate(monDate.getDate() + dayOffset);
+                 const cellDateStr = formatDateStr(monDate);
+                 
+                 const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
+                 daySchedules.forEach(s => {
+                    const schLi = document.createElement('li');
+                    schLi.className = 'schedule-bar';
+                    schLi.style.backgroundColor = s.color;
+                    schLi.innerText = s.title;
+                    schLi.onclick = () => openScheduleModal(s.id);
+                    listEl.appendChild(schLi);
+                 });
+              }
+
+              const tasks = allData[currentWeekKey][day] || [];
+              if (tasks.length === 0 && listEl.children.length === 0) {
                  listEl.innerHTML = `<li class="empty-state">아직 할 일이 없어요 🌱</li>`;
               } else {
                  tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
@@ -1104,7 +1254,7 @@
           }
 
           const cellDateObj = new Date(cellYear, cellMonth, cellDate);
-          const cellDateStr = `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(cellDate).padStart(2, '0')}`;
+          const cellDateStr = formatDateStr(cellDateObj);
           
           const cellDiv = document.createElement('div');
           cellDiv.className = `monthly-day-cell ${isOtherMonth ? 'other-month' : ''}`;
@@ -1116,7 +1266,13 @@
             weekBadgeHtml = `<span class="monthly-week-badge" onclick="event.stopPropagation(); jumpToWeeklyFromMonthly('${cellDateStr}')">W${wInfo.week}</span><br>`;
           }
 
-          let previewHtml = '';
+          let previewHtml = '<div class="monthly-tasks-container">';
+          
+          const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
+          daySchedules.forEach(s => {
+              previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
+          });
+
           const mondayKeyForThisDate = getMondayStr(cellDateObj);
           if (allData[mondayKeyForThisDate]) {
             const dNamesMap = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
@@ -1124,14 +1280,21 @@
             const tasks = allData[mondayKeyForThisDate][targetDayKey] || [];
             
             if (tasks.length > 0) {
-              const maxDisplay = 4;
-              const displayTasks = tasks.slice(0, maxDisplay);
-              previewHtml = '<div class="monthly-tasks-container">' + 
-                            displayTasks.map(t => `<div class="monthly-preview-text" style="color: ${t.completed ? '#cbd5e1' : 'var(--text-muted)'}; text-decoration: ${t.completed ? 'line-through' : 'none'};">${t.completed ? '✔' : '◻'} ${t.text}</div>`).join('') + 
-                            (tasks.length > maxDisplay ? `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${tasks.length - maxDisplay} 더보기</div>` : '') +
-                            '</div>';
+              const maxDisplay = 4 - daySchedules.length; 
+              const displayTasks = tasks.slice(0, maxDisplay > 0 ? maxDisplay : 0);
+              
+              if (maxDisplay > 0) {
+                  // 💡 먼슬리 할일(Todo) 가독성을 위해 텍스트 기본색 지정 (배경색은 CSS에서 제거됨)
+                  previewHtml += displayTasks.map(t => `<div class="monthly-preview-text" style="color: ${t.completed ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${t.completed ? 'line-through' : 'none'};">${t.completed ? '✔' : '◻'} ${t.text}</div>`).join('');
+              }
+              
+              const remaining = tasks.length - (maxDisplay > 0 ? maxDisplay : 0);
+              if (remaining > 0) {
+                  previewHtml += `<div class="monthly-preview-text" style="background:transparent; font-weight:600; text-align:center; padding:0; color:var(--primary-color);">+${remaining} 더보기</div>`;
+              }
             }
           }
+          previewHtml += '</div>';
 
           cellDiv.innerHTML = `
             <div>
@@ -1242,10 +1405,27 @@
         const dailyTodoList = document.getElementById('daily-todo-list');
         if (dailyTodoList) {
           dailyTodoList.innerHTML = '';
-          if (!dayData || dayData.length === 0) {
+          
+          const parts = currentWeekKey.split('-');
+          const monDate = new Date(parts[0], parts[1]-1, parts[2]);
+          const dayOffset = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(currentDailyDay);
+          monDate.setDate(monDate.getDate() + dayOffset);
+          const cellDateStr = formatDateStr(monDate);
+          
+          const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
+          daySchedules.forEach(s => {
+              const schLi = document.createElement('li');
+              schLi.className = 'schedule-bar';
+              schLi.style.backgroundColor = s.color;
+              schLi.innerText = s.title;
+              schLi.onclick = () => openScheduleModal(s.id);
+              dailyTodoList.appendChild(schLi);
+          });
+
+          if ((!dayData || dayData.length === 0) && daySchedules.length === 0) {
              dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
           } else {
-             dayData.forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
+             (dayData || []).forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
           }
           updateProgress(currentDailyDay);
         }
@@ -1348,6 +1528,7 @@
               group: 'shared', 
               animation: 150, 
               handle: '.drag-handle', 
+              filter: '.schedule-bar', 
               ghostClass: 'sortable-ghost', 
               emptyInsertThreshold: 50,
               onEnd: function (evt) {
@@ -1360,9 +1541,18 @@
                 if (!plannerData[fromDay]) plannerData[fromDay] = [];
                 if (!plannerData[toDay]) plannerData[toDay] = [];
 
-                const movedItem = plannerData[fromDay].splice(oldIndex, 1)[0];
-                if (movedItem) {
-                  plannerData[toDay].splice(newIndex, 0, movedItem);
+                const draggedElement = evt.item;
+                const taskId = draggedElement.dataset.id;
+                
+                const taskIndexInArray = plannerData[fromDay].findIndex(t => t.id === taskId);
+                if (taskIndexInArray !== -1) {
+                  const movedItem = plannerData[fromDay].splice(taskIndexInArray, 1)[0];
+                  
+                  const taskNodes = Array.from(evt.to.children).filter(el => el.classList.contains('task-item'));
+                  const newVisualIndex = taskNodes.indexOf(draggedElement);
+                  const insertIndex = newVisualIndex === -1 ? plannerData[toDay].length : newVisualIndex;
+
+                  plannerData[toDay].splice(insertIndex, 0, movedItem);
                   saveAllData();
                   updateProgress(fromDay);
                   updateProgress(toDay);
