@@ -7,6 +7,8 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
+  
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -128,8 +130,8 @@
     .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; color: var(--text-main); transition: color 0.3s ease; }
     .task-text::after { content: ''; position: absolute; left: 0; top: 50%; width: 0%; height: 1px; background-color: #cbd5e1; transition: width 0.3s ease; }
     
-    .task-item:not(.state-todo) .task-text { color: #cbd5e1; }
-    .task-item:not(.state-todo) .task-text::after { width: 100%; }
+    .task-item:not(.state-todo):not(.state-in-progress) .task-text { color: #cbd5e1; }
+    .task-item:not(.state-todo):not(.state-in-progress) .task-text::after { width: 100%; }
     
     .delete-btn { border: none; background: none; color: #e2e8f0; font-size: 11px; padding: 4px; cursor: pointer; transition: 0.2s; }
     .delete-btn:hover { color: var(--accent-color); }
@@ -517,7 +519,7 @@
       let currentView = 'home'; 
       let currentDailyDay = 'mon'; 
       let isWeeklyReviewMode = false;
-      let sortTaskTimer = {}; // 💡 딜레이 정렬용 전역 타이머 객체
+      let sortTaskTimer = {}; 
 
       const tbBody = document.getElementById('timeblock-body');
       if (tbBody) {
@@ -676,6 +678,14 @@
         initWeekDataIfNeeded(currentWeekKey);
       }
 
+      // 💡 [수정됨] 매끄러운 전역 삭제 함수
+      window.deleteTask = function(day, id) {
+        allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
+        saveAllData(); 
+        if (currentView === 'weekly') renderAll();
+        else renderDailyData();
+      }
+
       function processAutoMigrations() {
           const today = new Date();
           today.setHours(0,0,0,0);
@@ -714,10 +724,22 @@
                                   initWeekDataIfNeeded(nextWKey);
                                   
                                   if (!allData[nextWKey][nextDay]) allData[nextWKey][nextDay] = [];
+                                  const newId = 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5);
                                   allData[nextWKey][nextDay].push({
-                                      id: 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5),
+                                      id: newId,
                                       text: task.text,
                                       state: 'in-progress'
+                                  });
+                                  task.autoMigratedTaskId = newId;
+                                  task.autoMigratedDate = formatDateStr(nextDate);
+                                  
+                                  allData[nextWKey][nextDay].sort((a, b) => {
+                                      const getWeight = (state) => {
+                                          if (state === 'in-progress') return -1; 
+                                          if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
+                                          return 0; 
+                                      };
+                                      return getWeight(a.state) - getWeight(b.state);
                                   });
                               }
                           }
@@ -1205,7 +1227,8 @@
           return monDate;
       }
 
-      function addTaskToSpecificDate(targetDate, text, specificDay = null) {
+      // 💡 [수정됨] 대상을 복사할 때 배열 정렬 로직 보완
+      function addTaskToSpecificDate(targetDate, text, specificDay = null, initialState = 'todo', explicitId = null) {
           const weekKey = getMondayStr(targetDate);
           initWeekDataIfNeeded(weekKey);
           
@@ -1216,10 +1239,22 @@
           }
           
           if (!allData[weekKey][targetDay]) allData[weekKey][targetDay] = [];
+          
+          const newId = explicitId ? explicitId : ('mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5));
+          
           allData[weekKey][targetDay].push({ 
-              id: 'mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5), 
+              id: newId, 
               text: text, 
-              state: 'todo' 
+              state: initialState 
+          });
+
+          allData[weekKey][targetDay].sort((a, b) => {
+              const getWeight = (state) => {
+                  if (state === 'in-progress') return -1; 
+                  if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
+                  return 0; 
+              };
+              return getWeight(a.state) - getWeight(b.state);
           });
       }
 
@@ -1249,15 +1284,19 @@
           
           const task = allData[currentWeekKey][postponeTarget.day].find(t => t.id === postponeTarget.id);
           if(task && !task.migrated) {
-              addTaskToSpecificDate(targetDate, task.text);
+              // 복사본을 날려보낼 때 해당 ID를 저장하여 나중에 취소 시 지울 수 있게 함
+              const newTaskId = 'mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5);
+              addTaskToSpecificDate(targetDate, task.text, null, 'todo', newTaskId);
               task.migrated = true;
+              task.postponedTo = targetDateStr; 
+              task.migratedTaskId = newTaskId;
               saveAllData();
           }
           document.getElementById('postpone-modal').style.display = 'none';
           renderAll();
       }
 
-      // 💡 [핵심 수정] 0.8초 딜레이 정렬 (연타 시 제자리 렌더링 유지)
+      // 💡 [수정됨] 마이그레이션된 항목 회수(삭제)를 포함한 완벽한 토글 로직
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t.id === id);
           if (!task) return;
@@ -1271,39 +1310,100 @@
           let nextIndex = (currentIndex + 1) % states.length;
           task.state = states[nextIndex];
           
+          // 진행중이 풀리면 생성했던 분신 삭제
+          if (task.state !== 'in-progress') {
+              if (task.autoMigratedTaskId && task.autoMigratedDate) {
+                  const mWeekKey = getMondayStr(new Date(task.autoMigratedDate));
+                  if (allData[mWeekKey]) {
+                      ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
+                          if (allData[mWeekKey][d]) {
+                              allData[mWeekKey][d] = allData[mWeekKey][d].filter(t => t.id !== task.autoMigratedTaskId);
+                          }
+                      });
+                  }
+              }
+              task.autoMigrated = false;
+              task.autoMigratedTaskId = null;
+              task.autoMigratedDate = null;
+          }
+
+          // 보류가 풀리면 생성했던 분신 삭제
           if (task.state !== 'postponed') {
+              if (task.migratedTaskId && task.postponedTo) {
+                  const pWeekKey = getMondayStr(new Date(task.postponedTo));
+                  if (allData[pWeekKey]) {
+                      ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
+                          if (allData[pWeekKey][d]) {
+                              allData[pWeekKey][d] = allData[pWeekKey][d].filter(t => t.id !== task.migratedTaskId);
+                          }
+                      });
+                  }
+              }
               task.migrated = false; 
+              task.postponedTo = null;
+              task.migratedTaskId = null;
+          }
+
+          // 과거의 할 일을 진행중으로 바꾸면 오늘 목록으로 즉각 이관
+          if (task.state === 'in-progress') {
+              let taskDate = (day === 'weekly') ? getTaskDate(currentWeekKey, 'mon') : getTaskDate(currentWeekKey, day);
+              let today = new Date();
+              today.setHours(0,0,0,0);
+              taskDate.setHours(0,0,0,0);
+
+              if (taskDate < today && !task.autoMigrated) {
+                  const newId = 'auto_' + Date.now().toString() + Math.random().toString(36).substr(2,5);
+                  addTaskToSpecificDate(new Date(), task.text, null, 'in-progress', newId);
+                  task.autoMigrated = true;
+                  task.autoMigratedTaskId = newId;
+                  task.autoMigratedDate = formatDateStr(new Date());
+              }
           }
           
           saveAllData();
           
-          // 화면 즉각 업데이트 (깜빡임 없이 해당 요소만 샥! 변경)
           const taskLi = document.querySelector(`.task-item[data-id="${id}"]`);
           if (taskLi) {
               taskLi.className = `task-item state-${task.state}`;
+              const checkbox = taskLi.querySelector('.task-custom-checkbox');
+              if(checkbox) checkbox.setAttribute('title', getTooltipText(task));
           }
           updateProgress(day);
 
-          // 타이머 초기화 (연타 중에는 절대 안 내려감)
           if (sortTaskTimer[day]) clearTimeout(sortTaskTimer[day]);
           
-          // 연타가 끝나고 0.8초 멈춰있으면 스르륵 아래로 정렬!
           sortTaskTimer[day] = setTimeout(() => {
               allData[currentWeekKey][day].sort((a, b) => {
-                  const aHandled = ['done', 'canceled', 'postponed'].includes(a.state) ? 1 : 0;
-                  const bHandled = ['done', 'canceled', 'postponed'].includes(b.state) ? 1 : 0;
-                  return aHandled - bHandled;
+                  const getWeight = (state) => {
+                      if (state === 'in-progress') return -1; 
+                      if (['done', 'canceled', 'postponed'].includes(state)) return 1; 
+                      return 0; 
+                  };
+                  return getWeight(a.state) - getWeight(b.state);
               });
               saveAllData();
-              renderAll(); // 정렬된 배열을 기반으로 화면 싹 다시 그리기
+              renderAll(); 
           }, 800);
 
-          // 보류 팝업은 바로 띄움
           if (task.state === 'postponed') {
               if (!task.migrated) {
                   setTimeout(() => { openPostponeModal(day, task.id); }, 10);
               }
           }
+      }
+
+      function getTooltipText(task) {
+          if (task.state === 'done') return '완료된 할일';
+          if (task.state === 'in-progress') return '진행중 할일';
+          if (task.state === 'canceled') return '취소된 할일';
+          if (task.state === 'postponed') {
+              if (task.postponedTo) {
+                  const dParts = task.postponedTo.split('-');
+                  return `보류 (${parseInt(dParts[1], 10)}월 ${parseInt(dParts[2], 10)}일로)`;
+              }
+              return '보류된 할일';
+          }
+          return '할 일';
       }
 
       function createHtmlForTask(task, day) {
@@ -1317,7 +1417,7 @@
         li.dataset.id = task.id;
         li.innerHTML = `
           <div class="drag-handle">⋮</div>
-          <div class="task-custom-checkbox" onclick="toggleTaskState('${day}', '${task.id}')"></div>
+          <div class="task-custom-checkbox" title="${getTooltipText(task)}" onclick="toggleTaskState('${day}', '${task.id}')"></div>
           <span class="task-text">${task.text}</span>
           <button class="delete-btn" onclick="deleteTask('${day}', '${task.id}')">✕</button>
         `;
@@ -1476,7 +1576,7 @@
                   const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
                   previewHtml += displayTasks.map(t => {
                       const sym = symMap[t.state || 'todo'] || '◻';
-                      const isStrike = (t.state && t.state !== 'todo');
+                      const isStrike = ['done', 'canceled', 'postponed'].includes(t.state);
                       return `<div class="monthly-preview-text" style="color: ${isStrike ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${isStrike ? 'line-through' : 'none'};">${sym} ${t.text}</div>`;
                   }).join('');
               }
@@ -1685,14 +1785,6 @@
         saveAllData(); 
         
         if (currentView === 'weekly') renderAll(day);
-        else renderDailyData();
-      }
-
-      function deleteTask(day, id) {
-        allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
-        saveAllData(); 
-        
-        if (currentView === 'weekly') renderAll();
         else renderDailyData();
       }
 
