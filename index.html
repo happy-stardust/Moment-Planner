@@ -88,7 +88,7 @@
     .home-quick-tile span { font-size: 0.8rem; color: var(--text-muted); }
 
     /* 진행률 바 */
-    .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 4px; overflow: hidden; width: 100%; }
+    .progress-bg { height: 3px; background: var(--line-color); border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%; }
     .progress-fill { height: 100%; background: #A7D4D3; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .progress-text-display { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; transition: color 0.3s ease; }
 
@@ -103,8 +103,6 @@
     .column-header.clickable:hover { background-color: #f1f5f9; }
 
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
-    
-    /* 💡 빈 화면 텍스트 높이를 34px로 고정하여 줄눈과 일치시킴 */
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
@@ -144,7 +142,9 @@
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
     .custom-kpt-table th { background: #fcfcfd; padding: 12px; font-size: 0.82rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); font-weight: 600; text-align: center; }
     .custom-kpt-table td { border-bottom: 1px solid var(--line-color); padding: 6px; }
-    .cat-name-input { width: 100%; border: 1px solid transparent; background: transparent; font-weight: 600; font-size: 0.82rem; color: var(--text-main); text-align: center; outline: none; padding: 4px; font-family: inherit; }
+    
+    .cat-input-wrapper { display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .cat-name-input { width: 100px; border: 1px solid transparent; background: transparent; font-weight: 600; font-size: 0.82rem; color: var(--text-main); text-align: center; outline: none; padding: 4px; font-family: inherit; transition: 0.2s; }
     .cat-name-input:focus { border-color: var(--border-color); background: #fff; border-radius: 4px; }
     .custom-kpt-textarea { width: 100%; height: 65px; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 0.8rem; color: var(--text-main); line-height: 1.4; padding: 4px; }
     .custom-kpt-textarea:focus { background: rgba(241, 245, 249, 0.5); border-radius: 4px; }
@@ -155,15 +155,15 @@
     .monthly-view-container { display: none; flex-direction: column; gap: 16px; }
     .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
     .monthly-weekday-header { background: #fcfcfd; padding: 10px; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-    .monthly-day-cell { background: #fff; min-height: 160px; padding: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: 0.1s; }
+    .monthly-day-cell { background: #fff; height: 160px; max-height: 160px; overflow: hidden; padding: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: 0.1s; }
     .monthly-day-cell:hover { background: #f8fafc; }
     .monthly-day-cell.other-month { background: #fcfcfd; opacity: 0.4; }
-    .monthly-day-number { font-size: 0.85rem; font-weight: 600; color: var(--text-main); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .monthly-day-number { font-size: 0.85rem; font-weight: 600; color: var(--text-main); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;}
     .monthly-day-cell.today .monthly-day-number { background: var(--accent-color); color: white; }
     
-    .monthly-tasks-container { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
-    .monthly-preview-text { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--line-color); padding: 2px 4px; border-radius: 3px; }
-    .monthly-week-badge { font-size: 0.7rem; color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-bottom: 4px; display: inline-block; }
+    .monthly-tasks-container { display: flex; flex-direction: column; gap: 3px; overflow: hidden; flex: 1;}
+    .monthly-preview-text { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--line-color); padding: 2px 4px; border-radius: 3px; flex-shrink: 0;}
+    .monthly-week-badge { font-size: 0.7rem; color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-bottom: 4px; display: inline-block; flex-shrink: 0;}
 
     /* 데일리 뷰 스타일 */
     .daily-view-container { display: none; flex-direction: column; gap: 16px; height: 100%;}
@@ -232,8 +232,8 @@
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
         <span class="nav-tab" id="tab-monthly" onclick="switchView('monthly')">MONTHLY</span>
-        <span class="nav-tab" id="tab-weekly" onclick="switchView('weekly')">WEEKLY</span>
-        <span class="nav-tab" id="tab-daily" onclick="switchView('daily')">DAILY</span>
+        <span class="nav-tab" id="tab-weekly" onclick="jumpToTodayWeekly()">WEEKLY</span>
+        <span class="nav-tab" id="tab-daily" onclick="jumpToTodayDaily()">DAILY</span>
       </nav>
     </header>
 
@@ -261,7 +261,6 @@
       </div>
     </div>
 
-    <!-- 🏠 0. 정방형 대형 감성 홈 대시보드 뷰 -->
     <main class="home-view-container fade-in" id="view-home">
       <div class="home-square-card">
         <img src="https://i.pinimg.com/1200x/e7/b7/20/e7b7207a188e36e7c457ae65f83c8d62.jpg" alt="Mood Image">
@@ -276,18 +275,17 @@
           <h3>🗓️ 먼슬리 캘린더</h3>
           <span>한 달의 전체 흐름과 허브 이동</span>
         </div>
-        <div class="home-quick-tile" onclick="switchView('weekly')">
+        <div class="home-quick-tile" onclick="jumpToTodayWeekly()">
           <h3>📊 위클리 플래너</h3>
           <span>일주일의 일정 조망 및 요일별 할 일</span>
         </div>
-        <div class="home-quick-tile" onclick="switchView('daily')">
+        <div class="home-quick-tile" onclick="jumpToTodayDaily()">
           <h3>📅 데일리 플래너</h3>
           <span>시간대별 Plan/Do 블록과 KPT 회고</span>
         </div>
       </div>
     </main>
 
-    <!-- 🗓️ 1-A. 위클리 플래너 뷰 -->
     <main class="planner-grid" id="view-weekly">
       <section class="day-column">
         <div class="column-header weekly-todo">
@@ -327,12 +325,10 @@
       </script>
     </main>
 
-    <!-- 🗓️ 1-B. 먼슬리 캘린더 뷰 (허브) -->
     <main class="monthly-view-container" id="view-monthly">
       <div class="monthly-grid" id="monthly-calendar-grid"></div>
     </main>
 
-    <!-- 📝 1-C. 위클리 회고 뷰 -->
     <main class="weekly-review-container" id="view-weekly-review">
       <div class="review-panel">
         <div class="review-panel-header">이번 주 일일 회고 모아보기 (Daily KPT Log)</div>
@@ -343,7 +339,7 @@
         <table class="custom-kpt-table">
           <thead>
             <tr>
-              <th style="width: 130px;">영역 / 카테고리</th>
+              <th style="width: 140px;">영역 / 카테고리</th>
               <th><span style="color:var(--primary-color);">Keep</span> (유지할 점)</th>
               <th><span style="color:var(--accent-color);">Problem</span> (아쉬운 점)</th>
               <th><span style="color:#10b981;">Try</span> (시도할 점)</th>
@@ -355,7 +351,6 @@
       </div>
     </main>
 
-    <!-- 🕒 2. 데일리 뷰 -->
     <main class="daily-view-container" id="view-daily">
       <div class="daily-top-nav-bar">
         <div class="daily-day-tabs" id="daily-day-tabs">
@@ -432,7 +427,6 @@
     </main>
   </div>
 
-  <!-- 🔍 검색 모달 -->
   <div id="search-modal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
@@ -564,21 +558,41 @@
         updateDateUI();
         updateWeeklyHeaders(); 
 
+        // 💡 [수정됨] 타임머신 로직 강화: 가장 최근의 과거 데이터를 찾아서 빈 화면에 덮어씌움
+        let recentWeekKey = null;
+        let pastKeys = Object.keys(allData).filter(k => k < currentWeekKey && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
+        if (pastKeys.length > 0) {
+            recentWeekKey = pastKeys[pastKeys.length - 1];
+        }
+
+        let inheritedCategories = ['업무 / 학업', '성장 / 루틴']; 
+        if (recentWeekKey && allData[recentWeekKey] && allData[recentWeekKey].customWeeklyReview) {
+            inheritedCategories = allData[recentWeekKey].customWeeklyReview.map(r => r.category);
+        }
+
         if (!allData[currentWeekKey]) {
           allData[currentWeekKey] = {
             weekly: [], mon: [], tue: [], wed: [], thur: [], fri: [], sat: [], sun: [], daily: {},
-            customWeeklyReview: [
-              { id: '1', category: '업무 / 학업', keep: '', problem: '', try: '' },
-              { id: '2', category: '성장 / 루틴', keep: '', problem: '', try: '' }
-            ]
+            customWeeklyReview: inheritedCategories.map((cat, idx) => ({
+              id: Date.now().toString() + idx,
+              category: cat,
+              keep: '', problem: '', try: ''
+            }))
           };
-        }
-        
-        if(!allData[currentWeekKey].customWeeklyReview) {
-          allData[currentWeekKey].customWeeklyReview = [
-            { id: '1', category: '업무 / 학업', keep: '', problem: '', try: '' },
-            { id: '2', category: '성장 / 루틴', keep: '', problem: '', try: '' }
-          ];
+        } else {
+          // 이미 만들어진 주차라도 안의 내용이 비어있다면 최신 카테고리로 덮어쓰기
+          if (!allData[currentWeekKey].customWeeklyReview) {
+             allData[currentWeekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
+              id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
+            }));
+          } else {
+             const hasContent = allData[currentWeekKey].customWeeklyReview.some(r => r.keep.trim() !== '' || r.problem.trim() !== '' || r.try.trim() !== '');
+             if (!hasContent && pastKeys.length > 0) {
+                 allData[currentWeekKey].customWeeklyReview = inheritedCategories.map((cat, idx) => ({
+                  id: Date.now().toString() + idx, category: cat, keep: '', problem: '', try: ''
+                }));
+             }
+          }
         }
 
         allDaysList.forEach(d => {
@@ -623,6 +637,24 @@
           loadWeek();
           updateDateUI();
         }
+      }
+
+      window.jumpToTodayWeekly = function() {
+        isWeeklyReviewMode = false;
+        const btn = document.getElementById('toggle-review-btn');
+        if (btn) { btn.innerText = '🔄 회고 모드 켜기'; btn.style.backgroundColor = 'var(--primary-color)'; }
+        currentDate = new Date();
+        loadWeek();
+        switchView('weekly');
+      }
+
+      window.jumpToTodayDaily = function() {
+        currentDate = new Date();
+        loadWeek();
+        const dayIdx = currentDate.getDay();
+        const targetDayStr = (dayIdx === 0) ? 'sun' : ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'][dayIdx - 1];
+        setDailyDay(targetDayStr);
+        switchView('daily');
       }
 
       window.jumpToMonth = function(monthIdx) {
@@ -981,7 +1013,6 @@
               const tasks = allData[currentWeekKey][day] || [];
               
               if (tasks.length === 0) {
-                 // 💡 빈 화면 텍스트 복구
                  listEl.innerHTML = `<li class="empty-state">아직 할 일이 없어요 🌱</li>`;
               } else {
                  tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
@@ -1136,6 +1167,8 @@
         summaryBox.innerHTML = '';
         const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thur: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
         
+        const formatText = (txt) => txt ? txt.replace(/\n/g, '<br>') : '';
+
         ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
           const daily = allData[currentWeekKey].daily[d];
           if (daily && (daily.keep || daily.problem || daily.try)) {
@@ -1143,9 +1176,9 @@
             card.className = 'summary-day-card';
             card.innerHTML = `
               <div class="summary-day-title">${dayNames[d]}</div>
-              ${daily.keep ? `<div class="summary-kpt-text"><b>Keep:</b> ${daily.keep}</div>` : ''}
-              ${daily.problem ? `<div class="summary-kpt-text"><b>Problem:</b> ${daily.problem}</div>` : ''}
-              ${daily.try ? `<div class="summary-kpt-text"><b>Try:</b> ${daily.try}</div>` : ''}
+              ${daily.keep ? `<div class="summary-kpt-text"><b>Keep:</b> ${formatText(daily.keep)}</div>` : ''}
+              ${daily.problem ? `<div class="summary-kpt-text"><b>Problem:</b> ${formatText(daily.problem)}</div>` : ''}
+              ${daily.try ? `<div class="summary-kpt-text"><b>Try:</b> ${formatText(daily.try)}</div>` : ''}
             `;
             summaryBox.appendChild(card);
           }
@@ -1162,7 +1195,12 @@
         reviewRows.forEach((row) => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td><input type="text" class="cat-name-input" value="${row.category}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명"></td>
+            <td>
+              <div class="cat-input-wrapper">
+                <input type="text" class="cat-name-input" value="${row.category}" onchange="updateCustomCategory('${row.id}', this.value)" placeholder="카테고리명">
+                <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
+              </div>
+            </td>
             <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep}</textarea></td>
             <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem}</textarea></td>
             <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try}</textarea></td>
@@ -1176,6 +1214,13 @@
         allData[currentWeekKey].customWeeklyReview.push({
           id: Date.now().toString(), category: '새 항목', keep: '', problem: '', try: ''
         });
+        saveAllData();
+        renderWeeklyReviewData();
+      }
+
+      window.deleteCustomKptRow = function(id) {
+        if(!confirm("이 항목을 삭제하시겠습니까?")) return;
+        allData[currentWeekKey].customWeeklyReview = allData[currentWeekKey].customWeeklyReview.filter(r => r.id !== id);
         saveAllData();
         renderWeeklyReviewData();
       }
@@ -1198,7 +1243,6 @@
         if (dailyTodoList) {
           dailyTodoList.innerHTML = '';
           if (!dayData || dayData.length === 0) {
-             // 💡 데일리 화면 빈 텍스트 복구
              dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
           } else {
              dayData.forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
