@@ -517,6 +517,7 @@
       let currentView = 'home'; 
       let currentDailyDay = 'mon'; 
       let isWeeklyReviewMode = false;
+      let sortTaskTimer = {}; // 💡 딜레이 정렬용 전역 타이머 객체
 
       const tbBody = document.getElementById('timeblock-body');
       if (tbBody) {
@@ -1256,6 +1257,7 @@
           renderAll();
       }
 
+      // 💡 [핵심 수정] 0.8초 딜레이 정렬 (연타 시 제자리 렌더링 유지)
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t.id === id);
           if (!task) return;
@@ -1273,21 +1275,33 @@
               task.migrated = false; 
           }
           
-          // 💡 [버그 수정] todo(빈 네모)가 아닌 항목들은 배열 하단으로 정렬
-          allData[currentWeekKey][day].sort((a, b) => {
-              const aHandled = (a.state && a.state !== 'todo') ? 1 : 0;
-              const bHandled = (b.state && b.state !== 'todo') ? 1 : 0;
-              return aHandled - bHandled;
-          });
-          
           saveAllData();
-          renderAll(); 
+          
+          // 화면 즉각 업데이트 (깜빡임 없이 해당 요소만 샥! 변경)
+          const taskLi = document.querySelector(`.task-item[data-id="${id}"]`);
+          if (taskLi) {
+              taskLi.className = `task-item state-${task.state}`;
+          }
+          updateProgress(day);
 
+          // 타이머 초기화 (연타 중에는 절대 안 내려감)
+          if (sortTaskTimer[day]) clearTimeout(sortTaskTimer[day]);
+          
+          // 연타가 끝나고 0.8초 멈춰있으면 스르륵 아래로 정렬!
+          sortTaskTimer[day] = setTimeout(() => {
+              allData[currentWeekKey][day].sort((a, b) => {
+                  const aHandled = ['done', 'canceled', 'postponed'].includes(a.state) ? 1 : 0;
+                  const bHandled = ['done', 'canceled', 'postponed'].includes(b.state) ? 1 : 0;
+                  return aHandled - bHandled;
+              });
+              saveAllData();
+              renderAll(); // 정렬된 배열을 기반으로 화면 싹 다시 그리기
+          }, 800);
+
+          // 보류 팝업은 바로 띄움
           if (task.state === 'postponed') {
               if (!task.migrated) {
-                  setTimeout(() => {
-                      openPostponeModal(day, task.id);
-                  }, 10);
+                  setTimeout(() => { openPostponeModal(day, task.id); }, 10);
               }
           }
       }
