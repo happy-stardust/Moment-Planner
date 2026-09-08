@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22> ✨ </text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -105,8 +105,13 @@
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
     .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; }
+    .schedule-bar.outline { background-color: transparent !important; border: 2px solid var(--primary-color); color: var(--text-main) !important; box-shadow: none; padding: 2px 6px; }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
-    .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; padding: 2px 6px; color: #ffffff !important; }
+    .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; }
+    .monthly-preview-text.schedule-bar.outline { padding: 1px 5px; }
+
+    .daily-allday-banner { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
+    .daily-allday-banner:hover { filter: brightness(0.95); transform: translateY(-1px); }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
     .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
@@ -472,19 +477,34 @@
         <input type="date" id="sch-end" class="search-input" style="flex:1;" />
       </div>
 
-      <div>
+      <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+        <label style="font-size:0.85rem; font-weight:600; color:var(--text-main); display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" id="sch-allday" checked onchange="toggleSchTimeInputs()" style="width:16px; height:16px; accent-color:var(--primary-color);" /> 하루 종일
+        </label>
+      </div>
+      
+      <div id="sch-time-container" style="display: none; gap: 10px; align-items: center; margin-top: 8px;">
+        <select id="sch-start-time" class="search-input" style="flex:1; padding:8px;">
+            <option value="5">05:00</option><option value="6">06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option><option value="24">24:00</option><option value="25">01:00 (익일)</option><option value="26">02:00 (익일)</option>
+        </select>
+        <span style="color:var(--text-muted); font-weight:bold;">~</span>
+        <select id="sch-end-time" class="search-input" style="flex:1; padding:8px;">
+            <option value="5">05:00</option><option value="6">06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option><option value="24">24:00</option><option value="25">01:00 (익일)</option><option value="26">02:00 (익일)</option>
+        </select>
+      </div>
+
+      <div style="margin-top: 12px;">
         <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">일정 색상</span>
         <div id="sch-color-picker" style="display: flex; gap: 10px; margin-top: 8px;"></div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
         <button id="sch-delete-btn" onclick="deleteSchedule()" style="display:none; background:#ffe4e6; color:#be123c; border:none; padding:10px 16px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">삭제</button>
         <button onclick="saveSchedule()" style="background:var(--primary-color); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; transition:0.2s;">저장</button>
       </div>
     </div>
   </div>
 
-  <!-- 보류(미루기) 모달 -->
   <div id="postpone-modal" class="modal-overlay" onclick="closePostponeModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
@@ -678,7 +698,6 @@
         initWeekDataIfNeeded(currentWeekKey);
       }
 
-      // 💡 [수정됨] 매끄러운 전역 삭제 함수
       window.deleteTask = function(day, id) {
         allData[currentWeekKey][day] = allData[currentWeekKey][day].filter(t => t.id !== id);
         saveAllData(); 
@@ -935,6 +954,11 @@
         reader.readAsText(file);
       };
 
+      window.toggleSchTimeInputs = function() {
+          const isAllDay = document.getElementById('sch-allday').checked;
+          document.getElementById('sch-time-container').style.display = isAllDay ? 'none' : 'flex';
+      }
+
       function renderSchColors() {
           const picker = document.getElementById('sch-color-picker');
           if(!picker) return;
@@ -957,6 +981,9 @@
               document.getElementById('sch-title').value = sch.title;
               document.getElementById('sch-start').value = sch.start;
               document.getElementById('sch-end').value = sch.end;
+              document.getElementById('sch-allday').checked = (sch.isAllDay !== false);
+              document.getElementById('sch-start-time').value = sch.startHour || '9';
+              document.getElementById('sch-end-time').value = sch.endHour || '10';
               selectedSchColor = sch.color;
               document.getElementById('sch-delete-btn').style.display = 'block';
           } else {
@@ -966,9 +993,13 @@
               const todayStr = formatDateStr(currentDate);
               document.getElementById('sch-start').value = todayStr;
               document.getElementById('sch-end').value = todayStr;
+              document.getElementById('sch-allday').checked = true;
+              document.getElementById('sch-start-time').value = '9';
+              document.getElementById('sch-end-time').value = '10';
               selectedSchColor = scheduleColors[0];
               document.getElementById('sch-delete-btn').style.display = 'none';
           }
+          toggleSchTimeInputs();
           renderSchColors();
       };
 
@@ -977,28 +1008,87 @@
           document.getElementById('schedule-modal').style.display = 'none';
       }
 
+      // 💡 [수정됨] 일정을 수정하거나 지울 때 데일리 플랜(타임블록)에서 구버전 텍스트를 청소하는 함수
+      function removeScheduleFromTimeblocks(sch) {
+          if (sch.isAllDay !== false) return; // 종일 일정은 타임블록에 안 들어가므로 패스
+          let curr = new Date(sch.start);
+          let endD = new Date(sch.end);
+          while(curr <= endD) {
+              const wKey = getMondayStr(curr);
+              if (allData[wKey] && allData[wKey].daily) {
+                  const targetDay = ['sun','mon','tue','wed','thur','fri','sat'][curr.getDay()];
+                  if (allData[wKey].daily[targetDay]) {
+                      for(let h = sch.startHour; h <= sch.endHour; h++) {
+                          let existing = allData[wKey].daily[targetDay].plan[h] || '';
+                          if (existing) {
+                              let arr = existing.split(',').map(s=>s.trim()).filter(s => s !== sch.title);
+                              allData[wKey].daily[targetDay].plan[h] = arr.join(', ');
+                              if (arr.length === 0 && allData[wKey].daily[targetDay].planColor[h] === sch.color) {
+                                  allData[wKey].daily[targetDay].planColor[h] = 'transparent';
+                              }
+                          }
+                      }
+                  }
+              }
+              curr.setDate(curr.getDate() + 1);
+          }
+      }
+
       window.saveSchedule = function() {
           const id = document.getElementById('sch-id').value;
           const title = document.getElementById('sch-title').value.trim();
-          const start = document.getElementById('sch-start').value;
-          const end = document.getElementById('sch-end').value;
+          const startStr = document.getElementById('sch-start').value;
+          const endStr = document.getElementById('sch-end').value;
+          const isAllDay = document.getElementById('sch-allday').checked;
+          const startHour = parseInt(document.getElementById('sch-start-time').value);
+          const endHour = parseInt(document.getElementById('sch-end-time').value);
 
-          if(!title || !start || !end) return alert('제목과 날짜를 모두 입력해주세요.');
-          if(start > end) return alert('종료일이 시작일보다 빠를 수 없습니다.');
+          if(!title || !startStr || !endStr) return alert('제목과 날짜를 모두 입력해주세요.');
+          if(startStr > endStr) return alert('종료일이 시작일보다 빠를 수 없습니다.');
+          if(!isAllDay && startHour > endHour) return alert('종료 시간이 시작 시간보다 빠를 수 없습니다.');
 
           if(!allData.schedules) allData.schedules = [];
 
+          let newSch = null;
           if (id) {
-              const sch = allData.schedules.find(s => s.id === id);
-              if(sch) {
-                  sch.title = title; sch.start = start; sch.end = end; sch.color = selectedSchColor;
+              const oldSch = allData.schedules.find(s => s.id === id);
+              if(oldSch) {
+                  removeScheduleFromTimeblocks(oldSch); // 과거 기록 청소
+                  oldSch.title = title; oldSch.start = startStr; oldSch.end = endStr; 
+                  oldSch.color = selectedSchColor; oldSch.isAllDay = isAllDay;
+                  oldSch.startHour = startHour; oldSch.endHour = endHour;
+                  newSch = oldSch;
               }
           } else {
-              allData.schedules.push({
+              newSch = {
                   id: 'sch_' + Date.now(),
-                  title, start, end, color: selectedSchColor
-              });
+                  title, start: startStr, end: endStr, color: selectedSchColor,
+                  isAllDay, startHour, endHour
+              };
+              allData.schedules.push(newSch);
           }
+
+          if (!isAllDay && newSch) {
+              let curr = new Date(startStr);
+              let endD = new Date(endStr);
+              while(curr <= endD) {
+                  const wKey = getMondayStr(curr);
+                  initWeekDataIfNeeded(wKey);
+                  const targetDay = ['sun','mon','tue','wed','thur','fri','sat'][curr.getDay()];
+
+                  for(let h = startHour; h <= endHour; h++) {
+                      const existing = allData[wKey].daily[targetDay].plan[h] || '';
+                      if (!existing.includes(title)) {
+                          allData[wKey].daily[targetDay].plan[h] = existing ? existing + ', ' + title : title;
+                      }
+                      if (!allData[wKey].daily[targetDay].planColor[h] || allData[wKey].daily[targetDay].planColor[h] === 'transparent') {
+                          allData[wKey].daily[targetDay].planColor[h] = selectedSchColor;
+                      }
+                  }
+                  curr.setDate(curr.getDate() + 1);
+              }
+          }
+
           saveAllData();
           closeScheduleModal();
           
@@ -1009,6 +1099,10 @@
       window.deleteSchedule = function() {
           const id = document.getElementById('sch-id').value;
           if(!confirm('해당 일정을 정말 삭제하시겠습니까?')) return;
+          
+          const schToRemove = allData.schedules.find(s => s.id === id);
+          if (schToRemove) removeScheduleFromTimeblocks(schToRemove); // 삭제 시에도 청소
+          
           allData.schedules = allData.schedules.filter(s => s.id !== id);
           saveAllData();
           closeScheduleModal();
@@ -1227,7 +1321,6 @@
           return monDate;
       }
 
-      // 💡 [수정됨] 대상을 복사할 때 배열 정렬 로직 보완
       function addTaskToSpecificDate(targetDate, text, specificDay = null, initialState = 'todo', explicitId = null) {
           const weekKey = getMondayStr(targetDate);
           initWeekDataIfNeeded(weekKey);
@@ -1284,7 +1377,6 @@
           
           const task = allData[currentWeekKey][postponeTarget.day].find(t => t.id === postponeTarget.id);
           if(task && !task.migrated) {
-              // 복사본을 날려보낼 때 해당 ID를 저장하여 나중에 취소 시 지울 수 있게 함
               const newTaskId = 'mig_' + Date.now().toString() + Math.random().toString(36).substr(2, 5);
               addTaskToSpecificDate(targetDate, task.text, null, 'todo', newTaskId);
               task.migrated = true;
@@ -1296,7 +1388,6 @@
           renderAll();
       }
 
-      // 💡 [수정됨] 마이그레이션된 항목 회수(삭제)를 포함한 완벽한 토글 로직
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t.id === id);
           if (!task) return;
@@ -1310,7 +1401,6 @@
           let nextIndex = (currentIndex + 1) % states.length;
           task.state = states[nextIndex];
           
-          // 진행중이 풀리면 생성했던 분신 삭제
           if (task.state !== 'in-progress') {
               if (task.autoMigratedTaskId && task.autoMigratedDate) {
                   const mWeekKey = getMondayStr(new Date(task.autoMigratedDate));
@@ -1327,7 +1417,6 @@
               task.autoMigratedDate = null;
           }
 
-          // 보류가 풀리면 생성했던 분신 삭제
           if (task.state !== 'postponed') {
               if (task.migratedTaskId && task.postponedTo) {
                   const pWeekKey = getMondayStr(new Date(task.postponedTo));
@@ -1344,7 +1433,6 @@
               task.migratedTaskId = null;
           }
 
-          // 과거의 할 일을 진행중으로 바꾸면 오늘 목록으로 즉각 이관
           if (task.state === 'in-progress') {
               let taskDate = (day === 'weekly') ? getTaskDate(currentWeekKey, 'mon') : getTaskDate(currentWeekKey, day);
               let today = new Date();
@@ -1440,11 +1528,28 @@
                  const cellDateStr = formatDateStr(monDate);
                  
                  const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
+                 
+                 // 💡 [수정됨] 위클리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
+                 daySchedules.sort((a, b) => {
+                     const aAll = a.isAllDay !== false;
+                     const bAll = b.isAllDay !== false;
+                     if (aAll && !bAll) return -1;
+                     if (!aAll && bAll) return 1;
+                     if (!aAll && !bAll) return a.startHour - b.startHour;
+                     return 0;
+                 });
+                 
                  daySchedules.forEach(s => {
                     const schLi = document.createElement('li');
-                    schLi.className = 'schedule-bar';
-                    schLi.style.backgroundColor = s.color;
-                    schLi.innerText = s.title;
+                    schLi.className = 'schedule-bar' + (s.isAllDay === false ? ' outline' : '');
+                    if (s.isAllDay === false) {
+                        schLi.style.borderColor = s.color;
+                        let displayH = s.startHour > 24 ? s.startHour - 24 : s.startHour;
+                        schLi.innerText = `[${displayH}시] ${s.title}`;
+                    } else {
+                        schLi.style.backgroundColor = s.color;
+                        schLi.innerText = s.title;
+                    }
                     schLi.onclick = () => openScheduleModal(s.id);
                     listEl.appendChild(schLi);
                  });
@@ -1558,8 +1663,24 @@
           let previewHtml = '<div class="monthly-tasks-container">';
           
           const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
+          
+          // 💡 [수정됨] 먼슬리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
+          daySchedules.sort((a, b) => {
+              const aAll = a.isAllDay !== false;
+              const bAll = b.isAllDay !== false;
+              if (aAll && !bAll) return -1;
+              if (!aAll && bAll) return 1;
+              if (!aAll && !bAll) return a.startHour - b.startHour;
+              return 0;
+          });
+
           daySchedules.forEach(s => {
-              previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
+              if (s.isAllDay === false) {
+                  let displayH = s.startHour > 24 ? s.startHour - 24 : s.startHour;
+                  previewHtml += `<div class="monthly-preview-text schedule-bar outline" style="border-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">[${displayH}시] ${s.title}</div>`;
+              } else {
+                  previewHtml += `<div class="monthly-preview-text schedule-bar" style="background-color:${s.color};" onclick="event.stopPropagation(); openScheduleModal('${s.id}')">${s.title}</div>`;
+              }
           });
 
           const mondayKeyForThisDate = getMondayStr(cellDateObj);
@@ -1706,16 +1827,28 @@
           const cellDateStr = formatDateStr(monDate);
           
           const daySchedules = (allData.schedules || []).filter(s => cellDateStr >= s.start && cellDateStr <= s.end);
-          daySchedules.forEach(s => {
+          
+          // 💡 [수정됨] 데일리 일정 정렬 (종일 일정 먼저, 그 다음 시간 순서)
+          daySchedules.sort((a, b) => {
+              const aAll = a.isAllDay !== false;
+              const bAll = b.isAllDay !== false;
+              if (aAll && !bAll) return -1;
+              if (!aAll && bAll) return 1;
+              if (!aAll && !bAll) return a.startHour - b.startHour;
+              return 0;
+          });
+          
+          const allDaySchedules = daySchedules.filter(s => s.isAllDay !== false);
+          allDaySchedules.forEach(s => {
               const schLi = document.createElement('li');
-              schLi.className = 'schedule-bar';
+              schLi.className = 'daily-allday-banner';
               schLi.style.backgroundColor = s.color;
-              schLi.innerText = s.title;
+              schLi.innerHTML = `<span style="font-size:14px;">🚩</span> <span>${s.title}</span>`;
               schLi.onclick = () => openScheduleModal(s.id);
               dailyTodoList.appendChild(schLi);
           });
 
-          if ((!dayData || dayData.length === 0) && daySchedules.length === 0) {
+          if ((!dayData || dayData.length === 0) && allDaySchedules.length === 0) {
              dailyTodoList.innerHTML = `<li class="empty-state">오늘의 할 일을 적어보세요 🌱</li>`;
           } else {
              (dayData || []).forEach(task => dailyTodoList.appendChild(createHtmlForTask(task, currentDailyDay)));
@@ -1802,7 +1935,7 @@
               group: 'shared', 
               animation: 150, 
               handle: '.drag-handle', 
-              filter: '.schedule-bar', 
+              filter: '.schedule-bar, .daily-allday-banner', 
               ghostClass: 'sortable-ghost', 
               emptyInsertThreshold: 50,
               onEnd: function (evt) {
