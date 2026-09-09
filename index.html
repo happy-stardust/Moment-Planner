@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦋</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   
   <title>Moment PLANNER </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1928,7 +1928,6 @@
           if (allData[wKey] && allData[wKey][dayName]) {
             let tasks = allData[wKey][dayName].filter(t => t && typeof t === 'object');
             
-            // 모든 상태 표시 및 순서 정렬
             tasks.sort((a, b) => {
                 const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
                 const stateA = (a && a.state) ? a.state : 'todo';
@@ -1940,16 +1939,12 @@
               const tDiv = document.createElement('div');
               tDiv.className = 'monthly-preview-text';
               
-              const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
-              const sym = symMap[t.state || 'todo'];
-              tDiv.innerText = `${sym} ${t.text}`;
+              // 💡 기호를 다시 깔끔한 점(•)으로 되돌림
+              tDiv.innerText = `• ${t.text}`;
 
-              // 회색빛 변경 및 취소선
+              // 💡 취소선 긋기 로직은 빼고 회색 처리만 적용
               if (['done', 'canceled', 'postponed'].includes(t.state)) {
                 tDiv.style.color = '#cbd5e1'; 
-                if (t.state === 'done' || t.state === 'canceled') {
-                  tDiv.style.textDecoration = 'line-through';
-                }
               }
 
               tasksContainer.appendChild(tDiv);
