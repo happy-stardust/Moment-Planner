@@ -7,16 +7,18 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦋</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
   
   <title>Moment PLANNER </title>
   
-  <!-- 웹 폰트 로드 -->
+  <!-- 웹 폰트 로드 (iOS 사파리 충돌 방지를 위해 url 직접 호출 방식으로 통일) -->
   <style>
     @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
     @font-face { font-family: 'Dovemayo_gothic'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.1/Dovemayo_gothic.woff2') format('woff2'); font-weight: normal; font-style: normal; }
     @font-face { font-family: 'Ownglyph_tori'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/Ownglyph_tori.woff2') format('woff2'); font-weight: normal; font-style: normal; }
-    @font-face { font-family: 'GeuriunXGukhanbakGowoon'; src: local('그리운X국한박 고운'), local('GeuriunXGukhanbakGowoon'), url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2406-1@1.0/GeuriunXGukhanbakGowoon.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GeuriunXGukhanbakGowoon'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2406-1@1.0/GeuriunXGukhanbakGowoon.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GowunDodum-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GowunBatang-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
 
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
@@ -256,7 +258,7 @@
     .sch-color-opt:hover { transform: scale(1.1); }
     .sch-color-opt.selected { border-color: var(--text-main); transform: scale(1.1); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
-    /* 폰트 변경 모달 버튼 디자인 */
+    /* 폰트 변경 모달 버튼 디자인 (스크롤 추가) */
     .font-opt-btn { background: #f8fafc; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; color: var(--text-main); text-align: center; }
     .font-opt-btn:hover { border-color: var(--primary-color); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .font-opt-btn.active { border-color: var(--accent-color); font-weight: bold; background: #fffafb; }
@@ -542,18 +544,20 @@
     </div>
   </div>
 
-  <!-- 💡 폰트 변경 모달 창 -->
+  <!-- 💡 폰트 변경 모달 창 (총 6개 옵션, 스크롤 지원) -->
   <div id="font-modal" class="modal-overlay" onclick="closeFontModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
         <h3 style="color: var(--text-main);">글씨체 변경 🎨</h3>
         <button onclick="closeFontModal()" class="close-btn">✕</button>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px;">
         <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
         <button onclick="changeFont('Dovemayo_gothic')" class="font-opt-btn" style="font-family:'Dovemayo_gothic', sans-serif;">도브마요</button>
         <button onclick="changeFont('Ownglyph_tori')" class="font-opt-btn" style="font-family:'Ownglyph_tori', sans-serif;">온글잎 토리체</button>
         <button onclick="changeFont('GeuriunXGukhanbakGowoon')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakGowoon', sans-serif;">그리운X국한박 고운</button>
+        <button onclick="changeFont('GowunDodum-Regular')" class="font-opt-btn" style="font-family:'GowunDodum-Regular', sans-serif;">고운 돋움</button>
+        <button onclick="changeFont('GowunBatang-Regular')" class="font-opt-btn" style="font-family:'GowunBatang-Regular', serif;">고운 바탕</button>
       </div>
     </div>
   </div>
@@ -1995,10 +1999,8 @@
               const tDiv = document.createElement('div');
               tDiv.className = 'monthly-preview-text';
               
-              // 💡 1. 기호를 다시 깔끔한 점(•)으로 되돌림
               tDiv.innerText = `• ${t.text}`;
 
-              // 💡 2. 취소선 긋기 로직은 빼고 회색 처리만 적용
               if (['done', 'canceled', 'postponed'].includes(t.state)) {
                 tDiv.style.color = '#cbd5e1'; 
               }
