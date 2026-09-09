@@ -1912,7 +1912,7 @@
                 }
 
                 if (tasks.length === 0 && listEl.children.length === 0) {
-                  listEl.innerHTML = `<li class="empty-state">할 일이 없습니다</li>`;
+                  listEl.innerHTML = `<li class="empty-state">아직 할 일이 없습니다 🌱</li>`;
                 } else {
                   tasks.forEach(task => {
                     listEl.appendChild(createHtmlForTask(task, day));
