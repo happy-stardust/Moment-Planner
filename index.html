@@ -1914,7 +1914,6 @@
               schDiv.innerText = `${displayHour}:00 ${s.title}`;
             }
 
-            // 부모 뷰(데일리 이동) 클릭을 막고 모달만 열리도록 처리
             schDiv.onclick = (e) => {
               e.stopPropagation();
               openScheduleModal(s.id);
@@ -1925,14 +1924,37 @@
 
           const wKey = getMondayStr(currentRenderDate);
           const dayName = currentRenderDate.getDay() === 0 ? 'sun' : ['mon','tue','wed','thur','fri','sat'][currentRenderDate.getDay()-1];
+          
           if (allData[wKey] && allData[wKey][dayName]) {
-            const tasks = allData[wKey][dayName].filter(t => t && t.state !== 'done' && t.state !== 'canceled');
+            let tasks = allData[wKey][dayName].filter(t => t && typeof t === 'object');
+            
+            // 모든 상태 표시 및 순서 정렬
+            tasks.sort((a, b) => {
+                const w = { 'in-progress': 1, 'todo': 2, 'done': 3, 'canceled': 4, 'postponed': 5 };
+                const stateA = (a && a.state) ? a.state : 'todo';
+                const stateB = (b && b.state) ? b.state : 'todo';
+                return (w[stateA] || 2) - (w[stateB] || 2);
+            });
+
             tasks.slice(0, 3).forEach(t => { 
               const tDiv = document.createElement('div');
               tDiv.className = 'monthly-preview-text';
-              tDiv.innerText = `• ${t.text}`;
+              
+              const symMap = { 'todo': '◻', 'done': '✔', 'in-progress': '●', 'canceled': '✕', 'postponed': '❯' };
+              const sym = symMap[t.state || 'todo'];
+              tDiv.innerText = `${sym} ${t.text}`;
+
+              // 회색빛 변경 및 취소선
+              if (['done', 'canceled', 'postponed'].includes(t.state)) {
+                tDiv.style.color = '#cbd5e1'; 
+                if (t.state === 'done' || t.state === 'canceled') {
+                  tDiv.style.textDecoration = 'line-through';
+                }
+              }
+
               tasksContainer.appendChild(tDiv);
             });
+            
             if(tasks.length > 3) {
               const moreDiv = document.createElement('div');
               moreDiv.className = 'monthly-preview-text';
