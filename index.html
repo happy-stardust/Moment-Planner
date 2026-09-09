@@ -28,6 +28,13 @@
     /* 4. IM혜민체 (굵은 Bold 버전) */
     @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; size-adjust: 90%;}
 
+    /* 5. 국한박 오춘기 김작가 (한글은 오춘기체, 영문/숫자는 프리텐다드로 비율 보정) */
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griunxhangeulochungikim-regular/griunxhangeulochungikim-regular/GriunXHangeulOCHUNGIKIM-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 110%; }
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
+
+    /* 6. 몽토리체 */
+    @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; size-adjust: 115%; }
+
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
       --border-color: #e2e8f0; --line-color: #f1f5f9;
@@ -121,12 +128,10 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; display: flex; flex-direction: column; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    /* ✅ 일정 바(박스형) 텍스트 상하 정렬 완벽 해결 (padding-top 추가) */
-    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 2px 8px 0; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
-    .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 2px 6px 0; border-color: var(--primary-color); }
+    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
+    .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 0 6px; border-color: var(--primary-color); }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
     
-    /* ✅ 먼슬리 뷰 텍스트 상하 쏠림 및 중앙 정렬 완벽 해결 (display: flex) */
     .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; min-height: 22px; height: auto; display: flex; align-items: center; padding: 2px 5px 0; border-width: 1.5px; }
     .monthly-preview-text.schedule-bar.outline { padding: 2px 5px 0; }
 
@@ -503,7 +508,6 @@
       <input type="text" id="sch-title" class="search-input" placeholder="일정 이름 (예: 제주도 여행)" />
       
       <div style="display: flex; gap: 10px; align-items: center;">
-        <!-- ✅ 시작 날짜가 변경될 때 syncEndDate() 실행! -->
         <input type="date" id="sch-start" class="search-input" style="flex:1;" onchange="syncEndDate()" />
         <span style="color:var(--text-muted); font-weight:bold;">~</span>
         <input type="date" id="sch-end" class="search-input" style="flex:1;" />
@@ -564,12 +568,16 @@
         <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
         <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두체</button>
         <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
+        
+        <!-- ✨ 폰트 2종 새롭게 추가! -->
+        <button onclick="changeFont('NostalgicGukhanbakOchungiWriterKim')" class="font-opt-btn" style="font-family:'NostalgicGukhanbakOchungiWriterKim', sans-serif;">오춘기 김작가체</button>
+        <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">몽토리체</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ✅ 시작 날짜 변경 시, 종료 날짜 자동 맞춤 함수 추가!
+    // ✅ 시작 날짜 변경 시, 종료 날짜 자동 맞춤 함수
     window.syncEndDate = function() {
         const startVal = document.getElementById('sch-start').value;
         const endInput = document.getElementById('sch-end');
@@ -1775,7 +1783,7 @@
               const schLi = document.createElement('li');
               schLi.className = 'daily-allday-banner';
               schLi.style.backgroundColor = s.color;
-              schLi.innerHTML = `<span style="font-size:14px;">🖤</span> <span>${s.title}</span>`;
+              schLi.innerHTML = `<span style="font-size:14px;">🚩</span> <span>${s.title}</span>`;
               schLi.onclick = () => openScheduleModal(s.id);
               dailyTodoList.appendChild(schLi);
           });
@@ -1916,7 +1924,7 @@
                     
                     if(s.isAllDay !== false) {
                       schLi.style.backgroundColor = s.color;
-                      schLi.innerText = '🖤 ' + s.title;
+                      schLi.innerText = '🚩 ' + s.title;
                     } else {
                       schLi.classList.add('outline');
                       schLi.style.borderColor = s.color;
