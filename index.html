@@ -7,7 +7,7 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦋</text></svg>">
   
   <title>Moment PLANNER </title>
   
@@ -16,8 +16,7 @@
     @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
     @font-face { font-family: 'Dovemayo_gothic'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.1/Dovemayo_gothic.woff2') format('woff2'); font-weight: normal; font-style: normal; }
     @font-face { font-family: 'Ownglyph_tori'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/Ownglyph_tori.woff2') format('woff2'); font-weight: normal; font-style: normal; }
-    @font-face { font-family: 'GowunDodum-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
-    @font-face { font-family: 'GowunBatang-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GeuriunXGukhanbakGowoon'; src: local('그리운X국한박 고운'), local('GeuriunXGukhanbakGowoon'), url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2406-1@1.0/GeuriunXGukhanbakGowoon.woff2') format('woff2'); font-weight: normal; font-style: normal; }
 
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
@@ -554,15 +553,14 @@
         <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
         <button onclick="changeFont('Dovemayo_gothic')" class="font-opt-btn" style="font-family:'Dovemayo_gothic', sans-serif;">도브마요</button>
         <button onclick="changeFont('Ownglyph_tori')" class="font-opt-btn" style="font-family:'Ownglyph_tori', sans-serif;">온글잎 토리체</button>
-        <button onclick="changeFont('GowunDodum-Regular')" class="font-opt-btn" style="font-family:'GowunDodum-Regular', sans-serif;">고운 돋움</button>
-        <button onclick="changeFont('GowunBatang-Regular')" class="font-opt-btn" style="font-family:'GowunBatang-Regular', serif;">고운 바탕</button>
+        <button onclick="changeFont('GeuriunXGukhanbakGowoon')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakGowoon', sans-serif;">그리운X국한박 고운</button>
       </div>
     </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // 💡 폰트 설정 로직 추가
+      // 💡 폰트 설정 로직
       let currentFont = localStorage.getItem('planner_font_v1') || 'Pretendard-Regular';
 
       function applyFont(fontName) {
@@ -577,20 +575,16 @@
       window.changeFont = function(fontName) {
           localStorage.setItem('planner_font_v1', fontName);
           applyFont(fontName);
-          // 변경 후 0.2초 뒤 창 자동으로 닫기
           setTimeout(() => closeFontModal(), 200);
       }
 
-      window.openFontModal = function() {
-          document.getElementById('font-modal').style.display = 'flex';
-      }
-
+      window.openFontModal = function() { document.getElementById('font-modal').style.display = 'flex'; }
       window.closeFontModal = function(e) {
           if(e && e.target !== e.currentTarget) return;
           document.getElementById('font-modal').style.display = 'none';
       }
 
-      applyFont(currentFont); // 페이지 로드 시 폰트 적용
+      applyFont(currentFont); 
 
       const STORAGE_KEY = 'planner_all_data_v31';
       const allDaysList = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
@@ -2001,10 +1995,10 @@
               const tDiv = document.createElement('div');
               tDiv.className = 'monthly-preview-text';
               
-              // 💡 기호를 다시 깔끔한 점(•)으로 되돌림
+              // 💡 1. 기호를 다시 깔끔한 점(•)으로 되돌림
               tDiv.innerText = `• ${t.text}`;
 
-              // 💡 취소선 긋기 로직은 빼고 회색 처리만 적용
+              // 💡 2. 취소선 긋기 로직은 빼고 회색 처리만 적용
               if (['done', 'canceled', 'postponed'].includes(t.state)) {
                 tDiv.style.color = '#cbd5e1'; 
               }
@@ -2056,6 +2050,12 @@
           });
         });
       };
+
+      loadAllData();
+      processAutoMigrations();
+      loadWeek();
+      switchView('home');
+      setupInputListeners();
 
       try {
         if (typeof Sortable !== 'undefined') {
