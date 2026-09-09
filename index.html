@@ -7,18 +7,26 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦋</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
   
   <title>Moment PLANNER </title>
   
-  <!-- 안정적인 구글 폰트 임포트 -->
+  <!-- 다이어리 꾸미기 전용 눈누 웹폰트 -->
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Hi+Melody&display=swap');
-
-    @font-face { font-family: 'Pretendard-Regular'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-    @font-face { font-family: 'Dovemayo_gothic'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.1/Dovemayo_gothic.woff2') format('woff2'); font-weight: normal; font-style: normal; }
-    @font-face { font-family: 'GowunDodum-Regular'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
-    @font-face { font-family: 'GowunBatang-Regular'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+    /* 기본 폰트 */
+    @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    
+    /* 1. 그리운x국한박 신고양이체 */
+    @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    
+    /* 2. 오뮤 다예쁨체 */
+    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    
+    /* 3. 강원교육모두체 */
+    @font-face { font-family: 'GangwonEdu_OTFMediumA'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFLightA.woff') format('woff'); font-weight: normal; font-style: normal; }
+    
+    /* 5. IM혜민체 */
+    @font-face { font-family: 'IM_Hyemin-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Regular.woff2') format('woff2'); font-weight: normal; font-style: normal; }
 
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
@@ -540,6 +548,7 @@
     </div>
   </div>
 
+  <!-- 💡 폰트 변경 모달 창 (요청하신 다꾸 5대장 폰트로 교체!) -->
   <div id="font-modal" class="modal-overlay" onclick="closeFontModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
@@ -548,13 +557,12 @@
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px;">
         <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
-        <button onclick="changeFont('Dovemayo_gothic')" class="font-opt-btn" style="font-family:'Dovemayo_gothic', sans-serif;">도브마요</button>
-        <!-- 구글 폰트로 대체된 버튼 -->
-        <button onclick="changeFont('Hi Melody')" class="font-opt-btn" style="font-family:'Hi Melody', sans-serif;">하이멜로디 (토리체 대체)</button>
-        <button onclick="changeFont('Gamja Flower')" class="font-opt-btn" style="font-family:'Gamja Flower', sans-serif;">감자꽃마을 (국한박 대체)</button>
         
-        <button onclick="changeFont('GowunDodum-Regular')" class="font-opt-btn" style="font-family:'GowunDodum-Regular', sans-serif;">고운 돋움</button>
-        <button onclick="changeFont('GowunBatang-Regular')" class="font-opt-btn" style="font-family:'GowunBatang-Regular', serif;">고운 바탕</button>
+        <button onclick="changeFont('GeuriunXGukhanbakSingoyangi')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakSingoyangi', sans-serif;">신고양이체</button>
+        <button onclick="changeFont('MemomentKkukKkuk')" class="font-opt-btn" style="font-family:'MemomentKkukKkuk', sans-serif;">메모먼트 꾹꾹체</button>
+        <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
+        <button onclick="changeFont('GangwonEdu_OTFMediumA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFMediumA', sans-serif;">강원교육모두체</button>
+        <button onclick="changeFont('IM_Hyemin-Regular')" class="font-opt-btn" style="font-family:'IM_Hyemin-Regular', sans-serif;">IM혜민체</button>
       </div>
     </div>
   </div>
