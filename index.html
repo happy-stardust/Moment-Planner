@@ -7,27 +7,36 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
   
   <title>Moment PLANNER </title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   
+  <!-- 웹 폰트 로드 -->
   <style>
+    @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'Dovemayo_gothic'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.1/Dovemayo_gothic.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'Ownglyph_tori'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/Ownglyph_tori.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GowunDodum-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'GowunBatang-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
       --border-color: #e2e8f0; --line-color: #f1f5f9;
       --text-main: #334155; --text-muted: #94a3b8;
       --bg-color: #f8fafc; --card-bg: #ffffff;
       --row-height: 34px; --plan-bg: #f8fafc; --do-bg: #f1f5f9;
+      --main-font: 'Pretendard-Regular', sans-serif; /* 기본 폰트 변수 */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* 모든 요소에 폰트 변수 적용 */
+    body, input, textarea, select, button {
+      font-family: var(--main-font) !important;
+      transition: font-family 0.3s ease;
+    }
+
     body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       background-color: var(--bg-color); color: var(--text-main);
       display: flex; justify-content: center; padding: 24px 16px; min-height: 100vh;
       -webkit-touch-callout: none;
@@ -104,12 +113,11 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    /* 위클리 화면 그리드(34px) 밀림 방지를 위해 투명 테두리를 추가하여 높이 완벽 고정 */
+    /* 일정 바 높이 고정 및 아웃라인 투명테두리 */
     .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
     .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 0 6px; border-color: var(--primary-color); }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
     
-    /* 먼슬리 달력 안에서는 고정 높이를 풀고 다시 작게 표시 */
     .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; height: auto; display: block; padding: 2px 4px; border-width: 1.5px; }
     .monthly-preview-text.schedule-bar.outline { padding: 1px 5px; }
 
@@ -209,7 +217,6 @@
     .tb-input { flex: 1; height: 100%; border: none; background: transparent; padding: 0 8px; font-size: 0.8rem; outline: none; font-family: inherit; color: var(--text-main); text-align: center; z-index: 1;}
     .tb-input:focus { background: rgba(255,255,255,0.4); border-radius: 4px;}
     
-    /* Plan/Do 삭제 버튼용 스타일 */
     .tb-clear-btn { background: none; border: none; color: #cbd5e1; font-size: 11px; cursor: pointer; transition: 0.2s; flex-shrink: 0; padding: 4px; margin-right: 2px; }
     .tb-clear-btn:hover { color: var(--accent-color); }
     
@@ -249,6 +256,11 @@
     .sch-color-opt { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .sch-color-opt:hover { transform: scale(1.1); }
     .sch-color-opt.selected { border-color: var(--text-main); transform: scale(1.1); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+    /* 폰트 변경 모달 버튼 디자인 */
+    .font-opt-btn { background: #f8fafc; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; color: var(--text-main); text-align: center; }
+    .font-opt-btn:hover { border-color: var(--primary-color); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .font-opt-btn.active { border-color: var(--accent-color); font-weight: bold; background: #fffafb; }
   </style>
 </head>
 <body>
@@ -284,7 +296,10 @@
         <button onclick="changePeriod(1)">다음 ▶</button>
         <button onclick="goToday()" style="margin-left:4px;">오늘</button>
         
-        <button onclick="openScheduleModal()" style="margin-left:12px; font-weight:600; color: #475569;" title="새로운 일정 추가">🗓️ 일정 추가</button>
+        <!-- 💡 폰트 변경 버튼 추가 -->
+        <button onclick="openFontModal()" style="margin-left:12px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">🎨 폰트</button>
+        
+        <button onclick="openScheduleModal()" style="margin-left:4px; font-weight:600; color: #475569;" title="새로운 일정 추가">🗓️ 일정 추가</button>
         <button onclick="openSearchModal()" style="margin-left:4px; font-weight:600;" title="과거 메모 및 회고 검색">🔍 검색</button>
         <button onclick="exportData()" style="margin-left:4px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">💾 백업</button>
         <button onclick="document.getElementById('import-file').click()" style="border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">📂 복원</button>
@@ -528,8 +543,55 @@
     </div>
   </div>
 
+  <!-- 💡 폰트 변경 모달 창 -->
+  <div id="font-modal" class="modal-overlay" onclick="closeFontModal(event)">
+    <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
+      <div class="search-header">
+        <h3 style="color: var(--text-main);">글씨체 변경 🎨</h3>
+        <button onclick="closeFontModal()" class="close-btn">✕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+        <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
+        <button onclick="changeFont('Dovemayo_gothic')" class="font-opt-btn" style="font-family:'Dovemayo_gothic', sans-serif;">도브마요</button>
+        <button onclick="changeFont('Ownglyph_tori')" class="font-opt-btn" style="font-family:'Ownglyph_tori', sans-serif;">온글잎 토리체</button>
+        <button onclick="changeFont('GowunDodum-Regular')" class="font-opt-btn" style="font-family:'GowunDodum-Regular', sans-serif;">고운 돋움</button>
+        <button onclick="changeFont('GowunBatang-Regular')" class="font-opt-btn" style="font-family:'GowunBatang-Regular', serif;">고운 바탕</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
+      // 💡 폰트 설정 로직 추가
+      let currentFont = localStorage.getItem('planner_font_v1') || 'Pretendard-Regular';
+
+      function applyFont(fontName) {
+          document.documentElement.style.setProperty('--main-font', `'${fontName}', sans-serif`);
+          currentFont = fontName;
+          document.querySelectorAll('.font-opt-btn').forEach(btn => {
+              if(btn.getAttribute('onclick').includes(fontName)) btn.classList.add('active');
+              else btn.classList.remove('active');
+          });
+      }
+
+      window.changeFont = function(fontName) {
+          localStorage.setItem('planner_font_v1', fontName);
+          applyFont(fontName);
+          // 변경 후 0.2초 뒤 창 자동으로 닫기
+          setTimeout(() => closeFontModal(), 200);
+      }
+
+      window.openFontModal = function() {
+          document.getElementById('font-modal').style.display = 'flex';
+      }
+
+      window.closeFontModal = function(e) {
+          if(e && e.target !== e.currentTarget) return;
+          document.getElementById('font-modal').style.display = 'none';
+      }
+
+      applyFont(currentFont); // 페이지 로드 시 폰트 적용
+
       const STORAGE_KEY = 'planner_all_data_v31';
       const allDaysList = ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
       
@@ -1994,12 +2056,6 @@
           });
         });
       };
-
-      loadAllData();
-      processAutoMigrations();
-      loadWeek();
-      switchView('home');
-      setupInputListeners();
 
       try {
         if (typeof Sortable !== 'undefined') {
