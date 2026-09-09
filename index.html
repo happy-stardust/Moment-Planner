@@ -7,26 +7,26 @@
   <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍒</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
   
   <title>Moment PLANNER </title>
   
-  <!-- 다이어리 꾸미기 전용 눈누 웹폰트 -->
   <style>
     /* 기본 폰트 */
     @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
     
-    /* 1. 그리운x국한박 신고양이체 */
-    @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    /* 1. 그리운x국한박 신고양이체 (한글은 고양이체, 영문/숫자는 프리텐다드) */
+    @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; }
+    @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
-    /* 2. 오뮤 다예쁨체 */
-    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; }
+    /* 2. 오뮤 다예쁨체 (크기 115% 키움) */
+    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; size-adjust: 115%; }
     
-    /* 3. 강원교육모두체 */
-    @font-face { font-family: 'GangwonEdu_OTFMediumA'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFLightA.woff') format('woff'); font-weight: 700; font-style: bold; }
+    /* 3. 강원교육모두체 (굵은 Bold 버전) */
+    @font-face { font-family: 'GangwonEdu_OTFBoldA'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff'); font-weight: normal; font-style: normal; }
     
-    /* 5. IM혜민체 */
-    @font-face { font-family: 'IM_Hyemin-Regular'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Regular.woff2') format('woff2'); font-weight: 700; font-style: bold; }
+    /* 4. IM혜민체 (굵은 Bold 버전) */
+    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; size-adjust: 85%; }
 
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
@@ -118,9 +118,11 @@
     .column-header.clickable { cursor: pointer; }
     .column-header.clickable:hover { background-color: #f1f5f9; }
 
-    .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; }
+    /* ✅ 문제의 핵심 해결!!! task-list에 flex 속성을 부여하여 일정 마진 겹침 현상을 완벽 차단했습니다. */
+    .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; display: flex; flex-direction: column; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
+    /* 이전의 어설픈 padding-top 속성들을 원래대로 깔끔하게 복구했습니다. */
     .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
     .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 0 6px; border-color: var(--primary-color); }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
@@ -150,6 +152,7 @@
     .task-item.state-postponed .task-custom-checkbox { border-color: var(--primary-color); color: var(--primary-color); }
     .task-item.state-postponed .task-custom-checkbox::before { content: "❯"; font-size: 9px; margin-left: 1px; }
 
+    /* 취소선 및 글자 억지 위치이동(transform) 원상복구 완료 */
     .task-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; color: var(--text-main); transition: color 0.3s ease; }
     .task-text::after { content: ''; position: absolute; left: 0; top: 50%; width: 0%; height: 1px; background-color: #cbd5e1; transition: width 0.3s ease; }
     
@@ -162,6 +165,8 @@
     .inline-input-row { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; position: relative; z-index: 2; }
     .input-spacer { width: 14px; flex-shrink: 0; }
     .inline-dot { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 14px; flex-shrink: 0; }
+    
+    /* 입력창 transform 복구 완료 */
     .inline-task-input { flex: 1; height: 26px; border: none; background: transparent; outline: none; font-size: 0.82rem; font-family: inherit; color: var(--text-main); }
 
     .weekly-review-container { display: none; grid-template-columns: 1.2fr 2fr; gap: 20px; height: 100%; }
@@ -221,7 +226,9 @@
     .time-col { width: 45px; text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; background: #fff; border-left: 1px dashed var(--border-color); border-right: 1px dashed var(--border-color);}
     .plan-col, .do-col { position: relative; width: calc((100% - 45px) / 2); transition: background-color 0.2s; }
     .tb-cell-wrapper { display: flex; width: 100%; height: 100%; align-items: center; position: relative; padding: 0 4px; }
-    .tb-input { flex: 1; height: 100%; border: none; background: transparent; padding: 0 8px; font-size: 0.8rem; outline: none; font-family: inherit; color: var(--text-main); text-align: center; z-index: 1;}
+    
+    /* tb-input도 복구 완료 */
+    .tb-input { flex: 1; height: 100%; border: none; background: transparent; padding: 0 8px; font-size: 0.8rem; outline: none; font-family: inherit; color: var(--text-main); text-align: center; z-index: 1; }
     .tb-input:focus { background: rgba(255,255,255,0.4); border-radius: 4px;}
     
     .tb-clear-btn { background: none; border: none; color: #cbd5e1; font-size: 11px; cursor: pointer; transition: 0.2s; flex-shrink: 0; padding: 4px; margin-right: 2px; }
@@ -548,7 +555,7 @@
     </div>
   </div>
 
-  <!-- 💡 폰트 변경 모달 창 (요청하신 다꾸 5대장 폰트로 교체!) -->
+  <!-- 폰트 변경 모달 창 -->
   <div id="font-modal" class="modal-overlay" onclick="closeFontModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
@@ -557,12 +564,10 @@
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px;">
         <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
-        
         <button onclick="changeFont('GeuriunXGukhanbakSingoyangi')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakSingoyangi', sans-serif;">신고양이체</button>
-        <button onclick="changeFont('MemomentKkukKkuk')" class="font-opt-btn" style="font-family:'MemomentKkukKkuk', sans-serif;">메모먼트 꾹꾹체</button>
         <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
-        <button onclick="changeFont('GangwonEdu_OTFMediumA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFMediumA', sans-serif;">강원교육모두체</button>
-        <button onclick="changeFont('IM_Hyemin-Regular')" class="font-opt-btn" style="font-family:'IM_Hyemin-Regular', sans-serif;">IM혜민체</button>
+        <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두체</button>
+        <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
       </div>
     </div>
   </div>
