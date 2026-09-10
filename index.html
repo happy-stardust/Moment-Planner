@@ -35,6 +35,8 @@
     /* 6. 몽토리체 */
     @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; size-adjust: 115%; }
 
+ 
+
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
       --border-color: #e2e8f0; --line-color: #f1f5f9;
@@ -192,7 +194,6 @@
     .cat-name-input { width: 100px; border: 1px solid transparent; background: transparent; font-weight: 600; font-size: 0.82rem; color: var(--text-main); text-align: center; outline: none; padding: 4px; font-family: inherit; transition: 0.2s; }
     .cat-name-input:focus { border-color: var(--border-color); background: #fff; border-radius: 4px; }
     
-    /* 📌 여기에 min-height와 overflow: hidden 이 추가되었습니다! */
     .custom-kpt-textarea { width: 100%; min-height: 65px; overflow: hidden; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 0.8rem; color: var(--text-main); line-height: 1.4; padding: 4px; }
     .custom-kpt-textarea:focus { background: rgba(241, 245, 249, 0.5); border-radius: 4px; }
     .add-row-btn { width: 100%; padding: 10px; background: #f8fafc; border: none; border-top: 1px solid var(--border-color); color: var(--primary-color); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
@@ -383,7 +384,6 @@
           `);
         });
         
-        // 📌 여기에 자동 리사이징 함수 추가!
         window.autoResize = function(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
@@ -455,7 +455,6 @@
           
           <div class="daily-box" style="min-height: 120px;">
             <div class="daily-box-header">Daily Memo</div>
-            <!-- 📌 데일리 메모에도 oninput="autoResize(this)" 추가 -->
             <textarea class="daily-textarea" id="daily-memo-input" style="padding: 12px 16px; min-height: 100px; overflow: hidden;" placeholder="간단한 메모를 남겨보세요." oninput="autoResize(this)"></textarea>
           </div>
 
@@ -464,7 +463,6 @@
             <div style="display: flex; flex-direction: column; padding: 12px 16px; gap: 6px; height: 100%;">
               <div class="kpt-section">
                 <span class="kpt-title" style="color: var(--primary-color);">Keep (유지할 점)</span>
-                <!-- 📌 데일리 회고에도 oninput="autoResize(this)" 추가 -->
                 <textarea class="daily-textarea kpt-input-nav" id="daily-keep-input" data-kpt="keep" style="min-height: 38px; overflow: hidden;" placeholder="오늘 하루 잘했던 점은?" oninput="autoResize(this)"></textarea>
               </div>
               <div class="kpt-section">
@@ -577,9 +575,9 @@
         <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
         <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두체</button>
         <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
-        
         <button onclick="changeFont('NostalgicGukhanbakOchungiWriterKim')" class="font-opt-btn" style="font-family:'NostalgicGukhanbakOchungiWriterKim', sans-serif;">오춘기 김작가체</button>
         <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">몽토리체</button>
+      
       </div>
     </div>
   </div>
@@ -1709,7 +1707,6 @@
               tbody.appendChild(tr);
             });
             
-            // 📌 그려진 후 내용에 맞춰 텍스트 영역 늘리기
             setTimeout(() => {
                 document.querySelectorAll('.custom-kpt-textarea').forEach(el => autoResize(el));
             }, 0);
