@@ -32,10 +32,13 @@
     @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griunxhangeulochungikim-regular/griunxhangeulochungikim-regular/GriunXHangeulOCHUNGIKIM-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
     @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; size-adjust: 105%; }
 
-    /* 6. 프롬솔 */
-    @font-face { font-family: 'NostalgicMongtori'; src: url(https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2) format('woff2'); font-weight: normal; font-display: swap; size-adjust: 125%; }
+   /* 6. 프롬솔 (한글은 오춘기체, 영문/숫자는 프리텐다드로 비율 보정) */
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2)') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; size-adjust: 105%; }
 
- 
+     /* 7. 교보-이유빈 (한글은 오춘기체, 영문/숫자는 프리텐다드로 비율 보정) */
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; size-adjust: 105%; }
 
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
@@ -577,7 +580,8 @@
         <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
         <button onclick="changeFont('NostalgicGukhanbakOchungiWriterKim')" class="font-opt-btn" style="font-family:'NostalgicGukhanbakOchungiWriterKim', sans-serif;">오춘기 김작가체</button>
         <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">프롬솔</button>
-      
+  <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">교보-이유빈</button>
+        
       </div>
     </div>
   </div>
