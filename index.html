@@ -9,17 +9,17 @@
   
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
   
-  <title>Moment PLANNER </title>
+  <title>Moment PLANNER</title>
   
   <style>
     /* 기본 폰트 */
     @font-face { font-family: 'Pretendard-Regular'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
     
-    /* 1. 그리운x국한박 신고양이체 (한글은 고양이체, 영문/숫자는 프리텐다드) */
+    /* 1. 그리운x국한박 신고양이체 */
     @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 110%;}
     @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
-    /* 2. 오뮤 다예쁨체 (모든 폰트 영문/숫자 프리텐다드 보정 완료) */
+    /* 2. 오뮤 다예쁨체 */
     @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
     @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
@@ -31,7 +31,7 @@
     @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 105%;}
     @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
-    /* 5. 몽토리체 (재추가 및 영문/숫자 보정) */
+    /* 5. 몽토리체 */
     @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 115%; }
     @font-face { font-family: 'NostalgicMongtori'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
@@ -40,7 +40,7 @@
     @font-face { font-family: 'GriunFromsol'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     /* 7. 교보손글씨체 */
-    @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 130%; }
     @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     :root {
@@ -136,7 +136,6 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; display: flex; flex-direction: column; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    /* ✅ 일정 바(박스형) font-weight 400으로 수정 및 정렬 유지 */
     .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 400; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
     .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 0 6px; border-color: var(--primary-color); }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
@@ -144,7 +143,6 @@
     .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; min-height: 22px; height: auto; display: flex; align-items: center; padding: 2px 5px 0; border-width: 1.5px; }
     .monthly-preview-text.schedule-bar.outline { padding: 2px 5px 0; }
 
-    /* ✅ 데일리 상단 종일 일정 바 font-weight 400으로 수정 */
     .daily-allday-banner { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 400; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
     .daily-allday-banner:hover { filter: brightness(0.95); transform: translateY(-1px); }
 
@@ -196,13 +194,17 @@
 
     .custom-kpt-table { width: 100%; border-collapse: collapse; }
     .custom-kpt-table th { background: #fcfcfd; padding: 12px; font-size: 0.82rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); font-weight: 600; text-align: center; }
-    .custom-kpt-table td { border-bottom: 1px solid var(--line-color); padding: 6px; }
+    .custom-kpt-table td { border-bottom: 1px solid var(--line-color); padding: 6px; vertical-align: top; }
     
     .cat-input-wrapper { display: flex; align-items: center; justify-content: center; gap: 4px; }
     .cat-name-input { width: 100px; border: 1px solid transparent; background: transparent; font-weight: 600; font-size: 0.82rem; color: var(--text-main); text-align: center; outline: none; padding: 4px; font-family: inherit; transition: 0.2s; }
     .cat-name-input:focus { border-color: var(--border-color); background: #fff; border-radius: 4px; }
-    .custom-kpt-textarea { width: 100%; height: 65px; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 0.8rem; color: var(--text-main); line-height: 1.4; padding: 4px; }
+    
+    /* ✅ 수정: 오버플로우 숨김 및 스크롤바 방지 */
+    .daily-textarea { width: 100%; border: none; outline: none; font-family: inherit; resize: none; font-size: 0.82rem; color: var(--text-main); background: transparent; overflow: hidden; }
+    .custom-kpt-textarea { width: 100%; min-height: 65px; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 0.8rem; color: var(--text-main); line-height: 1.4; padding: 4px; overflow: hidden; }
     .custom-kpt-textarea:focus { background: rgba(241, 245, 249, 0.5); border-radius: 4px; }
+    
     .add-row-btn { width: 100%; padding: 10px; background: #f8fafc; border: none; border-top: 1px solid var(--border-color); color: var(--primary-color); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .add-row-btn:hover { background: #f1f5f9; }
 
@@ -248,7 +250,6 @@
     .color-cycle-btn:hover { transform: scale(1.2); }
 
     .daily-left-col { display: flex; flex-direction: column; gap: 16px; }
-    .daily-textarea { width: 100%; border: none; outline: none; font-family: inherit; resize: none; font-size: 0.82rem; color: var(--text-main); background: transparent; }
     .kpt-section { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
     .kpt-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
 
@@ -458,7 +459,8 @@
           
           <div class="daily-box" style="min-height: 120px;">
             <div class="daily-box-header">Daily Memo</div>
-            <textarea class="daily-textarea" id="daily-memo-input" style="padding: 12px 16px; height: 100%;" placeholder="간단한 메모를 남겨보세요."></textarea>
+            <!-- ✅ 수정: oninput="autoResize(this)" 추가 및 min-height 지정 -->
+            <textarea class="daily-textarea" id="daily-memo-input" style="padding: 12px 16px; min-height: 80px;" placeholder="간단한 메모를 남겨보세요." oninput="autoResize(this)"></textarea>
           </div>
 
           <div class="daily-box" style="flex: 1;">
@@ -466,15 +468,18 @@
             <div style="display: flex; flex-direction: column; padding: 12px 16px; gap: 6px; height: 100%;">
               <div class="kpt-section">
                 <span class="kpt-title" style="color: var(--primary-color);">Keep (유지할 점)</span>
-                <textarea class="daily-textarea kpt-input-nav" id="daily-keep-input" data-kpt="keep" style="min-height: 38px;" placeholder="오늘 하루 잘했던 점은?"></textarea>
+                <!-- ✅ 수정: oninput="autoResize(this)" 추가 -->
+                <textarea class="daily-textarea kpt-input-nav" id="daily-keep-input" data-kpt="keep" style="min-height: 38px;" placeholder="오늘 하루 잘했던 점은?" oninput="autoResize(this)"></textarea>
               </div>
               <div class="kpt-section">
                 <span class="kpt-title" style="color: var(--accent-color);">Problem (아쉬운 점)</span>
-                <textarea class="daily-textarea kpt-input-nav" id="daily-problem-input" data-kpt="problem" style="min-height: 38px;" placeholder="계획대로 안 되었거나 아쉬웠던 점은?"></textarea>
+                <!-- ✅ 수정: oninput="autoResize(this)" 추가 -->
+                <textarea class="daily-textarea kpt-input-nav" id="daily-problem-input" data-kpt="problem" style="min-height: 38px;" placeholder="계획대로 안 되었거나 아쉬웠던 점은?" oninput="autoResize(this)"></textarea>
               </div>
               <div class="kpt-section" style="border-bottom: none; padding-bottom: 0;">
                 <span class="kpt-title" style="color: #10b981;">Try (시도할 점)</span>
-                <textarea class="daily-textarea kpt-input-nav" id="daily-try-input" data-kpt="try" style="min-height: 38px;" placeholder="내일은 무엇을 다르게 시도해볼까?"></textarea>
+                <!-- ✅ 수정: oninput="autoResize(this)" 추가 -->
+                <textarea class="daily-textarea kpt-input-nav" id="daily-try-input" data-kpt="try" style="min-height: 38px;" placeholder="내일은 무엇을 다르게 시도해볼까?" oninput="autoResize(this)"></textarea>
               </div>
             </div>
           </div>
@@ -496,6 +501,7 @@
     </main>
   </div>
 
+  <!-- 검색 및 기타 모달들 생략 없이 동일하게 유지 -->
   <div id="search-modal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
@@ -566,7 +572,6 @@
     </div>
   </div>
 
-  <!-- 폰트 변경 모달 창 -->
   <div id="font-modal" class="modal-overlay" onclick="closeFontModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()" style="max-width: 320px;">
       <div class="search-header">
@@ -575,19 +580,24 @@
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px;">
         <button onclick="changeFont('Pretendard-Regular')" class="font-opt-btn" style="font-family:'Pretendard-Regular', sans-serif;">프리텐다드 (기본)</button>
-        <button onclick="changeFont('GeuriunXGukhanbakSingoyangi')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakSingoyangi', sans-serif;">신고양이체</button>
-        <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
-        <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두체</button>
+        <button onclick="changeFont('GeuriunXGukhanbakSingoyangi')" class="font-opt-btn" style="font-family:'GeuriunXGukhanbakSingoyangi', sans-serif;">신고양이</button>
+        <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨</button>
+        <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두</button>
         <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
-        <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">몽토리체</button>
-        <button onclick="changeFont('GriunFromsol')" class="font-opt-btn" style="font-family:'GriunFromsol', sans-serif;">그리운 프롬솔체</button>
-        <button onclick="changeFont('KyoboHandwriting2025')" class="font-opt-btn" style="font-family:'KyoboHandwriting2025', sans-serif;">교보손글씨체</button>
+        <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">몽토리</button>
+        <button onclick="changeFont('GriunFromsol')" class="font-opt-btn" style="font-family:'GriunFromsol', sans-serif;">프롬솔</button>
+        <button onclick="changeFont('KyoboHandwriting2025')" class="font-opt-btn" style="font-family:'KyoboHandwriting2025', sans-serif;">교보-이유빈</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ✅ 시작 날짜 변경 시, 종료 날짜 자동 맞춤 함수
+    // ✅ 추가: 텍스트에어리어 자동 리사이징 함수
+    window.autoResize = function(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    };
+
     window.syncEndDate = function() {
         const startVal = document.getElementById('sch-start').value;
         const endInput = document.getElementById('sch-end');
@@ -1507,7 +1517,6 @@
           document.getElementById('postpone-date').value = formatDateStr(defaultDate);
       }
 
-      // ✅ 수정: 모달을 그냥 닫았을 때 상태 롤백
       window.closePostponeModal = function(e) {
           if(e && e.target !== e.currentTarget) return;
           document.getElementById('postpone-modal').style.display = 'none';
@@ -1523,7 +1532,6 @@
           try { renderAll(); } catch(err){}
       }
 
-      // ✅ 수정: 날짜 파싱 오류 해결
       window.confirmPostpone = function() {
           const targetDateStr = document.getElementById('postpone-date').value;
           if(!targetDateStr) return alert('날짜를 선택해주세요.');
@@ -1544,7 +1552,6 @@
           try { renderAll(); } catch(err){}
       }
 
-      // ✅ 수정: 자동/수동 미루기 해제 시 날짜 파싱 오류 해결
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t && t.id === id);
           if (!task) return;
@@ -1716,6 +1723,7 @@
             reviewRows.forEach((row) => {
               if (!row || typeof row !== 'object') return;
               const tr = document.createElement('tr');
+              // ✅ 수정: oninput="autoResize(this)" 추가
               tr.innerHTML = `
                 <td>
                   <div class="cat-input-wrapper">
@@ -1723,12 +1731,18 @@
                     <button onclick="deleteCustomKptRow('${row.id}')" style="border:none; background:none; cursor:pointer; color:#cbd5e1; font-size:12px; padding:2px;" title="삭제">✕</button>
                   </div>
                 </td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep || ''}</textarea></td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem || ''}</textarea></td>
-                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try || ''}</textarea></td>
+                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" oninput="autoResize(this)" onchange="updateCustomKpt('${row.id}', 'keep', this.value)" placeholder="잘한 점...">${row.keep || ''}</textarea></td>
+                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" oninput="autoResize(this)" onchange="updateCustomKpt('${row.id}', 'problem', this.value)" placeholder="아쉬운 점...">${row.problem || ''}</textarea></td>
+                <td><textarea class="custom-kpt-textarea kpt-input-nav" data-kpt="review" oninput="autoResize(this)" onchange="updateCustomKpt('${row.id}', 'try', this.value)" placeholder="시도할 점...">${row.try || ''}</textarea></td>
               `;
               tbody.appendChild(tr);
             });
+
+            // ✅ 추가: 렌더링 후 기존 내용에 맞춰 칸 높이 자동 조절
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.custom-kpt-textarea').forEach(autoResize);
+            });
+
         } catch (e) {
             console.error("renderWeeklyReviewData Error:", e);
         }
@@ -1846,17 +1860,34 @@
           });
         });
 
+        // ✅ 수정: 값을 채워넣은 후 autoResize 함수 호출하여 렌더링 즉시 칸을 맞춰줌
         const memoInput = document.getElementById('daily-memo-input');
-        if(memoInput) { memoInput.value = dailyInfo.memo || ''; memoInput.onchange = (e) => { dailyInfo.memo = e.target.value; saveAllData(); }; }
+        if(memoInput) { 
+            memoInput.value = dailyInfo.memo || ''; 
+            memoInput.onchange = (e) => { dailyInfo.memo = e.target.value; saveAllData(); }; 
+            autoResize(memoInput);
+        }
         
         const keepInput = document.getElementById('daily-keep-input');
-        if(keepInput) { keepInput.value = dailyInfo.keep || ''; keepInput.onchange = (e) => { dailyInfo.keep = e.target.value; saveAllData(); }; }
+        if(keepInput) { 
+            keepInput.value = dailyInfo.keep || ''; 
+            keepInput.onchange = (e) => { dailyInfo.keep = e.target.value; saveAllData(); }; 
+            autoResize(keepInput);
+        }
         
         const probInput = document.getElementById('daily-problem-input');
-        if(probInput) { probInput.value = dailyInfo.problem || ''; probInput.onchange = (e) => { dailyInfo.problem = e.target.value; saveAllData(); }; }
+        if(probInput) { 
+            probInput.value = dailyInfo.problem || ''; 
+            probInput.onchange = (e) => { dailyInfo.problem = e.target.value; saveAllData(); };
+            autoResize(probInput);
+        }
         
         const tryInput = document.getElementById('daily-try-input');
-        if(tryInput) { tryInput.value = dailyInfo.try || ''; tryInput.onchange = (e) => { dailyInfo.try = e.target.value; saveAllData(); }; }
+        if(tryInput) { 
+            tryInput.value = dailyInfo.try || ''; 
+            tryInput.onchange = (e) => { dailyInfo.try = e.target.value; saveAllData(); }; 
+            autoResize(tryInput);
+        }
        } catch (e) {
            console.error("renderDailyData Error: ", e);
        }
