@@ -19,24 +19,27 @@
     @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 110%;}
     @font-face { font-family: 'GeuriunXGukhanbakSingoyangi'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
-    /* 2. 오뮤 다예쁨체 (크기 115% 키움) */
-    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; size-adjust: 125%; }
+    /* 2. 오뮤 다예쁨체 (모든 폰트 영문/숫자 프리텐다드 보정 완료) */
+    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'omyu_pretty'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
-    /* 3. 강원교육모두체 (굵은 Bold 버전) */
-    @font-face { font-family: 'GangwonEdu_OTFBoldA'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff'); font-weight: normal; font-style: normal; size-adjust: 115%;}
+    /* 3. 강원교육모두체 */
+    @font-face { font-family: 'GangwonEdu_OTFBoldA'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 115%;}
+    @font-face { font-family: 'GangwonEdu_OTFBoldA'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
-    /* 4. IM혜민체 (굵은 Bold 버전) */
-    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; size-adjust: 90%;}
+    /* 4. IM혜민체 */
+    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 105%;}
+    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
-    /* 5. 국한박 오춘기 김작가 (한글은 오춘기체, 영문/숫자는 프리텐다드로 비율 보정) */
-    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griunxhangeulochungikim-regular/griunxhangeulochungikim-regular/GriunXHangeulOCHUNGIKIM-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 120%; }
-    @font-face { font-family: 'NostalgicGukhanbakOchungiWriterKim'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
+    /* 5. 몽토리체 (재추가 및 영문/숫자 보정) */
+    @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'NostalgicMongtori'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
-    /* 6. 그리운 프롬솔체 (추가 요청 1) */
+    /* 6. 그리운 프롬솔체 */
     @font-face { font-family: 'GriunFromsol'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
     @font-face { font-family: 'GriunFromsol'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
-    /* 7. 교보손글씨체 (추가 요청 2) */
+    /* 7. 교보손글씨체 */
     @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
     @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
@@ -133,14 +136,16 @@
     .task-list { list-style: none; position: relative; z-index: 1; padding: 0; margin: 0; display: flex; flex-direction: column; }
     .empty-state { text-align: center; font-size: 0.75rem; color: #cbd5e1; height: var(--row-height); line-height: var(--row-height); margin: 0; font-weight: 400; font-style: italic; }
 
-    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 600; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
+    /* ✅ 일정 바(박스형) font-weight 400으로 수정 및 정렬 유지 */
+    .schedule-bar { background-color: var(--primary-color); color: #ffffff !important; font-size: 0.75rem; font-weight: 400; padding: 0 8px; border-radius: 4px; margin: 3px 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: 0.2s; height: 28px; display: flex; align-items: center; box-sizing: border-box; border: 2px solid transparent; }
     .schedule-bar.outline { background-color: transparent !important; color: var(--text-main) !important; padding: 0 6px; border-color: var(--primary-color); }
     .schedule-bar:hover { filter: brightness(0.95); transform: translateY(-1px); }
     
     .monthly-preview-text.schedule-bar { margin: 1px 0 3px 0; font-size: 0.7rem; min-height: 22px; height: auto; display: flex; align-items: center; padding: 2px 5px 0; border-width: 1.5px; }
     .monthly-preview-text.schedule-bar.outline { padding: 2px 5px 0; }
 
-    .daily-allday-banner { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
+    /* ✅ 데일리 상단 종일 일정 바 font-weight 400으로 수정 */
+    .daily-allday-banner { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 400; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
     .daily-allday-banner:hover { filter: brightness(0.95); transform: translateY(-1px); }
 
     .task-item { height: var(--row-height); display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 0.82rem; position: relative; background-color: transparent; }
@@ -573,9 +578,7 @@
         <button onclick="changeFont('omyu_pretty')" class="font-opt-btn" style="font-family:'omyu_pretty', sans-serif;">오뮤 다예쁨체</button>
         <button onclick="changeFont('GangwonEdu_OTFBoldA')" class="font-opt-btn" style="font-family:'GangwonEdu_OTFBoldA', sans-serif;">강원교육모두체</button>
         <button onclick="changeFont('IM_Hyemin-Bold')" class="font-opt-btn" style="font-family:'IM_Hyemin-Bold', sans-serif;">IM혜민체</button>
-        <button onclick="changeFont('NostalgicGukhanbakOchungiWriterKim')" class="font-opt-btn" style="font-family:'NostalgicGukhanbakOchungiWriterKim', sans-serif;">오춘기 김작가체</button>
-        
-        <!-- ✨ 폰트 2종 새롭게 추가! -->
+        <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif;">몽토리체</button>
         <button onclick="changeFont('GriunFromsol')" class="font-opt-btn" style="font-family:'GriunFromsol', sans-serif;">그리운 프롬솔체</button>
         <button onclick="changeFont('KyoboHandwriting2025')" class="font-opt-btn" style="font-family:'KyoboHandwriting2025', sans-serif;">교보손글씨체</button>
       </div>
