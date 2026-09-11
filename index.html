@@ -28,19 +28,19 @@
     @font-face { font-family: 'GangwonEdu_OTFBoldA'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
     
     /* 4. IM혜민체 */
-    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 105%;}
+    @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff2'); font-weight: normal; font-style: normal; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 90%;}
     @font-face { font-family: 'IM_Hyemin-Bold'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     /* 5. 몽토리체 (재추가 및 영문/숫자 보정) */
-    @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 115%; }
     @font-face { font-family: 'NostalgicMongtori'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     /* 6. 그리운 프롬솔체 */
-    @font-face { font-family: 'GriunFromsol'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'GriunFromsol'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 105%; }
     @font-face { font-family: 'GriunFromsol'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     /* 7. 교보손글씨체 */
-    @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
+    @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); font-weight: normal; font-display: swap; unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 105%; }
     @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff'); unicode-range: U+0020-007E; }
 
     :root {
@@ -285,6 +285,7 @@
     .font-opt-btn:hover { border-color: var(--primary-color); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .font-opt-btn.active { border-color: var(--accent-color); font-weight: bold; background: #fffafb; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
 
@@ -1506,16 +1507,29 @@
           document.getElementById('postpone-date').value = formatDateStr(defaultDate);
       }
 
+      // ✅ 수정: 모달을 그냥 닫았을 때 상태 롤백
       window.closePostponeModal = function(e) {
           if(e && e.target !== e.currentTarget) return;
           document.getElementById('postpone-modal').style.display = 'none';
+          
+          if (postponeTarget) {
+              const task = allData[currentWeekKey][postponeTarget.day].find(t => t && t.id === postponeTarget.id);
+              if (task && !task.migrated && task.state === 'postponed') {
+                  task.state = 'todo';
+                  saveAllData();
+              }
+          }
+          
           try { renderAll(); } catch(err){}
       }
 
+      // ✅ 수정: 날짜 파싱 오류 해결
       window.confirmPostpone = function() {
           const targetDateStr = document.getElementById('postpone-date').value;
           if(!targetDateStr) return alert('날짜를 선택해주세요.');
-          const targetDate = new Date(targetDateStr);
+          
+          const dateParts = targetDateStr.split('-');
+          const targetDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
           
           const task = allData[currentWeekKey][postponeTarget.day].find(t => t && t.id === postponeTarget.id);
           if(task && !task.migrated) {
@@ -1530,6 +1544,7 @@
           try { renderAll(); } catch(err){}
       }
 
+      // ✅ 수정: 자동/수동 미루기 해제 시 날짜 파싱 오류 해결
       window.toggleTaskState = function(day, id) {
           const task = allData[currentWeekKey][day].find(t => t && t.id === id);
           if (!task) return;
@@ -1545,7 +1560,9 @@
           
           if (task.state !== 'in-progress') {
               if (task.autoMigratedTaskId && task.autoMigratedDate) {
-                  const mWeekKey = getMondayStr(new Date(task.autoMigratedDate));
+                  const aParts = task.autoMigratedDate.split('-');
+                  const aDate = new Date(aParts[0], aParts[1] - 1, aParts[2]);
+                  const mWeekKey = getMondayStr(aDate);
                   if (allData[mWeekKey]) {
                       ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
                           if (Array.isArray(allData[mWeekKey][d])) {
@@ -1561,7 +1578,9 @@
 
           if (task.state !== 'postponed') {
               if (task.migratedTaskId && task.postponedTo) {
-                  const pWeekKey = getMondayStr(new Date(task.postponedTo));
+                  const pParts = task.postponedTo.split('-');
+                  const pDate = new Date(pParts[0], pParts[1] - 1, pParts[2]);
+                  const pWeekKey = getMondayStr(pDate);
                   if (allData[pWeekKey]) {
                       ['weekly', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].forEach(d => {
                           if (Array.isArray(allData[pWeekKey][d])) {
