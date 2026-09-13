@@ -32,7 +32,6 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* 🔥 예시문구(플레이스홀더) 연하게 처리 */
     ::placeholder { color: #cbd5e1; opacity: 0.8; font-weight: 400; }
 
     body, input, textarea, select, button { font-family: var(--main-font); transition: font-family 0.3s ease; }
@@ -197,7 +196,7 @@
     .kpt-section { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
     .kpt-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
     
-    /* 🔥 방울토마토 사이즈(1.15rem -> 1.1rem), 간격 넓힘 */
+    /* 토마토 별점 UI CSS */
     .rating-scale { display: flex; gap: 4px; justify-content: flex-start; }
     .rating-btn { width: 28px; height: 28px; background: none; border: none; cursor: pointer; font-size: 1.1rem; filter: grayscale(100%) opacity(30%); transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0;}
     .rating-btn:hover { filter: grayscale(30%) opacity(80%); transform: scale(1.1); }
@@ -252,7 +251,7 @@
     <header class="planner-header">
       <div class="title-group">
         <h1>Moment PLANNER</h1>
-        <span>Time Block management </span>
+        <span>Time Block PLANNER</span>
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
@@ -289,7 +288,7 @@
     <!-- HOME View -->
     <main class="home-view-container fade-in" id="view-home">
       <div class="home-square-card">
-        <img src="https://i.pinimg.com/736x/3e/f0/26/3ef026ae9867b7d949275842462a4857.jpg" alt="Mood Image">
+        <img src="https://i.pinimg.com/736x/cb/55/98/cb55982fb48f0fff2767b997bc556666.jpg" alt="Mood Image">
         <div class="home-square-content">
           <h2>Moment PLANNER</h2>
           <p>빛나는 오늘을 기록하는 당신만의 공간</p>
@@ -411,7 +410,7 @@
               <ul class="task-list" id="daily-todo-list" data-day="daily"></ul>
               <div class="inline-input-row" style="background:white;">
                 <span style="color:#cbd5e1; font-weight:bold; width:14px; text-align:center;">+</span>
-                <input type="text" class="inline-task-input" id="todo-input-daily" placeholder="오늘의 할 일 입력." onkeyup="handleTodoEnter(event, 'daily')" />
+                <input type="text" class="inline-task-input" id="todo-input-daily" placeholder="오늘의 할 일 입력" onkeyup="handleTodoEnter(event, 'daily')" />
               </div>
             </div>
           </div>
@@ -425,13 +424,12 @@
                     <div id="yesterday-recharge-text" style="font-size:0.85rem; color:var(--primary-color); font-weight:600; margin-bottom:10px;">(어제 기록이 없습니다)</div>
                     <div style="font-size:0.75rem; font-weight:600; color:var(--text-main); margin-bottom:6px;">얼마나 도움이 되었나요?</div>
                     
-                    <!-- 🔥 토마토 별점으로 교체됨 -->
                     <div class="rating-scale" id="energy-rating-container">
-                        <button class="rating-btn" onclick="setEnergyRating(1)">🍅</button>
-                        <button class="rating-btn" onclick="setEnergyRating(2)">🍅</button>
-                        <button class="rating-btn" onclick="setEnergyRating(3)">🍅</button>
-                        <button class="rating-btn" onclick="setEnergyRating(4)">🍅</button>
-                        <button class="rating-btn" onclick="setEnergyRating(5)">🍅</button>
+                        <button class="rating-btn" data-score="1" onclick="setEnergyRating(1)">🍅</button>
+                        <button class="rating-btn" data-score="2" onclick="setEnergyRating(2)">🍅</button>
+                        <button class="rating-btn" data-score="3" onclick="setEnergyRating(3)">🍅</button>
+                        <button class="rating-btn" data-score="4" onclick="setEnergyRating(4)">🍅</button>
+                        <button class="rating-btn" data-score="5" onclick="setEnergyRating(5)">🍅</button>
                     </div>
                 </div>
                 
@@ -636,11 +634,15 @@
       <label style="font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer;">
         <input type="checkbox" id="sch-allday" checked onchange="window.toggleSchTimeInputs()" style="width:16px; height:16px;" /> 하루 종일
       </label>
-      <div id="sch-time-container" style="display: none; gap: 10px; align-items: center;">
-        <select id="sch-start-time" class="modal-input" style="flex:1;"></select>
+      
+      <!-- 🔥 시간 지정 입력 UI 개편 -->
+      <div id="sch-time-container" style="display: none; gap: 10px; align-items: center; margin-top: 4px;">
+        <input type="time" id="sch-start-time" class="modal-input" style="flex:1; padding:8px;" onchange="updateSchDuration()">
         <span style="font-weight:bold;">~</span>
-        <select id="sch-end-time" class="modal-input" style="flex:1;"></select>
+        <input type="time" id="sch-end-time" class="modal-input" style="flex:1; padding:8px;" onchange="updateSchDuration()">
+        <span id="sch-duration" style="font-size: 0.8rem; color: var(--accent-color); font-weight: 600; white-space:nowrap; width:50px; text-align:right;"></span>
       </div>
+
       <div>
         <span style="font-size: 0.8rem; font-weight: 600;">일정 색상</span>
         <div id="sch-color-picker" class="color-chip-row" style="justify-content:flex-start;"></div>
@@ -674,7 +676,7 @@
     // ==========================================
     // 1. 기초 설정 및 유틸
     // ==========================================
-    const pastelColors = ['#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6', 
+    const pastelColors = [ '#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6', 
         '#F5ECC2', '#E4F1FE', '#ECECEC'];
     let selectedBadgeColor = pastelColors[2]; 
     let selectedTodoColor = pastelColors[2]; 
@@ -748,10 +750,20 @@
             container.appendChild(chip);
         });
     }
+
+    // 일정 시간 반환 헬퍼 (하위 호환성 유지용)
+    window.getSchStartTime = function(s) {
+        if(s.startTime) return s.startTime;
+        if(s.startHour) return String(s.startHour > 24 ? s.startHour - 24 : s.startHour).padStart(2, '0') + ':00';
+        return '09:00';
+    };
+    window.getSchEndTime = function(s) {
+        if(s.endTime) return s.endTime;
+        if(s.endHour) return String(s.endHour > 24 ? s.endHour - 24 : s.endHour).padStart(2, '0') + ':00';
+        return '10:00';
+    };
     
     const tbBody = document.getElementById('timeblock-body');
-    const schStartSel = document.getElementById('sch-start-time');
-    const schEndSel = document.getElementById('sch-end-time');
     if (tbBody) {
         tbBody.innerHTML = '';
         for(let i = 5; i <= 26; i++) {
@@ -768,10 +780,6 @@
               </td>
             `;
             tbBody.appendChild(tr);
-
-            const optStr = `<option value="${i}">${displayHourStr}:00 ${i>24?'(익일)':''}</option>`;
-            schStartSel.insertAdjacentHTML('beforeend', optStr);
-            schEndSel.insertAdjacentHTML('beforeend', optStr);
         }
     }
 
@@ -1401,7 +1409,7 @@
                             schLi.className = 'schedule-bar' + (s.isAllDay===false ? ' outline' : '');
                             schLi.style.backgroundColor = s.isAllDay!==false ? s.color : 'transparent';
                             schLi.style.borderColor = s.color;
-                            schLi.innerText = s.isAllDay!==false ? `🚩 ${s.title}` : `${s.startHour>24?s.startHour-24:s.startHour}:00 ${s.title}`;
+                            schLi.innerText = s.isAllDay!==false ? `🎀 ${s.title}` : `${getSchStartTime(s)} ${s.title}`;
                             schLi.onclick = () => openScheduleModal(s.id);
                             listEl.appendChild(schLi);
                         });
@@ -1443,7 +1451,7 @@
         return '';
     }
 
-    // 🔥 토마토 저장 로직
+    // 🔥 토마토 점수 저장 및 렌더
     window.setEnergyRating = function(score) {
         const day = currentDailyDay;
         if(!allData[currentWeekKey]?.daily?.[day]) return;
@@ -1467,32 +1475,35 @@
             const dailyInfo = allData[currentWeekKey]?.daily?.[day] || {};
             const listEl = document.getElementById('daily-todo-list');
             
+            const parts = currentWeekKey.split('-');
+            const mDate = new Date(parts[0], parts[1]-1, parts[2]);
+            mDate.setDate(mDate.getDate() + ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day));
+            const cellDateStr = formatDateStr(mDate);
+            const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+
             if (listEl) {
                 listEl.innerHTML = '';
                 sortTasks(allData[currentWeekKey]?.[day] || []);
                 
-                const parts = currentWeekKey.split('-');
-                const mDate = new Date(parts[0], parts[1]-1, parts[2]);
-                mDate.setDate(mDate.getDate() + ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day));
-                const cellDateStr = formatDateStr(mDate);
-                const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end && s.isAllDay!==false);
+                const allDaySchedules = daySchedules.filter(s => s.isAllDay !== false);
                 
-                daySchedules.forEach(s => {
+                allDaySchedules.forEach(s => {
                     const schLi = document.createElement('li');
                     schLi.className = 'daily-allday-banner';
                     schLi.style.backgroundColor = s.color;
-                    schLi.innerHTML = `<span>🚩 ${s.title}</span>`;
+                    schLi.innerHTML = `<span>🎀 ${s.title}</span>`;
                     schLi.onclick = () => openScheduleModal(s.id);
                     listEl.appendChild(schLi);
                 });
 
                 const tasks = allData[currentWeekKey]?.[day] || [];
-                if (tasks.length === 0 && daySchedules.length === 0) listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">오늘의 할 일을 적어보세요 🌱</li>`;
+                if (tasks.length === 0 && allDaySchedules.length === 0) listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">오늘의 할 일을 적어보세요 🌱</li>`;
                 else tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
                 
                 updateProgress(day);
             }
 
+            // 뱃지 초기화 및 렌더
             ['plan', 'do'].forEach(type => {
                 if (!dailyInfo[type]) dailyInfo[type] = {};
                 for(let i = 5; i <= 26; i++) {
@@ -1510,6 +1521,49 @@
                 }
             });
 
+            // 🔥 (New) 시간 지정 일정을 Plan 영역에 예쁜 테두리 블록으로 렌더링
+            const timeSchedules = daySchedules.filter(s => s.isAllDay === false);
+            timeSchedules.forEach(s => {
+                let st = getSchStartTime(s);
+                let et = getSchEndTime(s);
+                let sh = parseInt(st.split(':')[0]);
+                let sm = parseInt(st.split(':')[1]);
+                let eh = parseInt(et.split(':')[0]);
+                let em = parseInt(et.split(':')[1]);
+                
+                if (sh < 5) sh += 24;
+                if (eh < 5) eh += 24;
+                if (eh < sh || (eh === sh && em <= sm)) eh += 24; // 자정 넘어가는 일정 처리
+
+                let remainingMins = (eh * 60 + em) - (sh * 60 + sm);
+                let currentH = sh;
+                let currentM = sm;
+                
+                while (remainingMins > 0 && currentH <= 26) {
+                    let availableMins = 60 - currentM;
+                    let minsForThisCell = Math.min(remainingMins, availableMins);
+                    
+                    if (minsForThisCell > 0) {
+                        const cell = document.getElementById(`plan-cell-${currentH}`);
+                        if (cell) {
+                            const el = document.createElement('div');
+                            el.className = 'sch-badge';
+                            // 타임블록 뱃지와 구분되도록 하얀 바탕에 예쁜 테두리 적용
+                            el.style.backgroundColor = '#ffffff';
+                            el.style.border = `1.5px solid ${s.color}`;
+                            el.style.color = '#334155';
+                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">[${formatTime(minsForThisCell)}] 🗓️ ${s.title}</span>`;
+                            el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
+                            cell.appendChild(el);
+                        }
+                        remainingMins -= minsForThisCell;
+                    }
+                    currentH++;
+                    currentM = 0;
+                }
+            });
+
+
             let yRechargeText = getYesterdayRecharge(currentWeekKey, day);
             const yRechargeEl = document.getElementById('yesterday-recharge-text');
             if (yRechargeEl) {
@@ -1524,7 +1578,7 @@
                 }
             }
 
-            // 🔥 화면 그려질 때 점수만큼 토마토 활성화
+            // 토마토 UI 활성화
             const currentRating = dailyInfo.energyRating || 0;
             document.querySelectorAll('.rating-btn').forEach((btn, index) => {
                 if (index < currentRating) {
@@ -1624,7 +1678,7 @@
                 schDiv.className = 'monthly-preview-text schedule-bar' + (s.isAllDay===false ? ' outline' : '');
                 schDiv.style.backgroundColor = s.isAllDay!==false ? s.color : 'transparent';
                 schDiv.style.borderColor = s.color;
-                schDiv.innerText = s.isAllDay!==false ? s.title : `${s.startHour>24?s.startHour-24:s.startHour}:00 ${s.title}`;
+                schDiv.innerText = s.isAllDay!==false ? s.title : `${getSchStartTime(s)} ${s.title}`;
                 tasksContainer.appendChild(schDiv);
             });
 
@@ -1779,9 +1833,32 @@
         });
     }
 
+    // 🔥 자동 소요 시간 계산
+    window.updateSchDuration = function() {
+        const isAllDay = document.getElementById('sch-allday').checked;
+        if(isAllDay) {
+            document.getElementById('sch-duration').innerText = '';
+            return;
+        }
+        const st = document.getElementById('sch-start-time').value;
+        const et = document.getElementById('sch-end-time').value;
+        if(st && et) {
+            const [sh, sm] = st.split(':').map(Number);
+            const [eh, em] = et.split(':').map(Number);
+            let startMins = sh * 60 + sm;
+            let endMins = eh * 60 + em;
+            if (endMins < startMins) endMins += 24 * 60; // 자정 넘김
+            const diff = endMins - startMins;
+            document.getElementById('sch-duration').innerText = `(소요: ${formatTime(diff)})`;
+        } else {
+            document.getElementById('sch-duration').innerText = '';
+        }
+    };
+
     window.toggleSchTimeInputs = function() {
         const isAllDay = document.getElementById('sch-allday').checked;
         document.getElementById('sch-time-container').style.display = isAllDay ? 'none' : 'flex';
+        updateSchDuration();
     }
 
     window.openScheduleModal = function(id = null) {
@@ -1794,8 +1871,11 @@
             document.getElementById('sch-start').value = sch.start;
             document.getElementById('sch-end').value = sch.end;
             document.getElementById('sch-allday').checked = (sch.isAllDay !== false);
-            document.getElementById('sch-start-time').value = sch.startHour || '9';
-            document.getElementById('sch-end-time').value = sch.endHour || '10';
+            
+            // 기존 데이터와 호환성 유지
+            document.getElementById('sch-start-time').value = getSchStartTime(sch);
+            document.getElementById('sch-end-time').value = getSchEndTime(sch);
+            
             selectedSchColor = sch.color;
             document.getElementById('sch-delete-btn').style.display = 'block';
         } else {
@@ -1806,8 +1886,10 @@
             document.getElementById('sch-start').value = todayStr;
             document.getElementById('sch-end').value = todayStr;
             document.getElementById('sch-allday').checked = true;
-            document.getElementById('sch-start-time').value = '9';
-            document.getElementById('sch-end-time').value = '10';
+            
+            document.getElementById('sch-start-time').value = '09:00';
+            document.getElementById('sch-end-time').value = '10:00';
+            
             selectedSchColor = scheduleColors[0];
             document.getElementById('sch-delete-btn').style.display = 'none';
         }
@@ -1821,12 +1903,13 @@
         const startStr = document.getElementById('sch-start').value;
         const endStr = document.getElementById('sch-end').value;
         const isAllDay = document.getElementById('sch-allday').checked;
-        const startHour = parseInt(document.getElementById('sch-start-time').value);
-        const endHour = parseInt(document.getElementById('sch-end-time').value);
+        const startTime = document.getElementById('sch-start-time').value;
+        const endTime = document.getElementById('sch-end-time').value;
 
         if(!title || !startStr || !endStr) return alert('제목과 날짜를 모두 입력해주세요.');
         if(startStr > endStr) return alert('종료일이 시작일보다 빠를 수 없습니다.');
-        if(!isAllDay && startHour > endHour) return alert('종료 시간이 시작 시간보다 빠를 수 없습니다.');
+        if(!isAllDay && !startTime) return alert('시작 시간을 선택해주세요.');
+        if(!isAllDay && !endTime) return alert('종료 시간을 선택해주세요.');
 
         if(!allData.schedules) allData.schedules = [];
         if (id) {
@@ -1834,12 +1917,12 @@
             if(oldSch) {
                 oldSch.title = title; oldSch.start = startStr; oldSch.end = endStr; 
                 oldSch.color = selectedSchColor; oldSch.isAllDay = isAllDay;
-                oldSch.startHour = startHour; oldSch.endHour = endHour;
+                oldSch.startTime = startTime; oldSch.endTime = endTime;
             }
         } else {
             allData.schedules.push({
                 id: 'sch_' + Date.now(), title, start: startStr, end: endStr, 
-                color: selectedSchColor, isAllDay, startHour, endHour
+                color: selectedSchColor, isAllDay, startTime, endTime
             });
         }
         saveAllData(); closeModal('schedule-modal');
