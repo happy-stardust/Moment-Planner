@@ -411,7 +411,7 @@
               <ul class="task-list" id="daily-todo-list" data-day="daily"></ul>
               <div class="inline-input-row" style="background:white;">
                 <span style="color:#cbd5e1; font-weight:bold; width:14px; text-align:center;">+</span>
-                <input type="text" class="inline-task-input" id="todo-input-daily" placeholder="오늘의 할 일을 적어보세요 🌱" onkeyup="handleTodoEnter(event, 'daily')" />
+                <input type="text" class="inline-task-input" id="todo-input-daily" placeholder="오늘의 할 일 입력." onkeyup="handleTodoEnter(event, 'daily')" />
               </div>
             </div>
           </div>
@@ -1409,7 +1409,7 @@
 
                     const tasks = allData[currentWeekKey]?.[day] || [];
                     if (tasks.length === 0 && listEl.children.length === 0) {
-                        listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">할 일이 없습니다 🌱</li>`;
+                        listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">할 일이 없습니다</li>`;
                     } else {
                         tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day)));
                     }
