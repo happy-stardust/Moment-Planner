@@ -692,6 +692,7 @@
     let pendingTodoText = "";
     let pendingTodoDay = "";
     let postponeTarget = null; 
+    let draggedTaskData = null; // 드래그 앤 드롭 임시 데이터
 
     window.autoResize = function(textarea) {
         textarea.style.height = 'auto';
@@ -993,10 +994,13 @@
         li.dataset.id = t.id;
         li.setAttribute('draggable', 'true');
         li.ondragstart = (e) => {
-            e.dataTransfer.setData('todoId', t.id);
-            e.dataTransfer.setData('text', t.originalText || t.text);
-            e.dataTransfer.setData('mins', t.plannedMins || 30);
-            e.dataTransfer.setData('color', t.color || pastelColors[2]); 
+            e.dataTransfer.setData('text/plain', t.originalText || t.text); // 기본 드래그 동작 유지
+            draggedTaskData = { // 전역 변수에 안전하게 저장
+                id: t.id,
+                text: t.originalText || t.text,
+                mins: t.plannedMins || 30,
+                color: t.color || pastelColors[2]
+            };
         };
 
         const badgeColor = t.color || pastelColors[2];
@@ -1062,14 +1066,14 @@
         e.preventDefault();
         e.currentTarget.classList.remove('drag-over');
         
-        const text = e.dataTransfer.getData('text');
-        const mins = parseInt(e.dataTransfer.getData('mins'));
-        const color = e.dataTransfer.getData('color') || pastelColors[2];
-        if(!text) return;
+        if (!draggedTaskData) return; // 전역 변수에서 데이터 가져오기
+        const { text, mins, color } = draggedTaskData;
 
         distributeBadgeToCells(currentDailyDay, 'plan', hour, 0, text, mins, color);
         saveAllData();
         renderDailyData();
+        
+        draggedTaskData = null; // 사용 후 초기화
     }
 
     window.openDirectAddModal = function(type, hour) {
