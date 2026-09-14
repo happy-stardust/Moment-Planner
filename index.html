@@ -1551,8 +1551,8 @@
                             // 타임블록 뱃지와 구분되도록 하얀 바탕에 예쁜 테두리 적용
                             el.style.backgroundColor = '#ffffff';
                            el.style.border = `2.5px solid ${s.color}`;
-                            el.style.color = '#334155';
-el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; /* 👈 테두리에만 검은색 섞기! */
+                           el.style.color = '#334155';
+                            el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; /* 👈 테두리에만 검은색 섞기! */
                             el.innerHTML = `<span class="badge-text" style="font-weight:600;">[${formatTime(minsForThisCell)}] ️💫 ${s.title}</span>`;
                             el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
                             cell.appendChild(el);
