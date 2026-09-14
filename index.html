@@ -1550,9 +1550,10 @@
                             el.className = 'sch-badge';
                             // 타임블록 뱃지와 구분되도록 하얀 바탕에 예쁜 테두리 적용
                             el.style.backgroundColor = '#ffffff';
-                            el.style.border = `1.5px solid ${s.color}`;
+                           el.style.border = `2.5px solid ${s.color}`;
                             el.style.color = '#334155';
-                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">[${formatTime(minsForThisCell)}] 💫 ${s.title}</span>`;
+el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; /* 👈 테두리에만 검은색 섞기! */
+                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">[${formatTime(minsForThisCell)}] ️💫 ${s.title}</span>`;
                             el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
                             cell.appendChild(el);
                         }
@@ -1811,7 +1812,8 @@
     // ==========================================
     // 8. 일정 추가(Schedule), 검색, 데이터 입출력 
     // ==========================================
-    const scheduleColors = ['#8b9bb4', '#e58b88', '#A7D4D3', '#B5B1D8', '#facc15'];
+    const scheduleColors = ['#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6', 
+        '#F5ECC2', '#E4F1FE', '#ECECEC'];
     let selectedSchColor = scheduleColors[0];
 
     window.syncEndDate = function() {
