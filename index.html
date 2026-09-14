@@ -1529,6 +1529,20 @@
         switchView('weekly'); 
     }
 
+    // 🔥 진행률에 따른 응원 메시지 함수 추가
+    function getProgressMessage(percent, total) {
+        if (total === 0) return '';
+        if (percent === 0) return '⏰ R U ready?';
+        if (percent < 10) return '🌟 오늘 하루 화이팅!!';
+        if (percent < 30) return '💍 최고의 하루를 만드는 중!';
+        if (percent < 50) return '👑 항상 응원해!';
+        if (percent < 60) return '🍅 절반을 넘기다니!!';
+        if (percent < 80) return '🌿 자랑스러워!';
+        if (percent < 90) return '🎀 잘 하고 있어!!';
+        if (percent < 100) return '🏆 정말 놀라워요!';
+        return '✨ 마법같은 일이야';
+    }
+
     window.renderAll = function(specificDay = null) {
         if (currentView === 'monthly') { renderMonthlyCalendar(); return; }
         if (currentView === 'daily') { renderDailyData(); return; }
@@ -1791,22 +1805,25 @@
         }
     }
 
+    // 🔥 퍼센트 값을 메시지로 변환하여 적용
     function updateProgress(day) {
         const tasks = allData[currentWeekKey]?.[day] || [];
         const total = tasks.length;
         const completed = tasks.filter(t => ['done', 'canceled', 'postponed'].includes(t.state)).length;
         const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
         
+        const message = getProgressMessage(percent, total); // 감성 메시지 호출
+        
         const pbWeekly = document.getElementById(`progress-bar-${day}`);
         const ptWeekly = document.getElementById(`progress-text-${day}`);
         if (pbWeekly) pbWeekly.style.width = `${percent}%`;
-        if (ptWeekly) ptWeekly.innerText = total === 0 ? '' : `${percent}%`;
+        if (ptWeekly) ptWeekly.innerText = message;
 
         if (currentDailyDay === day) {
             const pbDaily = document.getElementById('daily-progress-bar');
             const ptDaily = document.getElementById('daily-progress-text');
             if (pbDaily) pbDaily.style.width = `${percent}%`;
-            if (ptDaily) ptDaily.innerText = total === 0 ? '' : `${percent}%`;
+            if (ptDaily) ptDaily.innerText = message;
         }
     }
 
