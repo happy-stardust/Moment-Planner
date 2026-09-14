@@ -251,7 +251,7 @@
     <header class="planner-header">
       <div class="title-group">
         <h1>Moment PLANNER</h1>
-        <span>Time Block management </span>
+        <span>Time Block PLANNER</span>
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
@@ -425,11 +425,11 @@
                     <div style="font-size:0.75rem; font-weight:600; color:var(--text-main); margin-bottom:6px;">얼마나 도움이 되었나요?</div>
                     
                     <div class="rating-scale" id="energy-rating-container">
-                        <button class="rating-btn" data-score="1" onclick="setEnergyRating(1)">🍅</button>
-                        <button class="rating-btn" data-score="2" onclick="setEnergyRating(2)">🍅</button>
-                        <button class="rating-btn" data-score="3" onclick="setEnergyRating(3)">🍅</button>
-                        <button class="rating-btn" data-score="4" onclick="setEnergyRating(4)">🍅</button>
-                        <button class="rating-btn" data-score="5" onclick="setEnergyRating(5)">🍅</button>
+                        <button class="rating-btn" data-score="1" onclick="setEnergyRating(1)">✨</button>
+                        <button class="rating-btn" data-score="2" onclick="setEnergyRating(2)">✨</button>
+                        <button class="rating-btn" data-score="3" onclick="setEnergyRating(3)">✨</button>
+                        <button class="rating-btn" data-score="4" onclick="setEnergyRating(4)">✨</button>
+                        <button class="rating-btn" data-score="5" onclick="setEnergyRating(5)">✨</button>
                     </div>
                 </div>
                 
@@ -531,23 +531,24 @@
     </div>
   </div>
 
-  <!-- 2. [직접 추가] Plan/Do 뱃지 바로 추가 팝업 -->
+  <!-- 2. [직접 추가 & 뱃지 수정] Plan/Do 뱃지 추가 및 수정 팝업 -->
   <div id="modal-direct-add" class="modal-overlay" onclick="closeModal('modal-direct-add')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>🏷️ 일정 직접 기록</h3>
+        <h3>🏷️ 뱃지 기록/수정</h3>
         <button onclick="closeModal('modal-direct-add')" class="close-btn">✕</button>
       </div>
       <p style="font-size:0.8rem; color:var(--text-muted); margin:0;" id="direct-add-subtitle">투두 등록 없이 바로 기록합니다.</p>
       
       <input type="hidden" id="direct-type" />
       <input type="hidden" id="direct-hour" />
+      <input type="hidden" id="direct-badge-id" /> <!-- 수정용 ID -->
       
       <input type="text" id="direct-title" class="modal-input" placeholder="내용 (예: 점심식사, 휴식)" />
       <input type="number" id="direct-mins" class="modal-input" placeholder="소요 시간 (예: 60)" />
       
       <div class="color-chip-row" id="direct-colors"></div>
-      <button class="btn-primary" onclick="saveDirectBadge()">기록 남기기</button>
+      <button class="btn-primary" onclick="saveDirectBadge()">기록 저장</button>
     </div>
   </div>
 
@@ -558,15 +559,18 @@
         <h3>📈 실행 기록하기</h3>
         <button onclick="closeModal('modal-do-log')" class="close-btn">✕</button>
       </div>
-      <div style="font-size:0.9rem; font-weight:600; color:var(--primary-color);" id="do-log-title"></div>
+      <!-- 🔥 타이틀 및 상세 정보 추가 공간 -->
+      <div style="font-size:0.95rem; font-weight:600; color:var(--text-main);" id="do-log-title"></div>
+      <div style="font-size:0.82rem; color:var(--primary-color); margin-top:6px; line-height:1.4;" id="do-log-subtitle"></div>
+      
       <input type="hidden" id="do-log-task-id" />
       <input type="hidden" id="do-log-day-id" />
       
-      <div style="display:flex; align-items:center; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-top:14px;">
         <span style="font-size:0.85rem; font-weight:600; width:65px; white-space:nowrap;">시작 시각</span>
         <input type="text" id="do-log-start" class="modal-input" placeholder="예: 0900 (숫자만)" maxlength="4" style="padding:8px;" />
       </div>
-      <div style="display:flex; align-items:center; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
         <span style="font-size:0.85rem; font-weight:600; width:65px; white-space:nowrap;">실제 소요</span>
         <input type="number" id="do-log-spent" class="modal-input" placeholder="분 단위 (예: 60)" style="padding:8px;" />
       </div>
@@ -995,8 +999,11 @@
         li.setAttribute('draggable', 'true');
         li.ondragstart = (e) => {
             e.dataTransfer.setData('text/plain', t.originalText || t.text); // 기본 드래그 동작 유지
-            draggedTaskData = { // 전역 변수에 안전하게 저장
+            
+            // 🔥 삭제/수정 연동을 위해 taskId와 taskDay를 함께 전역 변수로 전달!
+            draggedTaskData = { 
                 id: t.id,
+                day: day,
                 text: t.originalText || t.text,
                 mins: t.plannedMins || 30,
                 color: t.color || pastelColors[2]
@@ -1036,10 +1043,14 @@
         if(e.target.classList && e.target.classList.contains('tb-cell-content')) e.target.classList.remove('drag-over');
     });
 
-    function distributeBadgeToCells(targetDay, type, startHour, startMinute, text, totalMins, color) {
+    // 🔥 taskId와 taskDay 파라미터 추가
+    function distributeBadgeToCells(targetDay, type, startHour, startMinute, text, totalMins, color, taskId = null, taskDay = null) {
         let remainingMins = totalMins;
         let currentH = startHour;
         let currentM = startMinute;
+        
+        let overallEndH = startHour + Math.floor((startMinute + totalMins) / 60);
+        let overallEndM = (startMinute + totalMins) % 60;
         
         while (remainingMins > 0 && currentH <= 26) {
             let availableMins = 60 - currentM; 
@@ -1053,7 +1064,14 @@
                     id: 'badge_' + Date.now() + '_' + currentH, 
                     text: text, 
                     mins: minsForThisCell, 
-                    color: color 
+                    color: color,
+                    startMin: currentM,
+                    origStartH: startHour,
+                    origStartM: startMinute,
+                    origEndH: overallEndH,
+                    origEndM: overallEndM,
+                    taskId: taskId,   // 🔥 투두 연동 정보 저장
+                    taskDay: taskDay  // 🔥 투두가 원래 있던 위치(daily, weekly 등)
                 });
                 remainingMins -= minsForThisCell;
             }
@@ -1066,21 +1084,24 @@
         e.preventDefault();
         e.currentTarget.classList.remove('drag-over');
         
-        if (!draggedTaskData) return; // 전역 변수에서 데이터 가져오기
-        const { text, mins, color } = draggedTaskData;
+        if (!draggedTaskData) return; 
+        const { id, day, text, mins, color } = draggedTaskData;
 
-        distributeBadgeToCells(currentDailyDay, 'plan', hour, 0, text, mins, color);
+        // 🔥 드래그 시 taskId, taskDay도 넘김
+        distributeBadgeToCells(currentDailyDay, 'plan', hour, 0, text, mins, color, id, day);
         saveAllData();
-        renderDailyData();
+        renderAll();
         
-        draggedTaskData = null; // 사용 후 초기화
+        draggedTaskData = null; 
     }
 
     window.openDirectAddModal = function(type, hour) {
         document.getElementById('direct-type').value = type;
         document.getElementById('direct-hour').value = hour;
+        document.getElementById('direct-badge-id').value = ''; 
         document.getElementById('direct-title').value = '';
         document.getElementById('direct-mins').value = '30'; 
+        document.getElementById('direct-add-subtitle').innerText = "투두 등록 없이 바로 기록합니다.";
         
         const colorDiv = document.getElementById('direct-colors');
         colorDiv.innerHTML = '';
@@ -1101,25 +1122,101 @@
         setTimeout(()=> document.getElementById('direct-title').focus(), 100);
     }
 
+    window.openEditBadgeModal = function(e, type, hour, badgeId) {
+        e.stopPropagation();
+        const badge = allData[currentWeekKey].daily[currentDailyDay][type][hour].find(b => b.id === badgeId);
+        if(!badge) return;
+
+        document.getElementById('direct-type').value = type;
+        document.getElementById('direct-hour').value = hour;
+        document.getElementById('direct-badge-id').value = badgeId;
+        
+        document.getElementById('direct-title').value = badge.text;
+        document.getElementById('direct-mins').value = badge.mins; 
+        
+        selectedBadgeColor = badge.color || pastelColors[2];
+        
+        const colorDiv = document.getElementById('direct-colors');
+        colorDiv.innerHTML = '';
+        pastelColors.forEach(c => {
+            const chip = document.createElement('div');
+            chip.className = 'color-chip' + (c === selectedBadgeColor ? ' selected' : '');
+            chip.style.backgroundColor = c;
+            chip.onclick = (ev) => {
+                ev.stopPropagation();
+                selectedBadgeColor = c;
+                Array.from(colorDiv.children).forEach(el => el.classList.remove('selected'));
+                chip.classList.add('selected');
+            };
+            colorDiv.appendChild(chip);
+        });
+        
+        document.getElementById('direct-add-subtitle').innerText = "기록된 일정을 수정합니다.";
+        document.getElementById('modal-direct-add').style.display = 'flex';
+        setTimeout(()=> document.getElementById('direct-title').focus(), 100);
+    }
+
     window.saveDirectBadge = function() {
         const type = document.getElementById('direct-type').value;
         const hour = parseInt(document.getElementById('direct-hour').value);
+        const badgeId = document.getElementById('direct-badge-id').value;
         const text = document.getElementById('direct-title').value.trim();
         const mins = parseInt(document.getElementById('direct-mins').value) || 30;
 
         if(text) {
-            distributeBadgeToCells(currentDailyDay, type, hour, 0, text, mins, selectedBadgeColor);
+            if (badgeId) { // 🔥 수정 모드
+                const badgeIndex = allData[currentWeekKey].daily[currentDailyDay][type][hour].findIndex(b => b.id === badgeId);
+                if (badgeIndex !== -1) {
+                    const b = allData[currentWeekKey].daily[currentDailyDay][type][hour][badgeIndex];
+                    let startMin = b.startMin || 0;
+                    
+                    // 🔥 연동된 투두리스트 시간 및 상태 동기화 (수정 시)
+                    if (type === 'do' && b.taskId && b.taskDay) {
+                        const task = allData[currentWeekKey][b.taskDay].find(t => t.id === b.taskId);
+                        if (task) {
+                            task.spentMins = Math.max(0, (task.spentMins || 0) - b.mins + mins); // 이전 시간 빼고 새 시간 더함
+                            
+                            if (task.state === 'done' && task.spentMins === 0) task.state = 'todo';
+                            else if (task.state === 'todo' && task.spentMins > 0) task.state = 'in-progress';
+                        }
+                    }
+
+                    allData[currentWeekKey].daily[currentDailyDay][type][hour].splice(badgeIndex, 1);
+                    // 수정한 내용으로 다시 배치 (taskId, taskDay 유지)
+                    distributeBadgeToCells(currentDailyDay, type, hour, startMin, text, mins, selectedBadgeColor, b.taskId, b.taskDay);
+                }
+            } 
+            else { // 일반 등록
+                distributeBadgeToCells(currentDailyDay, type, hour, 0, text, mins, selectedBadgeColor);
+            }
             saveAllData();
-            renderDailyData();
+            renderAll(); // UI 전체 업데이트
         }
         closeModal('modal-direct-add');
     }
 
     window.deleteBadge = function(e, type, hour, badgeId) {
         e.stopPropagation();
-        allData[currentWeekKey].daily[currentDailyDay][type][hour] = allData[currentWeekKey].daily[currentDailyDay][type][hour].filter(b => b.id !== badgeId);
+        const badgeArr = allData[currentWeekKey].daily[currentDailyDay][type][hour];
+        const badgeToDelete = badgeArr.find(b => b.id === badgeId);
+
+        // 🔥 연동된 투두리스트 시간 및 상태 동기화 (삭제 시)
+        if (badgeToDelete && badgeToDelete.taskId && badgeToDelete.taskDay && type === 'do') {
+            const task = allData[currentWeekKey][badgeToDelete.taskDay].find(t => t.id === badgeToDelete.taskId);
+            if (task) {
+                task.spentMins = Math.max(0, (task.spentMins || 0) - badgeToDelete.mins); // 지운 만큼 시간 롤백
+                
+                if (task.state === 'done') {
+                    task.state = task.spentMins > 0 ? 'in-progress' : 'todo';
+                } else if (task.state === 'in-progress' && task.spentMins === 0) {
+                    task.state = 'todo';
+                }
+            }
+        }
+
+        allData[currentWeekKey].daily[currentDailyDay][type][hour] = badgeArr.filter(b => b.id !== badgeId);
         saveAllData();
-        renderDailyData();
+        renderAll();
     }
 
 
@@ -1158,6 +1255,7 @@
 
     window.justCompleteTodo = function() { forceState('done'); }
 
+    // 🔥 투두 체크박스 클릭 시 (실행 기록하기 모달 띄우기)
     window.clickTodoCheckbox = function(day, id) {
         const task = allData[currentWeekKey][day].find(t => t.id === id);
         if(!task) return;
@@ -1167,16 +1265,58 @@
         if(task.plannedMins > 0 && (currentState === 'todo' || currentState === 'in-progress')) {
             document.getElementById('do-log-task-id').value = task.id;
             document.getElementById('do-log-day-id').value = day;
-            document.getElementById('do-log-title').innerText = `목표: ${formatTime(task.plannedMins)} / [ ${task.originalText} ]`;
             
+            // 🔥 타이틀에 일정이름 표시
+            document.getElementById('do-log-title').innerText = `📝 ${task.originalText}`;
+            
+            // 🔥 남은 시간 및 플랜(예정) 시간 계산
             let remain = task.plannedMins - (task.spentMins || 0);
-            document.getElementById('do-log-spent').value = remain > 0 ? remain : 30;
-            
-            const now = new Date();
-            const hh = String(now.getHours()).padStart(2, '0');
-            const mm = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('do-log-start').value = `${hh}${mm}`;
+            let subtitleText = `⏱️ 총 목표: ${formatTime(task.plannedMins)} (남은 시간: ${formatTime(remain > 0 ? remain : 0)})`;
 
+            let defaultStart = "";
+            let targetDaily = (day === 'weekly') ? currentDailyDay : day; 
+
+            // 타임블록(Plan)에 등록된 시간이 있는지 찾기
+            if (allData[currentWeekKey] && allData[currentWeekKey].daily[targetDaily] && allData[currentWeekKey].daily[targetDaily].plan) {
+                let planCells = allData[currentWeekKey].daily[targetDaily].plan;
+                let badgesForTask = [];
+                for (let h=5; h<=26; h++) {
+                    if (planCells[h]) badgesForTask.push(...planCells[h].filter(b => b.taskId === task.id));
+                }
+                
+                if (badgesForTask.length > 0) {
+                    // 가장 이른 시작 시간 찾기
+                    badgesForTask.sort((a,b) => {
+                        let aMins = (a.origStartH || 0)*60 + (a.origStartM || 0);
+                        let bMins = (b.origStartH || 0)*60 + (b.origStartM || 0);
+                        return aMins - bMins;
+                    });
+                    let firstB = badgesForTask[0];
+                    if(firstB.origStartH !== undefined && firstB.origEndH !== undefined) {
+                        let dSH = firstB.origStartH > 24 ? firstB.origStartH - 24 : firstB.origStartH;
+                        let dEH = firstB.origEndH > 24 ? firstB.origEndH - 24 : firstB.origEndH;
+                        let sHStr = String(dSH).padStart(2, '0');
+                        let sMStr = String(firstB.origStartM).padStart(2, '0');
+                        let eHStr = String(dEH).padStart(2, '0');
+                        let eMStr = String(firstB.origEndM).padStart(2, '0');
+                        
+                        subtitleText += `<br>🗓️ 타임블록 예정시간: ${sHStr}:${sMStr} ~ ${eHStr}:${eMStr}`;
+                        defaultStart = `${sHStr}${sMStr}`;
+                    }
+                }
+            }
+            
+            document.getElementById('do-log-subtitle').innerHTML = subtitleText;
+            
+            // 🔥 시작 시각 자동 완성 로직
+            if (defaultStart) {
+                document.getElementById('do-log-start').value = defaultStart;
+            } else {
+                const now = new Date();
+                document.getElementById('do-log-start').value = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+            }
+            
+            document.getElementById('do-log-spent').value = remain > 0 ? remain : 30;
             document.getElementById('modal-do-log').style.display = 'flex';
             return;
         }
@@ -1281,7 +1421,8 @@
             }
         }
         
-        distributeBadgeToCells(targetDaily, 'do', startH, startM, task.originalText, spent, matchColor);
+        // 🔥 투두 정보(task.id, day)를 함께 전달해서 Do 뱃지 생성
+        distributeBadgeToCells(targetDaily, 'do', startH, startM, task.originalText, spent, matchColor, task.id, day);
 
         if(!task.spentMins) task.spentMins = 0;
         task.spentMins += spent;
@@ -1519,13 +1660,31 @@
                         const el = document.createElement('div');
                         el.className = 'sch-badge';
                         el.style.backgroundColor = b.color;
-                        el.innerHTML = `<span class="badge-text">[${formatTime(b.mins)}] ${b.text}</span> <button class="badge-del" onclick="deleteBadge(event, '${type}', ${i}, '${b.id}')">✕</button>`;
+                        
+                        let sH = b.origStartH !== undefined ? b.origStartH : i;
+                        let sM = b.origStartM !== undefined ? b.origStartM : (b.startMin || 0);
+                        let eH = b.origEndH !== undefined ? b.origEndH : sH + Math.floor((sM + b.mins) / 60);
+                        let eM = b.origEndM !== undefined ? b.origEndM : (sM + b.mins) % 60;
+
+                        let displayStartH = sH > 24 ? sH - 24 : sH;
+                        let displayEndH = eH > 24 ? eH - 24 : eH;
+
+                        let sHStr = String(displayStartH).padStart(2, '0');
+                        let sMStr = String(sM).padStart(2, '0');
+                        let eHStr = String(displayEndH).padStart(2, '0');
+                        let eMStr = String(eM).padStart(2, '0');
+
+                        let timeLabel = `[${sHStr}:${sMStr}-${eHStr}:${eMStr}]`;
+                        
+                        el.onclick = (e) => { openEditBadgeModal(e, type, i, b.id); };
+                        
+                        el.innerHTML = `<span class="badge-text">${timeLabel} ${b.text}</span> <button class="badge-del" onclick="deleteBadge(event, '${type}', ${i}, '${b.id}')">✕</button>`;
                         cell.appendChild(el);
                     });
                 }
             });
 
-            // 🔥 (New) 시간 지정 일정을 Plan 영역에 예쁜 테두리 블록으로 렌더링
+            // 시간 지정 일정을 Plan 영역에 예쁜 테두리 블록으로 렌더링
             const timeSchedules = daySchedules.filter(s => s.isAllDay === false);
             timeSchedules.forEach(s => {
                 let st = getSchStartTime(s);
@@ -1538,6 +1697,14 @@
                 if (sh < 5) sh += 24;
                 if (eh < 5) eh += 24;
                 if (eh < sh || (eh === sh && em <= sm)) eh += 24; // 자정 넘어가는 일정 처리
+
+                let displayStartH = sh > 24 ? sh - 24 : sh;
+                let displayEndH = eh > 24 ? eh - 24 : eh;
+                let sHStr = String(displayStartH).padStart(2, '0');
+                let sMStr = String(sm).padStart(2, '0');
+                let eHStr = String(displayEndH).padStart(2, '0');
+                let eMStr = String(em).padStart(2, '0');
+                let timeLabel = `[${sHStr}:${sMStr}-${eHStr}:${eMStr}]`;
 
                 let remainingMins = (eh * 60 + em) - (sh * 60 + sm);
                 let currentH = sh;
@@ -1552,12 +1719,12 @@
                         if (cell) {
                             const el = document.createElement('div');
                             el.className = 'sch-badge';
-                            // 타임블록 뱃지와 구분되도록 하얀 바탕에 예쁜 테두리 적용
                             el.style.backgroundColor = '#ffffff';
                            el.style.border = `2.5px solid ${s.color}`;
                            el.style.color = '#334155';
-                            el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; /* 👈 테두리에만 검은색 섞기! */
-                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">[${formatTime(minsForThisCell)}] ️💫 ${s.title}</span>`;
+                            el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; 
+                            
+                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">${timeLabel} ️💫 ${s.title}</span>`;
                             el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
                             cell.appendChild(el);
                         }
