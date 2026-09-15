@@ -422,7 +422,7 @@
                 <div class="energy-feedback-section" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
                     <div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:6px;">어제 계획한 에너지 충전법 🔋</div>
                     <div id="yesterday-recharge-text" style="font-size:0.85rem; color:var(--primary-color); font-weight:600; margin-bottom:10px;">(어제 기록이 없습니다)</div>
-                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-main); margin-bottom:6px;">오늘의 토마토지수는? </div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-main); margin-bottom:6px;">얼마나 도움이 되었나요?</div>
                     
                     <div class="rating-scale" id="energy-rating-container">
                         <button class="rating-btn" data-score="1" onclick="setEnergyRating(1)">🍅</button>
@@ -1563,12 +1563,27 @@
                         mDate.setDate(mDate.getDate() + ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'].indexOf(day));
                         const cellDateStr = formatDateStr(mDate);
                         const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
+                        
+                        // 🔥 [수정] 하루 종일 일정을 위로, 시간 지정 일정은 빠른 시간순으로 정렬
+                        daySchedules.sort((a, b) => {
+                            if (a.isAllDay !== false && b.isAllDay === false) return -1;
+                            if (a.isAllDay === false && b.isAllDay !== false) return 1;
+                            return getSchStartTime(a).localeCompare(getSchStartTime(b));
+                        });
+                        
                         daySchedules.forEach(s => {
                             const schLi = document.createElement('li');
                             schLi.className = 'schedule-bar' + (s.isAllDay===false ? ' outline' : '');
                             schLi.style.backgroundColor = s.isAllDay!==false ? s.color : 'transparent';
                             schLi.style.borderColor = s.color;
-                            schLi.innerText = s.isAllDay!==false ? `🎀 ${s.title}` : `${getSchStartTime(s)} ${s.title}`;
+                            
+                            // 🔥 위클리: 시작/종료 시간을 모두 표시
+                            if (s.isAllDay !== false) {
+                                schLi.innerText = `🎀 ${s.title}`;
+                            } else {
+                                schLi.innerText = `[${getSchStartTime(s)}-${getSchEndTime(s)}] ${s.title}`;
+                            }
+                            
                             schLi.onclick = () => openScheduleModal(s.id);
                             listEl.appendChild(schLi);
                         });
@@ -1749,6 +1764,25 @@
                 }
             });
 
+            // 🔥 모든 뱃지 렌더링이 끝난 후, 각 칸의 뱃지들을 시작 시간 순으로 DOM 정렬
+            for (let i = 5; i <= 26; i++) {
+                ['plan', 'do'].forEach(type => {
+                    const cell = document.getElementById(`${type}-cell-${i}`);
+                    if (cell && cell.children.length > 1) {
+                        Array.from(cell.children).sort((a, b) => {
+                            const getMins = (text) => {
+                                const match = text.match(/\[(\d{2}):(\d{2})/);
+                                if (!match) return Number.MAX_SAFE_INTEGER;
+                                let h = parseInt(match[1], 10);
+                                let m = parseInt(match[2], 10);
+                                if (h < 5) h += 24; // 새벽 시간대 처리
+                                return h * 60 + m;
+                            };
+                            return getMins(a.innerText) - getMins(b.innerText);
+                        }).forEach(node => cell.appendChild(node));
+                    }
+                });
+            }
 
             let yRechargeText = getYesterdayRecharge(currentWeekKey, day);
             const yRechargeEl = document.getElementById('yesterday-recharge-text');
@@ -1861,7 +1895,14 @@
             tasksContainer.className = 'monthly-tasks-container';
             
             const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && dateStr >= s.start && dateStr <= s.end);
-            daySchedules.sort((a, b) => (b.isAllDay===false ? 1 : -1));
+            
+            // 🔥 [수정] 먼슬리에서도 빠른 시간순 정렬 적용
+            daySchedules.sort((a, b) => {
+                if (a.isAllDay !== false && b.isAllDay === false) return -1;
+                if (a.isAllDay === false && b.isAllDay !== false) return 1;
+                return getSchStartTime(a).localeCompare(getSchStartTime(b));
+            });
+
             daySchedules.forEach(s => {
                 const schDiv = document.createElement('div');
                 schDiv.className = 'monthly-preview-text schedule-bar' + (s.isAllDay===false ? ' outline' : '');
