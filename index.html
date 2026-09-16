@@ -276,11 +276,21 @@
         <span id="week-display" class="active-indicator">로딩 중...</span>
         <button onclick="changePeriod(1)">다음 ▶</button>
         <button onclick="goToday()" style="margin-left:4px;">오늘</button>
-        <button onclick="openFontModal()" style="margin-left:12px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">🎨 폰트</button>
-        <button onclick="openScheduleModal()" style="margin-left:4px; font-weight:600; color: #475569;" title="새로운 일정 추가">🗓️ 일정 추가</button>
-        <button onclick="openSearchModal()" style="margin-left:4px; font-weight:600;" title="과거 메모 및 회고 검색">🔍 검색</button>
-        <button onclick="exportData()" style="margin-left:4px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">💾 백업</button>
-        <button onclick="document.getElementById('import-file').click()" style="border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">📂 복원</button>
+         <button onclick="openFontModal()" style="margin-left:8px; padding: 4px 8px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
+    <span style="opacity: 0.8;">🎨폰트</span>
+</button>
+<button onclick="openScheduleModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600; color: #475569;" title="새로운 일정 추가">
+    <span style="opacity: 0.8;">🗓️일정추가</span>
+</button>
+<button onclick="openSearchModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600;" title="과거 메모 및 회고 검색">
+    <span style="opacity: 0.8;">🔍검색</span>
+</button>
+<button onclick="exportData()" style="margin-left:0px; padding: 4px 8px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">
+    <span style="opacity: 0.8;">💾백업</span>
+</button>
+<button onclick="document.getElementById('import-file').click()" style="margin-left:0px; padding: 4px 8px; border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">
+    <span style="opacity: 0.8;">📂복원</span>
+</button>
         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
       </div>
     </div>
