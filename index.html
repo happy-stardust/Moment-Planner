@@ -541,24 +541,30 @@
     </div>
   </div>
 
-  <!-- 2. [직접 추가 & 뱃지 수정] Plan/Do 뱃지 추가 및 수정 팝업 -->
+<!-- 2. [직접 추가 & 뱃지 수정] Plan/Do 뱃지 추가 및 수정 팝업 -->
   <div id="modal-direct-add" class="modal-overlay" onclick="closeModal('modal-direct-add')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
         <h3>🏷️ 뱃지 기록/수정</h3>
         <button onclick="closeModal('modal-direct-add')" class="close-btn">✕</button>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin:0;" id="direct-add-subtitle">투두 등록 없이 바로 기록합니다.</p>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin:0; margin-bottom:12px;" id="direct-add-subtitle">투두 등록 없이 바로 기록합니다.</p>
       
       <input type="hidden" id="direct-type" />
       <input type="hidden" id="direct-hour" />
       <input type="hidden" id="direct-badge-id" /> <!-- 수정용 ID -->
       
-      <input type="text" id="direct-title" class="modal-input" placeholder="내용 (예: 점심식사, 휴식)" />
-      <input type="number" id="direct-mins" class="modal-input" placeholder="소요 시간 (예: 60)" />
+      <!-- 🔥 새로 추가된 부분: Do 영역일 때만 나타나는 시작 시각 입력 -->
+      <div id="direct-do-time-container" style="display: none; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <span style="font-size:0.85rem; font-weight:600; width:65px; white-space:nowrap;">시작 시각</span>
+        <input type="text" id="direct-start-time" class="modal-input" placeholder="예: 1020 (숫자만)" maxlength="4" style="padding:8px;" />
+      </div>
+
+      <input type="text" id="direct-title" class="modal-input" placeholder="내용 (예: 점심식사, 휴식)" style="margin-bottom:8px;" />
+      <input type="number" id="direct-mins" class="modal-input" placeholder="소요 시간 (예: 60)" style="margin-bottom:8px;" />
       
       <div class="color-chip-row" id="direct-colors"></div>
-      <button class="btn-primary" onclick="saveDirectBadge()">기록 저장</button>
+      <button class="btn-primary" onclick="saveDirectBadge()" style="margin-top:8px;">기록 저장</button>
     </div>
   </div>
 
@@ -1105,13 +1111,26 @@
         draggedTaskData = null; 
     }
 
+  // 1. 직접 추가 모달 열기 (Plan은 깔끔하게, Do는 시간 입력 보이게)
     window.openDirectAddModal = function(type, hour) {
         document.getElementById('direct-type').value = type;
         document.getElementById('direct-hour').value = hour;
         document.getElementById('direct-badge-id').value = ''; 
         document.getElementById('direct-title').value = '';
         document.getElementById('direct-mins').value = '30'; 
-        document.getElementById('direct-add-subtitle').innerText = "투두 등록 없이 바로 기록합니다.";
+        
+        document.getElementById('direct-add-subtitle').innerText = type === 'do' ? "실제 실행한 시각과 시간을 기록합니다." : "계획 타임블록을 추가합니다.";
+        
+        // 🔥 Do 모드일 때만 시작 시각 입력칸 노출 및 기본값 세팅
+        const timeContainer = document.getElementById('direct-do-time-container');
+        if (type === 'do') {
+            timeContainer.style.display = 'flex';
+            const displayHour = hour > 24 ? hour - 24 : hour; // 새벽 시간(25시 등) 보정
+            // 클릭한 칸의 시간을 '1000' 형태로 기본 제공
+            document.getElementById('direct-start-time').value = String(displayHour).padStart(2, '0') + '00'; 
+        } else {
+            timeContainer.style.display = 'none';
+        }
         
         const colorDiv = document.getElementById('direct-colors');
         colorDiv.innerHTML = '';
@@ -1129,20 +1148,37 @@
         });
         
         document.getElementById('modal-direct-add').style.display = 'flex';
-        setTimeout(()=> document.getElementById('direct-title').focus(), 100);
+        // Do 영역이면 시작 시간을 먼저 수정할 수 있게 포커스, Plan이면 내용에 포커스
+        if (type === 'do') setTimeout(()=> document.getElementById('direct-start-time').focus(), 100);
+        else setTimeout(()=> document.getElementById('direct-title').focus(), 100);
     }
 
+    // 2. 뱃지 수정 모달 열기 (Do 수정 시 저장됐던 시간 불러오기)
     window.openEditBadgeModal = function(e, type, hour, badgeId) {
         e.stopPropagation();
         const badge = allData[currentWeekKey].daily[currentDailyDay][type][hour].find(b => b.id === badgeId);
         if(!badge) return;
 
         document.getElementById('direct-type').value = type;
-        document.getElementById('direct-hour').value = hour;
+        document.getElementById('direct-hour').value = hour; // 클릭했던 원본 시간
         document.getElementById('direct-badge-id').value = badgeId;
         
         document.getElementById('direct-title').value = badge.text;
         document.getElementById('direct-mins').value = badge.mins; 
+        
+        document.getElementById('direct-add-subtitle').innerText = "기록된 일정을 수정합니다.";
+
+        // 🔥 Do 모드일 때 시작 시각 입력칸 노출 및 기존 시각 세팅
+        const timeContainer = document.getElementById('direct-do-time-container');
+        if (type === 'do') {
+            timeContainer.style.display = 'flex';
+            let sH = badge.origStartH !== undefined ? badge.origStartH : hour;
+            let sM = badge.origStartM !== undefined ? badge.origStartM : (badge.startMin || 0);
+            let displayHour = sH > 24 ? sH - 24 : sH;
+            document.getElementById('direct-start-time').value = String(displayHour).padStart(2, '0') + String(sM).padStart(2, '0');
+        } else {
+            timeContainer.style.display = 'none';
+        }
         
         selectedBadgeColor = badge.color || pastelColors[2];
         
@@ -1161,43 +1197,60 @@
             colorDiv.appendChild(chip);
         });
         
-        document.getElementById('direct-add-subtitle').innerText = "기록된 일정을 수정합니다.";
         document.getElementById('modal-direct-add').style.display = 'flex';
         setTimeout(()=> document.getElementById('direct-title').focus(), 100);
     }
 
+    // 3. 기록 저장 로직 (시간/분 계산 반영)
     window.saveDirectBadge = function() {
         const type = document.getElementById('direct-type').value;
-        const hour = parseInt(document.getElementById('direct-hour').value);
+        const originalHour = parseInt(document.getElementById('direct-hour').value); // 팝업 띄울 때 클릭했던 칸의 시간
         const badgeId = document.getElementById('direct-badge-id').value;
         const text = document.getElementById('direct-title').value.trim();
         const mins = parseInt(document.getElementById('direct-mins').value) || 30;
 
+        let targetHour = originalHour;
+        let startMin = 0;
+
+        // 🔥 Do 모드인 경우 사용자가 입력한 세밀한 시작 시각(예: 1020)을 파싱
+        if (type === 'do') {
+            let timeVal = document.getElementById('direct-start-time').value.trim();
+            if(!/^\d{3,4}$/.test(timeVal)) return alert("시작 시각을 '0930'이나 '1520' 같은 숫자로 입력해주세요.");
+            timeVal = timeVal.padStart(4, '0');
+            let startH = parseInt(timeVal.substring(0, 2));
+            startMin = parseInt(timeVal.substring(2, 4));
+            
+            if (startH < 5) startH += 24; // 새벽 시간대 처리 (예: 0100 -> 25)
+            targetHour = startH; // 10시 칸을 눌렀어도 11시 20분이라 적으면 11시에 그려지도록 덮어씌움
+        }
+
         if(text) {
             if (badgeId) { // 🔥 수정 모드
-                const badgeIndex = allData[currentWeekKey].daily[currentDailyDay][type][hour].findIndex(b => b.id === badgeId);
+                const badgeIndex = allData[currentWeekKey].daily[currentDailyDay][type][originalHour].findIndex(b => b.id === badgeId);
                 if (badgeIndex !== -1) {
-                    const b = allData[currentWeekKey].daily[currentDailyDay][type][hour][badgeIndex];
-                    let startMin = b.startMin || 0;
+                    const b = allData[currentWeekKey].daily[currentDailyDay][type][originalHour][badgeIndex];
                     
-                    // 🔥 연동된 투두리스트 시간 및 상태 동기화 (수정 시)
+                    let finalStartMin = (type === 'do') ? startMin : (b.startMin || 0);
+                    let finalHour = (type === 'do') ? targetHour : originalHour;
+                    
+                    // 연동된 투두리스트 시간 및 상태 동기화 (수정 시)
                     if (type === 'do' && b.taskId && b.taskDay) {
                         const task = allData[currentWeekKey][b.taskDay].find(t => t.id === b.taskId);
                         if (task) {
-                            task.spentMins = Math.max(0, (task.spentMins || 0) - b.mins + mins); // 이전 시간 빼고 새 시간 더함
+                            task.spentMins = Math.max(0, (task.spentMins || 0) - b.mins + mins); 
                             
                             if (task.state === 'done' && task.spentMins === 0) task.state = 'todo';
                             else if (task.state === 'todo' && task.spentMins > 0) task.state = 'in-progress';
                         }
                     }
 
-                    allData[currentWeekKey].daily[currentDailyDay][type][hour].splice(badgeIndex, 1);
-                    // 수정한 내용으로 다시 배치 (taskId, taskDay 유지)
-                    distributeBadgeToCells(currentDailyDay, type, hour, startMin, text, mins, selectedBadgeColor, b.taskId, b.taskDay);
+                    // 기존 기록 삭제 후 새 위치/시간으로 재생성
+                    allData[currentWeekKey].daily[currentDailyDay][type][originalHour].splice(badgeIndex, 1);
+                    distributeBadgeToCells(currentDailyDay, type, finalHour, finalStartMin, text, mins, selectedBadgeColor, b.taskId, b.taskDay);
                 }
             } 
-            else { // 일반 등록
-                distributeBadgeToCells(currentDailyDay, type, hour, 0, text, mins, selectedBadgeColor);
+            else { // 🔥 일반 등록
+                distributeBadgeToCells(currentDailyDay, type, targetHour, startMin, text, mins, selectedBadgeColor);
             }
             saveAllData();
             renderAll(); // UI 전체 업데이트
