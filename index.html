@@ -587,8 +587,8 @@
         <input type="text" id="do-log-start" class="modal-input" placeholder="예: 0900 (숫자만)" maxlength="4" style="padding:8px;" />
       </div>
       <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
-        <span style="font-size:0.85rem; font-weight:600; width:65px; white-space:nowrap;">실제 소요</span>
-        <input type="number" id="do-log-spent" class="modal-input" placeholder="분 단위 (예: 60)" style="padding:8px;" />
+        <span style="font-size:0.85rem; font-weight:600; width:65px; white-space:nowrap;">종료 시각</span>
+        <input type="text" id="do-log-end" class="modal-input" placeholder="예: 1130 (숫자만)" maxlength="4" style="padding:8px;" />
       </div>
 
       <div style="display:flex; justify-content: space-between; margin-top:16px;">
@@ -1371,15 +1371,27 @@
             
             document.getElementById('do-log-subtitle').innerHTML = subtitleText;
             
-            // 🔥 시작 시각 자동 완성 로직
+            // 🔥 시작 시각 자동 완성 및 종료 시각 계산 로직
+            let sH, sM;
             if (defaultStart) {
                 document.getElementById('do-log-start').value = defaultStart;
+                sH = parseInt(defaultStart.substring(0, 2));
+                sM = parseInt(defaultStart.substring(2, 4));
             } else {
                 const now = new Date();
-                document.getElementById('do-log-start').value = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+                sH = now.getHours();
+                sM = now.getMinutes();
+                document.getElementById('do-log-start').value = `${String(sH).padStart(2, '0')}${String(sM).padStart(2, '0')}`;
             }
             
-            document.getElementById('do-log-spent').value = remain > 0 ? remain : 30;
+            // 종료 시각 자동 계산 (목표 시간 혹은 기본 30분 적용)
+            let remainMins = remain > 0 ? remain : 30;
+            let eH = sH + Math.floor((sM + remainMins) / 60);
+            let eM = (sM + remainMins) % 60;
+            if (eH > 23 && eH < 29) eH -= 24; // 자정 넘김 표기 보정 (예: 24 -> 00)
+            
+            document.getElementById('do-log-end').value = `${String(eH).padStart(2, '0')}${String(eM).padStart(2, '0')}`;
+            
             document.getElementById('modal-do-log').style.display = 'flex';
             return;
         }
@@ -1459,15 +1471,33 @@
     window.processDoLog = function() {
         const day = document.getElementById('do-log-day-id').value;
         const id = document.getElementById('do-log-task-id').value;
+        
         let timeVal = document.getElementById('do-log-start').value.trim(); 
-        const spent = parseInt(document.getElementById('do-log-spent').value) || 0;
+        let endVal = document.getElementById('do-log-end').value.trim(); // 추가된 종료 시각
         
         if(!/^\d{3,4}$/.test(timeVal)) return alert("시작 시각을 '0900'이나 '1530' 형태의 숫자로 입력해주세요.");
+        if(!/^\d{3,4}$/.test(endVal)) return alert("종료 시각을 '0900'이나 '1530' 형태의 숫자로 입력해주세요.");
+        
         timeVal = timeVal.padStart(4, '0');
+        endVal = endVal.padStart(4, '0');
+        
         let startH = parseInt(timeVal.substring(0, 2));
         let startM = parseInt(timeVal.substring(2, 4));
-        if(startH > 26 || startM > 59) return alert("올바른 시각을 입력해주세요.");
+        let endH = parseInt(endVal.substring(0, 2));
+        let endM = parseInt(endVal.substring(2, 4));
+        
+        if(startH > 26 || startM > 59 || endH > 26 || endM > 59) return alert("올바른 시각을 입력해주세요.");
+        
         if (startH < 5) startH += 24; 
+        if (endH < 5) endH += 24; 
+        
+        // 자정을 넘어가는 경우 보정 (시작 23:00, 종료 01:00 등)
+        if (endH < startH || (endH === startH && endM < startM)) endH += 24;
+        
+        // 🔥 시작 시각과 종료 시각으로 소요 시간(spent) 자동 계산
+        const spent = (endH * 60 + endM) - (startH * 60 + startM);
+        
+        if (spent <= 0) return alert("종료 시각이 시작 시각보다 빠르거나 같습니다.");
 
         const task = allData[currentWeekKey][day].find(t => t.id === id);
         if(!task) return;
