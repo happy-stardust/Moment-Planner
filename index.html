@@ -1657,7 +1657,7 @@
                         const cellDateStr = formatDateStr(mDate);
                         const daySchedules = (allData.schedules || []).filter(s => s && s.start && s.end && cellDateStr >= s.start && cellDateStr <= s.end);
                         
-                        // 🔥 [수정] 하루 종일 일정을 위로, 시간 지정 일정은 빠른 시간순으로 정렬
+                        // 🔥 [수정] 하루 종일 일정을 위로, 시간 지정 일정은 빠른 시간순 정렬
                         daySchedules.sort((a, b) => {
                             if (a.isAllDay !== false && b.isAllDay === false) return -1;
                             if (a.isAllDay === false && b.isAllDay !== false) return 1;
@@ -1798,9 +1798,12 @@
 
                         let timeLabel = `[${sHStr}:${sMStr}-${eHStr}:${eMStr}]`;
                         
+                        // 🔥 수정된 부분: 전체 시간이 아닌 이 칸(cell)에 해당하는 실제 분(b.mins) 표기
+                        let durationLabel = b.mins > 0 ? ` (${formatTime(b.mins)})` : '';
+                        
                         el.onclick = (e) => { openEditBadgeModal(e, type, i, b.id); };
                         
-                        el.innerHTML = `<span class="badge-text">${timeLabel} ${b.text}</span> <button class="badge-del" onclick="deleteBadge(event, '${type}', ${i}, '${b.id}')">✕</button>`;
+                        el.innerHTML = `<span class="badge-text">${timeLabel} ${b.text}${durationLabel}</span> <button class="badge-del" onclick="deleteBadge(event, '${type}', ${i}, '${b.id}')">✕</button>`;
                         cell.appendChild(el);
                     });
                 }
@@ -1828,7 +1831,9 @@
                 let eMStr = String(em).padStart(2, '0');
                 let timeLabel = `[${sHStr}:${sMStr}-${eHStr}:${eMStr}]`;
 
-                let remainingMins = (eh * 60 + em) - (sh * 60 + sm);
+                let totalMins = (eh * 60 + em) - (sh * 60 + sm);
+
+                let remainingMins = totalMins;
                 let currentH = sh;
                 let currentM = sm;
                 
@@ -1846,7 +1851,9 @@
                            el.style.color = '#334155';
                             el.style.border = `2.5px solid color-mix(in srgb, ${s.color}, black 5%)`; 
                             
-                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">${timeLabel} ️💫 ${s.title}</span>`;
+                            // 🔥 수정된 부분: 전체 시간이 아닌 이 칸(cell)에 해당하는 실제 분(minsForThisCell) 표기
+                            let cellDurationLabel = minsForThisCell > 0 ? ` (${formatTime(minsForThisCell)})` : '';
+                            el.innerHTML = `<span class="badge-text" style="font-weight:600;">${timeLabel} ️💫 ${s.title}${cellDurationLabel}</span>`;
                             el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
                             cell.appendChild(el);
                         }
