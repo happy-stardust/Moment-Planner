@@ -938,7 +938,8 @@
                 allData[weekKey].daily[d] = {
                     memo: '', keep: '', problem: '', try: '', plan: {}, do: {},
                     energyDrained: '', energyLearned: '', energyRecharge: '', energyRating: 0,
-                    morningMood: '', morningAnticipation: '', morningAffirmation: '', eveningContent: ''
+                  morningFocus: '', morningAnticipation: '', morningAffirmation: '',
+                    eveningGratitude: '', eveningCompliment: '', eveningContent: '' 
                 };
             }
             
@@ -948,7 +949,12 @@
             if (typeof dObj.energyDrained === 'undefined') dObj.energyDrained = '';
             if (typeof dObj.energyLearned === 'undefined') dObj.energyLearned = '';
             if (typeof dObj.energyRecharge === 'undefined') dObj.energyRecharge = '';
-            if (typeof dObj.morningMood === 'undefined') dObj.morningMood = '';
+           if (typeof dObj.morningMood === 'undefined') dObj.morningMood = '';
+if (typeof dObj.morningFocus === 'undefined') dObj.morningFocus = ''; // 이 줄 추가
+if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
+            if (typeof dObj.eveningCompliment === 'undefined') dObj.eveningCompliment = '';
+            if (typeof dObj.eveningContent === 'undefined') dObj.eveningContent = '';
+            if (!dObj.plan) dObj.plan = {};
             if (typeof dObj.morningAnticipation === 'undefined') dObj.morningAnticipation = '';
             if (typeof dObj.morningAffirmation === 'undefined') dObj.morningAffirmation = '';
             if (typeof dObj.eveningContent === 'undefined') dObj.eveningContent = '';
@@ -1991,9 +1997,11 @@
             const dailyInfo = allData[currentWeekKey]?.daily?.[day] || {};
 
             const diaryInputs = [
-                { key: 'morningMood', id: 'diary-morning-mood' },
+            { key: 'morningFocus', id: 'diary-morning-focus' },
                 { key: 'morningAnticipation', id: 'diary-morning-anticipation' },
                 { key: 'morningAffirmation', id: 'diary-morning-affirmation' },
+{ key: 'eveningGratitude', id: 'diary-evening-gratitude' },
+                { key: 'eveningCompliment', id: 'diary-evening-compliment' },
                 { key: 'eveningContent', id: 'diary-evening-content' }
             ];
 
@@ -2146,18 +2154,18 @@
                     const tomatoes = '🍅'.repeat(daily.energyRating || 0) + '<span style="opacity:0.3; filter:grayscale(1);">🍅</span>'.repeat(5 - (daily.energyRating || 0));
                     energyHtml += `<div style="background:#fff1f2; padding:10px; border-radius:6px; margin-bottom:10px; border:1px solid #ffe4e6;">`;
                     energyHtml += `<div style="font-size:0.85rem; font-weight:600; color:#e11d48; margin-bottom:6px;">에너지 점수: ${tomatoes}</div>`;
-                    if(daily.energyDrained) energyHtml += `<div class="summary-kpt-text"><b>방전 📉:</b> ${formatText(daily.energyDrained)}</div>`;
-                    if(daily.energyLearned) energyHtml += `<div class="summary-kpt-text"><b>깨달음 💡:</b> ${formatText(daily.energyLearned)}</div>`;
-                    if(daily.energyRecharge) energyHtml += `<div class="summary-kpt-text" style="margin-bottom:0;"><b>충전 🔋:</b> ${formatText(daily.energyRecharge)}</div>`;
+if(daily.energyDrained) energyHtml += `<div class="summary-kpt-text"><b style="display:block; margin-bottom:4px; color:#e11d48;">방전 📉</b>${formatText(daily.energyDrained)}</div>`;
+if(daily.energyLearned) energyHtml += `<div class="summary-kpt-text"><b style="display:block; margin-bottom:4px; color:#0284c7;">깨달음 💡</b>${formatText(daily.energyLearned)}</div>`;
+if(daily.energyRecharge) energyHtml += `<div class="summary-kpt-text" style="margin-bottom:0;"><b style="display:block; margin-bottom:4px; color:#16a34a;">충전 🔋</b>${formatText(daily.energyRecharge)}</div>`;
                     energyHtml += `</div>`;
                 }
 
-                let diaryHtml = '';
+              let diaryHtml = '';
                 if (hasDiary) {
                     diaryHtml += `<div style="background:#f0fdf4; padding:10px; border-radius:6px; margin-bottom:10px; border:1px solid #dcfce7;">`;
-                    diaryHtml += `<div style="font-size:0.85rem; font-weight:600; color:#15803d; margin-bottom:6px;">📔 데일리 다이어리 / 모닝 저널 요약</div>`;
-                    if(daily.morningMood) diaryHtml += `<div class="summary-kpt-text"><b>아침 기분:</b> ${formatText(daily.morningMood)}</div>`;
-                    if(daily.eveningContent) diaryHtml += `<div class="summary-kpt-text" style="margin-bottom:0;"><b>저녁 일기:</b> ${formatText(daily.eveningContent)}</div>`;
+                    diaryHtml += `<div style="font-size:0.85rem; font-weight:600; color:#15803d; margin-bottom:6px;">📔 데일리 하이라이트</div>`;
+                 if(daily.morningFocus) diaryHtml += `<div class="summary-kpt-text"><b style="display:block; margin-bottom:4px; color:#b91c1c;">🎯 오늘 나의 포커스</b>${formatText(daily.morningFocus)}</div>`;
+if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="margin-bottom:0;"><b style="display:block; margin-bottom:4px; color:#15803d;">🙏 감사 3가지</b>${formatText(daily.eveningGratitude)}</div>`;
                     diaryHtml += `</div>`;
                 }
 
@@ -2361,6 +2369,7 @@
             'energyDrained': '에너지 방전',
             'energyLearned': '에너지 회고',
             'energyRecharge': '에너지 충전',
+'morningFocus': '오늘의 포커스', // 이 줄 추가
             'morningMood': '모닝 저널',
             'eveningContent': '감성 일기'
         };
