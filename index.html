@@ -20,7 +20,15 @@
     @font-face { font-family: 'NostalgicMongtori'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Mongtori-Rg.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 115%; }
     @font-face { font-family: 'GriunFromsol'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-fromsol-rg/griun-fromsol-rg/Griun_Fromsol-Rg.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 125%; }
     @font-face { font-family: 'KyoboHandwriting2025'; src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Kyobo/KyoboHandwriting2025lyb.woff2') format('woff2'); unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F; size-adjust: 130%; }
+ @font-face {
+    font-family: 'memomentKkukkkuk';
+    src: url('./memomentKkukkkuk.ttf') format('truetype');
+}
 
+body {
+    font-family: 'memomentKkukkkuk', sans-serif;
+}
+    
     :root {
       --primary-color: #8b9bb4; --accent-color: #e58b88;
       --border-color: #e2e8f0; --line-color: #f1f5f9;
@@ -723,6 +731,7 @@
         <button onclick="changeFont('NostalgicMongtori')" class="font-opt-btn" style="font-family:'NostalgicMongtori', sans-serif !important;">몽토리</button>
         <button onclick="changeFont('GriunFromsol')" class="font-opt-btn" style="font-family:'GriunFromsol', sans-serif !important;">프롬솔</button>
         <button onclick="changeFont('KyoboHandwriting2025')" class="font-opt-btn" style="font-family:'KyoboHandwriting2025', sans-serif !important;">교보-이유빈</button>
+        <button onclick="changeFont('memomentKkukkkuk')" class="font-opt-btn" style="font-family:'memomentKkukkkuk', sans-serif !important;">메모먼트꾹꾹</button>
       </div>
     </div>
   </div>
