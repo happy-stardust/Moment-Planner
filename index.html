@@ -66,9 +66,22 @@ body {
     .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; }
     .month-list { display: flex; gap: 10px; cursor: pointer; }
     .sub-bar .active-indicator { color: var(--primary-color); font-weight: 600; text-decoration: underline; }
-    .week-controls { display: flex; align-items: center; gap: 8px; }
-    .week-controls button { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s; }
-    .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
+   /* 상단 버튼 모음: 한 줄 유지 & 가로 스와이프 */
+      .week-controls { 
+        width: 100%; 
+        justify-content: flex-start; 
+        flex-wrap: nowrap !important; /* 절대 두 줄로 꺾이지 않게 강제 */
+        overflow-x: auto; /* 공간이 모자라면 가로로 밀어서 보게 함 */
+        gap: 6px; 
+        padding-bottom: 2px;
+        -ms-overflow-style: none; /* 스크롤바 숨김 */
+        scrollbar-width: none; /* 스크롤바 숨김 */
+      }
+      .week-controls::-webkit-scrollbar { display: none; } /* 아이폰/크롬 스크롤바 투명하게 숨김 */
+      
+      /* 버튼들이 좁은 공간에서 찌그러지지 않도록 방어 */
+      .week-controls button, .review-toolbar, #week-display { flex-shrink: 0; }
+      .review-toolbar { margin-right: 0 !important; } /* 불필요한 우측 여백 제거 */
     #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
 
 /* HOME View */
