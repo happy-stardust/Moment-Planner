@@ -271,40 +271,56 @@ body {
     .res-text { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; word-break: break-all;}
     .highlight { background: rgba(250, 210, 225, 0.6); font-weight: 600; border-radius: 2px; padding: 0 2px;}
 
-    @media (max-width: 960px) { .planner-grid, .daily-grid, .weekly-review-container, .monthly-grid, .home-quick-grid { grid-template-columns: 1fr; } }
-/* 모바일 전용 반응형 디자인 (화면 폭 768px 이하일 때만 발동) */
-    @media (max-width: 768px) {
-      /* 1. 전체 컨테이너 및 화면 여백 압축 */
-      body { padding: 8px 4px; }
-      .planner-container { padding: 16px 12px; gap: 14px; border-radius: 8px; }
+  /* 완벽한 모바일 반응형 디자인 */
+    @media (max-width: 960px) {
+      /* 1. 화면 전체 여백 날리기 (화면 100% 활용) */
+      body { padding: 0; background: var(--card-bg); }
+      .planner-container { padding: 16px 10px; gap: 12px; border-radius: 0; box-shadow: none; }
       
-      /* 2. 상단 네비게이션 및 버튼 레이아웃 정리 */
-      .title-group h1 { font-size: 1.15rem; }
-      .title-group span { display: none; } /* 모바일에서는 서브 타이틀 숨김 */
-      .nav-tabs { gap: 10px; flex-wrap: wrap; }
-      .nav-tab { font-size: 0.75rem; padding-bottom: 2px; }
-      .sub-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
-      .week-controls { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+      /* 2. 상단 메뉴 콤팩트하게 압축 */
+      .title-group h1 { font-size: 1.2rem; }
+      .title-group span { display: none; } /* 부제목 숨김 */
+      .nav-tabs { gap: 8px; flex-wrap: wrap; }
+      .sub-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .week-controls { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 6px; }
+      .week-controls button { padding: 5px 8px; font-size: 0.75rem; }
+
+      /* 3. ★ 먼슬리(월간): 무조건 7칸 유지 및 극한 압축 */
+      .monthly-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 0; }
+      .monthly-day-cell { height: 75px; max-height: 75px; padding: 2px; gap: 1px; }
+      .monthly-day-number { font-size: 0.7rem; width: 16px; height: 16px; margin-bottom: 2px; }
+      .monthly-weekday-header { padding: 4px 0; font-size: 0.6rem; letter-spacing: -0.5px; }
+      .schedule-bar, .monthly-preview-text { height: 16px; font-size: 0.55rem; padding: 0 2px; border-radius: 2px; margin: 0; font-weight: 500; }
       
-      /* 3. 월간 달력 칸 극한 압축 (사진처럼) */
-      .monthly-day-cell { height: 100px; max-height: 110px; padding: 2px; gap: 1px; }
-      .monthly-day-number { font-size: 0.75rem; width: 18px; height: 18px; }
-      .monthly-weekday-header { padding: 6px; font-size: 0.75rem; }
-      
-      /* 4. 달력 안의 일정 뱃지 두께 및 글씨 압축 */
-      .schedule-bar, .monthly-preview-text { 
-        height: 18px; 
-        font-size: 0.65rem; 
-        padding: 0 4px; 
-        margin: 1px 0; 
-        border-radius: 3px; 
+      /* 4. ★ 위클리(주간): 세로로 쌓지 않고 '가로 스와이프' 앨범처럼 변경 */
+      .planner-grid { 
+        display: flex !important; 
+        overflow-x: auto; 
+        overflow-y: hidden; 
+        scroll-snap-type: x mandatory; 
+        padding-bottom: 8px; 
+        border: none; 
+        background: transparent; 
+        gap: 8px; 
+      }
+      .day-column { 
+        min-width: 280px; 
+        flex-shrink: 0; 
+        scroll-snap-align: center; 
+        border: 1px solid var(--border-color); 
+        border-radius: 6px; 
       }
       
-      /* 5. 주간/일간 뷰 왼쪽 투두 리스트 영역 여백 축소 */
-      .task-item { padding: 0 4px; font-size: 0.75rem; }
-      .inline-input-row { padding: 0 4px; }
-      .daily-box-header { padding: 8px 10px; font-size: 0.8rem; min-height: 44px; }
+      /* 5. 데일리 및 기타 뷰는 세로 1칸으로 정리 */
+      .daily-grid, .weekly-review-container, .home-quick-grid { grid-template-columns: 1fr !important; }
+      
+      /* 6. 타임블록 테이블 미세조정 */
+      .time-col { width: 35px; font-size: 0.65rem; }
+      .tb-cell-content { min-height: 32px; padding: 2px; }
+      .sch-badge { font-size: 0.65rem; padding: 2px 4px; }
     }
+
+    
 
     
   </style>
@@ -378,19 +394,19 @@ body {
       <div class="home-quick-bar">
         <div class="home-quick-btn" onclick="switchView('monthly')">
           <span class="btn-icon">🗓️</span>
-          <span class="btn-text">M O N T H L Y</span>
+          <span class="btn-text">MONTHLY</span>
         </div>
         <div class="home-quick-btn" onclick="jumpToTodayWeekly()">
           <span class="btn-icon">📊</span>
-          <span class="btn-text">W E E K L Y</span>
+          <span class="btn-text">WEEKLY</span>
         </div>
         <div class="home-quick-btn" onclick="jumpToTodayDaily()">
           <span class="btn-icon">📅</span>
-          <span class="btn-text">D A I L Y</span>
+          <span class="btn-text">DAILY</span>
         </div>
         <div class="home-quick-btn" onclick="jumpToTodayDiary()">
           <span class="btn-icon">📔</span>
-          <span class="btn-text">D I A R Y</span>
+          <span class="btn-text">DIARY</span>
         </div>
       </div>
     </main>
