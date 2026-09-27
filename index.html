@@ -323,7 +323,13 @@ body {
       .sch-badge { font-size: 0.65rem; padding: 2px 4px; }
     }
 
-    
+    /* 모바일 상단바 압축 규칙 */
+    @media (max-width: 960px) {
+      .hide-on-mobile { display: none !important; }
+      .month-list { width: 100%; justify-content: space-between; font-size: 0.85rem; padding: 0 4px; }
+      .week-controls { gap: 4px; }
+      .week-controls button { padding: 4px 6px; }
+    }
 
     
   </style>
@@ -352,34 +358,33 @@ body {
       </nav>
     </header>
 
-    <div class="sub-bar" id="sub-bar">
-      <div class="month-list" id="month-list">
-        <span onclick="jumpToMonth(0)">JAN</span><span onclick="jumpToMonth(1)">FEB</span><span onclick="jumpToMonth(2)">MAR</span>
-        <span onclick="jumpToMonth(3)">APR</span><span onclick="jumpToMonth(4)">MAY</span><span onclick="jumpToMonth(5)">JUN</span>
-        <span onclick="jumpToMonth(6)">JUL</span><span onclick="jumpToMonth(7)">AUG</span><span onclick="jumpToMonth(8)">SEP</span>
-        <span onclick="jumpToMonth(9)">OCT</span><span onclick="jumpToMonth(10)">NOV</span><span onclick="jumpToMonth(11)">DEC</span>
+  <div class="sub-bar" id="sub-bar">
+      <div class="month-list" id="month-list" style="font-weight: 600; gap: 14px;">
+        <span onclick="jumpToMonth(0)">1</span><span onclick="jumpToMonth(1)">2</span><span onclick="jumpToMonth(2)">3</span>
+        <span onclick="jumpToMonth(3)">4</span><span onclick="jumpToMonth(4)">5</span><span onclick="jumpToMonth(5)">6</span>
+        <span onclick="jumpToMonth(6)">7</span><span onclick="jumpToMonth(7)">8</span><span onclick="jumpToMonth(8)">9</span>
+        <span onclick="jumpToMonth(9)">10</span><span onclick="jumpToMonth(10)">11</span><span onclick="jumpToMonth(11)">12</span>
       </div>
       <div class="week-controls">
-        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; margin-right: 12px; display:none;">
-          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 회고 모드 켜기</button>
+        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; margin-right: 6px; display:none;">
+          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
         </div>
-        <button onclick="changePeriod(-1)">◀ 이전</button>
+        <button onclick="changePeriod(-1)">◀<span class="hide-on-mobile"> 이전</span></button>
         <span id="week-display" class="active-indicator">로딩 중...</span>
-        <button onclick="changePeriod(1)">다음 ▶</button>
-        <button onclick="goToday()" style="margin-left:4px;">오늘</button>
-         <button onclick="openFontModal()" style="margin-left:8px; padding: 4px 8px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
-    <span style="opacity: 0.8;">🎨 폰트</span>
-</button>
-<button onclick="openScheduleModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600; color: #475569;" title="새로운 일정 추가">
-    <span style="opacity: 0.8;">🗓️ 일정 추가</span>
-</button>
-<button onclick="openSearchModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600;" title="과거 메모 및 회고 검색">
-    <span style="opacity: 0.8;">🔍 검색</span>
-</button>
-
-<button id="auth-btn" onclick="toggleLogin()" style="margin-left:8px; padding: 4px 8px; border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
-    <span style="opacity: 0.8;">🔐 로그인</span>
-</button>
+        <button onclick="changePeriod(1)"><span class="hide-on-mobile">다음 </span>▶</button>
+        <button onclick="goToday()" style="margin-left:2px;">오늘</button>
+        <button onclick="openFontModal()" style="margin-left:4px; padding: 4px 8px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
+            <span style="opacity: 0.8;">🎨<span class="hide-on-mobile"> 폰트</span></span>
+        </button>
+        <button onclick="openScheduleModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600; color: #475569;" title="새로운 일정 추가">
+            <span style="opacity: 0.8;">🗓️<span class="hide-on-mobile"> 일정</span></span>
+        </button>
+        <button onclick="openSearchModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600;" title="과거 메모 및 회고 검색">
+            <span style="opacity: 0.8;">🔍<span class="hide-on-mobile"> 검색</span></span>
+        </button>
+        <button id="auth-btn" onclick="toggleLogin()" style="margin-left:0px; padding: 4px 8px; border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
+            <span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>
+        </button>
       </div>
     </div>
 
@@ -914,7 +919,7 @@ body {
         const authBtn = document.getElementById('auth-btn');
         if (user) {
             currentUser = user;
-            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔓 로그아웃</span>';
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔓<span class="hide-on-mobile"> 로그아웃</span></span>';
             dbRef = db.ref('users/' + user.uid + '/allData');
 
             dbRef.on('value', (snapshot) => {
@@ -934,7 +939,7 @@ body {
             });
         } else {
             currentUser = null;
-            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔐 구글 로그인</span>';
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>';
             loadLocalData();
             loadWeek();
             renderAll();
@@ -1813,7 +1818,7 @@ if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
         isWeeklyReviewMode = !isWeeklyReviewMode;
         const btn = document.getElementById('toggle-review-btn');
         if (btn) {
-          btn.innerText = isWeeklyReviewMode ? '📝 계획 모드로 돌아가기' : '🔄 회고 모드 켜기';
+          btn.innerHTML = isWeeklyReviewMode ? '📝 <span class="hide-on-mobile">계획 모드</span>' : '🔄 <span class="hide-on-mobile">회고 모드</span>';
           btn.style.backgroundColor = isWeeklyReviewMode ? 'var(--text-main)' : 'var(--primary-color)';
         }
         switchView('weekly'); 
