@@ -275,6 +275,12 @@ body {
     @media (max-width: 960px) { .planner-grid, .daily-grid, .weekly-review-container, .monthly-grid, .home-quick-grid { grid-template-columns: 1fr; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+  <!-- Firebase 연동 스크립트 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 </head>
 <body>
 
@@ -322,6 +328,9 @@ body {
 </button>
 <button onclick="document.getElementById('import-file').click()" style="margin-left:0px; padding: 4px 8px; border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">
     <span style="opacity: 0.8;">📂 복원</span>
+</button>
+<button id="auth-btn" onclick="toggleLogin()" style="margin-left:8px; padding: 4px 8px; border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
+    <span style="opacity: 0.8;">🔐 로그인</span>
 </button>
         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
       </div>
@@ -812,6 +821,80 @@ body {
     let postponeTarget = null; 
     let draggedTaskData = null;
 
+    // === Firebase 실시간 동기화 설정 시작 ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyBegbch1XTPAaYkvQIGG4CXLVuvNW7XQtQ",
+      authDomain: "momentplanner-d6d11.firebaseapp.com",
+      databaseURL: "https://momentplanner-d6d11-default-rtdb.firebaseio.com",
+      projectId: "momentplanner-d6d11",
+      storageBucket: "momentplanner-d6d11.firebasestorage.app",
+      messagingSenderId: "447583405116",
+      appId: "1:447583405116:web:4cf639f9893d23918f2f39"
+    };
+    
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const auth = firebase.auth();
+    const db = firebase.database();
+    let currentUser = null;
+    let dbRef = null;
+
+    window.toggleLogin = function() {
+        if (currentUser) {
+            auth.signOut().then(() => { alert("로그아웃 되었습니다. 기기 데이터로 전환됩니다."); location.reload(); });
+        } else {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => { alert("로그인 실패: " + error.message); });
+        }
+    };
+
+    function loadLocalData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { try { allData = JSON.parse(saved); } catch (e) { allData = {}; } }
+        if (!Array.isArray(allData.schedules)) allData.schedules = [];
+        
+        let currentFont = localStorage.getItem('planner_font_v1') || 'Pretendard-Regular';
+        changeFont(currentFont);
+    }
+
+    window.saveAllData = function() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        if (currentUser && dbRef) {
+            dbRef.set(allData).catch(error => console.error("Firebase 저장 실패:", error));
+        }
+    };
+
+    auth.onAuthStateChanged(user => {
+        const authBtn = document.getElementById('auth-btn');
+        if (user) {
+            currentUser = user;
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔓 로그아웃</span>';
+            dbRef = db.ref('users/' + user.uid + '/allData');
+
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    allData = data;
+                } else {
+                    loadLocalData();
+                    dbRef.set(allData); 
+                }
+                if (!Array.isArray(allData.schedules)) allData.schedules = [];
+                let currentFont = localStorage.getItem('planner_font_v1') || 'Pretendard-Regular';
+                changeFont(currentFont);
+                
+                loadWeek();
+                renderAll();
+            });
+        } else {
+            currentUser = null;
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔐 구글 로그인</span>';
+            loadLocalData();
+            loadWeek();
+            renderAll();
+        }
+    });
+    // === Firebase 실시간 동기화 설정 끝 ===
+
     window.autoResize = function(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
@@ -901,16 +984,6 @@ body {
         }
     }
 
-    function loadAllData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) { try { allData = JSON.parse(saved); } catch (e) { allData = {}; } }
-        if (!Array.isArray(allData.schedules)) allData.schedules = [];
-        
-        let currentFont = localStorage.getItem('planner_font_v1') || 'Pretendard-Regular';
-        changeFont(currentFont);
-    }
-    function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); }
-
     function initWeekDataIfNeeded(weekKey) {
         if (!allData.schedules) allData.schedules = [];
 
@@ -964,7 +1037,7 @@ body {
             if (typeof dObj.energyLearned === 'undefined') dObj.energyLearned = '';
             if (typeof dObj.energyRecharge === 'undefined') dObj.energyRecharge = '';
            if (typeof dObj.morningMood === 'undefined') dObj.morningMood = '';
-if (typeof dObj.morningFocus === 'undefined') dObj.morningFocus = ''; // 이 줄 추가
+if (typeof dObj.morningFocus === 'undefined') dObj.morningFocus = ''; 
 if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
             if (typeof dObj.eveningCompliment === 'undefined') dObj.eveningCompliment = '';
             if (typeof dObj.eveningContent === 'undefined') dObj.eveningContent = '';
@@ -2383,7 +2456,7 @@ if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="ma
             'energyDrained': '에너지 방전',
             'energyLearned': '에너지 회고',
             'energyRecharge': '에너지 충전',
-'morningFocus': '오늘의 포커스', // 이 줄 추가
+'morningFocus': '오늘의 포커스', 
             'morningMood': '모닝 저널',
             'eveningContent': '감성 일기'
         };
@@ -2455,7 +2528,7 @@ if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="ma
     window.jumpToSearchResult = function(weekKey, day) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); setDailyDay(day); switchView('daily'); }
     window.jumpToWeeklyReview = function(weekKey) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); isWeeklyReviewMode = true; document.getElementById('toggle-review-btn').innerText = '📝 계획 모드로 돌아가기'; switchView('weekly'); }
     window.exportData = function() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(allData)], { type: "application/json" })); a.download = `moment_planner_backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
-    window.importData = function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(ev) { allData = JSON.parse(ev.target.result); saveAllData(); loadAllData(); loadWeek(); switchView(currentView); }; reader.readAsText(file); e.target.value = ''; };
+    window.importData = function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(ev) { allData = JSON.parse(ev.target.result); saveAllData(); loadLocalData(); loadWeek(); switchView(currentView); }; reader.readAsText(file); e.target.value = ''; };
 
     try {
         if (typeof Sortable !== 'undefined') {
@@ -2484,7 +2557,8 @@ if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="ma
         }
     } catch (e) { console.error("Sortable error:", e); }
 
-    loadAllData();
+    // 비로그인 상태일 수도 있으므로 최초 실행 시 로컬 데이터 로드 및 렌더링 유지
+    loadLocalData();
     loadWeek();
     switchView('home');
 
