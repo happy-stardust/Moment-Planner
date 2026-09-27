@@ -275,7 +275,13 @@ body {
     @media (max-width: 960px) {
       /* 1. 화면 전체 여백 날리기 (화면 100% 활용) */
       body { padding: 0; background: var(--card-bg); }
-      .planner-container { padding: 16px 10px; gap: 12px; border-radius: 0; box-shadow: none; }
+      .planner-container { padding: 16px 10px; gap: 12px; border-radius: 0; box-shadow: none;
+                         /* 상단 네비게이션 위아래 분리 (두 줄 꺾임 방지) */
+      .planner-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .nav-tabs { width: 100%; justify-content: space-between; gap: 0; }
+      
+      /* 모바일 전용 글자 표시기 */
+      .show-on-mobile { display: inline !important; }}
       
       /* 2. 상단 메뉴 콤팩트하게 압축 */
       .title-group h1 { font-size: 1.2rem; }
@@ -488,16 +494,17 @@ body {
 
     <!-- DAILY View -->
     <main class="daily-view-container" id="view-daily">
-      <div class="daily-top-nav-bar">
+    <div class="daily-top-nav-bar">
         <div class="daily-day-tabs" id="daily-day-tabs">
-          <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')">Monday</div>
-          <div class="day-tab" id="dt-tue" onclick="setDailyDay('tue')">Tuesday</div>
-          <div class="day-tab" id="dt-wed" onclick="setDailyDay('wed')">Wednesday</div>
-          <div class="day-tab" id="dt-thur" onclick="setDailyDay('thur')">Thursday</div>
-          <div class="day-tab" id="dt-fri" onclick="setDailyDay('fri')">Friday</div>
-          <div class="day-tab" id="dt-sat" onclick="setDailyDay('sat')">Saturday</div>
-          <div class="day-tab" id="dt-sun" onclick="setDailyDay('sun')">Sunday</div>
+          <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')"><span class="hide-on-mobile">Monday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
+          <div class="day-tab" id="dt-tue" onclick="setDailyDay('tue')"><span class="hide-on-mobile">Tuesday</span><span class="show-on-mobile" style="display:none;">ㅎ</span></div>
+          <div class="day-tab" id="dt-wed" onclick="setDailyDay('wed')"><span class="hide-on-mobile">Wednesday</span><span class="show-on-mobile" style="display:none;">ㅅ</span></div>
+          <div class="day-tab" id="dt-thur" onclick="setDailyDay('thur')"><span class="hide-on-mobile">Thursday</span><span class="show-on-mobile" style="display:none;">ㅁ</span></div>
+          <div class="day-tab" id="dt-fri" onclick="setDailyDay('fri')"><span class="hide-on-mobile">Friday</span><span class="show-on-mobile" style="display:none;">ㄱ</span></div>
+          <div class="day-tab" id="dt-sat" onclick="setDailyDay('sat')"><span class="hide-on-mobile">Saturday</span><span class="show-on-mobile" style="display:none;">ㅌ</span></div>
+          <div class="day-tab" id="dt-sun" onclick="setDailyDay('sun')"><span class="hide-on-mobile">Sunday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
         </div>
+      </div>
         <div class="daily-jump-btns">
           <button class="jump-btn" onclick="jumpToMonthlyFromDaily()">📅 먼슬리로 이동</button>
           <button class="jump-btn" onclick="jumpToWeeklyFromDaily()">📊 위클리로 이동</button>
@@ -595,18 +602,15 @@ body {
 
     <!-- DIARY View (모닝 저널 & 감성 일기) -->
     <main class="daily-view-container" id="view-diary" style="display: none;">
-      <div class="daily-top-nav-bar">
+    <div class="daily-top-nav-bar">
         <div class="daily-day-tabs" id="diary-day-tabs">
-          <div class="day-tab active" id="ddt-mon" onclick="setDiaryDay('mon')">Monday</div>
-          <div class="day-tab" id="ddt-tue" onclick="setDiaryDay('tue')">Tuesday</div>
-          <div class="day-tab" id="ddt-wed" onclick="setDiaryDay('wed')">Wednesday</div>
-          <div class="day-tab" id="ddt-thur" onclick="setDiaryDay('thur')">Thursday</div>
-          <div class="day-tab" id="ddt-fri" onclick="setDiaryDay('fri')">Friday</div>
-          <div class="day-tab" id="ddt-sat" onclick="setDiaryDay('sat')">Saturday</div>
-          <div class="day-tab" id="ddt-sun" onclick="setDiaryDay('sun')">Sunday</div>
-        </div>
-        <div class="daily-jump-btns">
-          <button class="jump-btn" onclick="switchView('daily')">📅 플래너로 이동</button>
+          <div class="day-tab active" id="ddt-mon" onclick="setDiaryDay('mon')"><span class="hide-on-mobile">Monday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
+          <div class="day-tab" id="ddt-tue" onclick="setDiaryDay('tue')"><span class="hide-on-mobile">Tuesday</span><span class="show-on-mobile" style="display:none;">ㅎ</span></div>
+          <div class="day-tab" id="ddt-wed" onclick="setDiaryDay('wed')"><span class="hide-on-mobile">Wednesday</span><span class="show-on-mobile" style="display:none;">ㅅ</span></div>
+          <div class="day-tab" id="ddt-thur" onclick="setDiaryDay('thur')"><span class="hide-on-mobile">Thursday</span><span class="show-on-mobile" style="display:none;">ㅁ</span></div>
+          <div class="day-tab" id="ddt-fri" onclick="setDiaryDay('fri')"><span class="hide-on-mobile">Friday</span><span class="show-on-mobile" style="display:none;">ㄱ</span></div>
+          <div class="day-tab" id="ddt-sat" onclick="setDiaryDay('sat')"><span class="hide-on-mobile">Saturday</span><span class="show-on-mobile" style="display:none;">ㅌ</span></div>
+          <div class="day-tab" id="ddt-sun" onclick="setDiaryDay('sun')"><span class="hide-on-mobile">Sunday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
         </div>
       </div>
 
