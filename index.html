@@ -322,16 +322,10 @@ body {
 <button onclick="openSearchModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600;" title="과거 메모 및 회고 검색">
     <span style="opacity: 0.8;">🔍 검색</span>
 </button>
-<button onclick="exportData()" style="margin-left:0px; padding: 4px 8px; border-color:var(--primary-color); color:var(--primary-color);" title="현재까지의 데이터를 기기에 저장합니다">
-    <span style="opacity: 0.8;">💾 백업</span>
-</button>
-<button onclick="document.getElementById('import-file').click()" style="margin-left:0px; padding: 4px 8px; border-color:var(--primary-color); color:var(--primary-color);" title="저장된 데이터를 불러옵니다">
-    <span style="opacity: 0.8;">📂 복원</span>
-</button>
+
 <button id="auth-btn" onclick="toggleLogin()" style="margin-left:8px; padding: 4px 8px; border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
     <span style="opacity: 0.8;">🔐 로그인</span>
 </button>
-        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
       </div>
     </div>
 
@@ -2526,8 +2520,7 @@ if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="ma
 
     window.jumpToSearchResult = function(weekKey, day) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); setDailyDay(day); switchView('daily'); }
     window.jumpToWeeklyReview = function(weekKey) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); isWeeklyReviewMode = true; document.getElementById('toggle-review-btn').innerText = '📝 계획 모드로 돌아가기'; switchView('weekly'); }
-    window.exportData = function() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(allData)], { type: "application/json" })); a.download = `moment_planner_backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
-    window.importData = function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(ev) { allData = JSON.parse(ev.target.result); saveAllData(); loadLocalData(); loadWeek(); switchView(currentView); }; reader.readAsText(file); e.target.value = ''; };
+ 
 
     try {
         if (typeof Sortable !== 'undefined') {
