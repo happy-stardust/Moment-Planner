@@ -320,21 +320,49 @@ body {
       .monthly-weekday-header { padding: 4px 0; font-size: 0.65rem; }
       .schedule-bar, .monthly-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
       
-      /* 6. 위클리(주간): 가로 스와이프 앨범 모드 */
+    /* 6. ★ 위클리(주간): 2x4 그리드로 일주일 한눈에 보기 (내부 스크롤) */
       .planner-grid { 
-        overflow-x: auto; 
-        overflow-y: hidden; 
-        scroll-snap-type: x mandatory; 
-        padding-bottom: 8px; 
         border: none; 
         background: transparent; 
         gap: 8px; 
-        -ms-overflow-style: none;
-        scrollbar-width: none;
       }
-      .planner-grid::-webkit-scrollbar { display: none; }
-      .planner-grid[style*="grid"] { display: flex !important; } /* JS가 켰을 때만 등장하게 방어 */
-      .day-column { min-width: 85vw; flex-shrink: 0; scroll-snap-align: center; border: 1px solid var(--border-color); border-radius: 6px; }
+      .planner-grid[style*="grid"] { 
+        display: grid !important; 
+        grid-template-columns: repeat(2, 1fr) !important; /* 가로 2칸으로 바둑판 분할 */
+      }
+      .day-column { 
+        --row-height: 28px; /* 모바일용 줄 높이 슬림하게 압축 */
+        min-width: 0; /* 화면 밖으로 삐져나감 방지 */
+        height: 200px; /* ★ 각 네모 칸의 고정 높이 (원하면 더 늘려도 됩니다) */
+        min-height: 200px;
+        border: 1px solid var(--border-color); 
+        border-radius: 6px; 
+        display: flex;
+        flex-direction: column;
+        background-position: 0 34px; /* 헤더 높이에 맞춰 배경 줄무늬 위치 조정 */
+      }
+      
+      /* 칸 제목(요일) 크기 압축 */
+      .day-column .column-header {
+        height: 34px; min-height: 34px; padding: 0 6px; font-size: 0.65rem; 
+      }
+      
+      /* ★ 할 일이 많으면 네모 칸 안에서만 독립적으로 스크롤되도록 설정 */
+      .day-column .task-list {
+        flex: 1; /* 남는 세로 공간 모두 차지 */
+        overflow-y: auto; /* 넘치면 위아래 스크롤 작동 */
+        overflow-x: hidden;
+        -ms-overflow-style: none; scrollbar-width: none; /* 윈도우 스크롤바 숨김 */
+      }
+      .day-column .task-list::-webkit-scrollbar { display: none; } /* 아이폰/크롬 스크롤바 투명하게 숨김 */
+      
+      /* 할 일 텍스트 및 뱃지 콤팩트화 */
+      .day-column .task-item { padding: 0 4px; font-size: 0.65rem; gap: 4px; }
+      .day-column .schedule-bar { height: 16px; font-size: 0.55rem; padding: 0 4px; margin: 1px 2px; }
+      
+      /* 할 일 추가 인풋창 (맨 밑에 고정) */
+      .day-column .inline-input-row { height: 28px; min-height: 28px; padding: 0 6px; background: rgba(255,255,255,0.8); }
+      .day-column .inline-task-input { font-size: 0.65rem; }
       
       /* 7. 데일리 및 기타 뷰 1칸 정리 */
       .daily-grid, .weekly-review-container, .home-quick-grid { grid-template-columns: 1fr !important; width: 100%; }
