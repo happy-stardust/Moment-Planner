@@ -66,10 +66,10 @@ body {
     .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; }
     .month-list { display: flex; gap: 10px; cursor: pointer; }
     .sub-bar .active-indicator { color: var(--primary-color); font-weight: 600; text-decoration: underline; }
-    .week-controls { display: flex; align-items: center; gap: 8px; }
+    .week-controls { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
     .week-controls button { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s; }
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
-    #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
+    #week-display { font-size: 0.85rem; min-width: 40px; white-space: nowrap; text-align: center; font-weight: 600; }
 
     /* HOME View */
     .home-view-container { display: none; flex-direction: column; align-items: center; gap: 24px; padding: 10px 0; }
@@ -295,17 +295,18 @@ body {
       /* 3. ★ 상단 버튼 모음: 한 줄 유지 & 가로 스와이프 */
       .week-controls { 
         width: 100%; 
-        justify-content: flex-start; 
+        justify-content: space-between; 
         flex-wrap: nowrap !important; 
         overflow-x: auto; 
-        gap: 6px; 
         padding-bottom: 4px;
         -ms-overflow-style: none; 
         scrollbar-width: none; 
       }
       .week-controls::-webkit-scrollbar { display: none; }
-     .week-controls button, .review-toolbar, #week-display { flex-shrink: 0; padding: 4px 5px !important; font-size: 0.7rem; }
-      .review-toolbar { margin-right: 0 !important; } 
+      /* 새로 묶은 그룹(.left-nav-group, .icon-nav-group)이 찌그러지지 않게 보호 */
+      .week-controls button, .review-toolbar, #week-display, .left-nav-group, .icon-nav-group { flex-shrink: 0; }
+      .week-controls button { padding: 4px 6px !important; font-size: 0.7rem; }
+      .review-toolbar { margin-right: 0 !important; }
 
       /* 4. ★ HOME 뷰: 사진이 화면 밖으로 뚫고 나가는 현상 완벽 차단 */
       .home-view-container { width: 100%; box-sizing: border-box; }
@@ -320,7 +321,7 @@ body {
       .monthly-weekday-header { padding: 4px 0; font-size: 0.65rem; }
       .schedule-bar, .monthly-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
       
-    /* 6. ★ 위클리(주간): 2x4 그리드로 일주일 한눈에 보기 (내부 스크롤) */
+      /* 6. ★ 위클리(주간): 2x4 그리드로 일주일 한눈에 보기 (내부 스크롤) */
       .planner-grid { 
         border: none; 
         background: transparent; 
@@ -415,30 +416,43 @@ body {
         <span onclick="jumpToMonth(10)"><span class="hide-on-mobile">NOV</span><span class="show-on-mobile" style="display:none;">11</span></span>
         <span onclick="jumpToMonth(11)"><span class="hide-on-mobile">DEC</span><span class="show-on-mobile" style="display:none;">12</span></span>
       </div>
+      
+      <!-- 상단 컨트롤 버튼 (양쪽 끝으로 정렬) -->
       <div class="week-controls">
-        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
-          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
+        <div class="left-nav-group" style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+          <!-- 1. 회고 모드 버튼 (위클리에서만 등장) -->
+          <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
+            <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
+          </div>
+          
+          <!-- 2. 날짜 이동 그룹 (화살표와 텍스트 간격 극한 축소) -->
+          <div class="date-nav-group" style="display: flex; align-items: center; gap: 2px;">
+            <button onclick="changePeriod(-1)">◀<span class="hide-on-mobile"> 이전</span></button>
+            <span id="week-display" class="active-indicator" style="text-align: center; padding: 0 4px; font-size: 0.85rem;">로딩 중...</span>
+            <button onclick="changePeriod(1)"><span class="hide-on-mobile">다음 </span>▶</button>
+          </div>
+          <button onclick="goToday()">오늘</button>
         </div>
-        <button onclick="changePeriod(-1)">◀<span class="hide-on-mobile"> 이전</span></button>
-        <span id="week-display" class="active-indicator">로딩 중...</span>
-        <button onclick="changePeriod(1)"><span class="hide-on-mobile">다음 </span>▶</button>
-        <button onclick="goToday()">오늘</button>
-        <button onclick="openFontModal()" style="border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
-            <span style="opacity: 0.8;">🎨<span class="hide-on-mobile"> 폰트</span></span>
-        </button>
-        <button onclick="openScheduleModal()" style="color: #475569;" title="새로운 일정 추가">
-            <span style="opacity: 0.8;">🗓️<span class="hide-on-mobile"> 일정</span></span>
-        </button>
-        <button onclick="openSearchModal()" title="과거 메모 및 회고 검색">
-            <span style="opacity: 0.8;">🔍<span class="hide-on-mobile"> 검색</span></span>
-        </button>
-        <button id="auth-btn" onclick="toggleLogin()" style="border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
-            <span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>
-        </button>
+        
+        <!-- 3. 우측 정렬될 아이콘 버튼 그룹 -->
+        <div class="icon-nav-group" style="display: flex; gap: 4px; flex-shrink: 0;">
+          <button onclick="openFontModal()" style="border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
+              <span style="opacity: 0.8;">🎨<span class="hide-on-mobile"> 폰트</span></span>
+          </button>
+          <button onclick="openScheduleModal()" style="color: #475569;" title="새로운 일정 추가">
+              <span style="opacity: 0.8;">🗓️<span class="hide-on-mobile"> 일정</span></span>
+          </button>
+          <button onclick="openSearchModal()" title="과거 메모 및 회고 검색">
+              <span style="opacity: 0.8;">🔍<span class="hide-on-mobile"> 검색</span></span>
+          </button>
+          <button id="auth-btn" onclick="toggleLogin()" style="border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
+              <span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>
+          </button>
+        </div>
       </div>
     </div>
 
-  <!-- HOME View -->
+    <!-- HOME View -->
     <main class="home-view-container fade-in" id="view-home">
       <div class="home-square-card">
         <img src="https://i.pinimg.com/736x/cb/55/98/cb55982fb48f0fff2767b997bc556666.jpg" alt="Mood Image">
@@ -1155,7 +1169,7 @@ if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
         initWeekDataIfNeeded(currentWeekKey);
     }
 
-  function updateDateUI() {
+    function updateDateUI() {
         const weekDisplay = document.getElementById('week-display');
         if (!weekDisplay) return;
 
