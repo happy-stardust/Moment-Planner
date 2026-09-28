@@ -63,10 +63,10 @@ body {
     .nav-tab { font-size: 0.85rem; color: #cbd5e1; text-decoration: none; cursor: pointer; padding-bottom: 4px; transition: 0.2s; }
     .nav-tab:hover, .nav-tab.active { color: var(--accent-color); font-weight: 600; border-bottom: 2px solid var(--accent-color); }
 
-    .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; }
-    .month-list { display: flex; gap: 10px; cursor: pointer; }
+  .sub-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); padding: 0 4px; width: 100%; box-sizing: border-box; }
+    .month-list { display: flex; gap: 10px; cursor: pointer; flex-shrink: 0; }
     .sub-bar .active-indicator { color: var(--primary-color); font-weight: 600; text-decoration: underline; }
-    .week-controls { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+    .week-controls { display: flex; align-items: center; justify-content: space-between; flex: 1; margin-left: 32px; gap: 8px; }
     .week-controls button { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); cursor: pointer; padding: 4px 8px; font-size: 0.75rem; transition: all 0.2s; }
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
     #week-display { font-size: 0.85rem; min-width: 40px; white-space: nowrap; text-align: center; font-weight: 600; }
@@ -292,21 +292,23 @@ body {
       .sub-bar { flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box; }
       .month-list { width: 100%; justify-content: space-between; font-size: 0.85rem; padding: 0 4px; box-sizing: border-box; }
       
-      /* 3. ★ 상단 버튼 모음: 한 줄 유지 & 가로 스와이프 */
+ /* 3. ★ 상단 버튼 모음: 한 줄 유지 & 가로 스와이프 & 우측 정렬 */
       .week-controls { 
         width: 100%; 
-        justify-content: space-between; 
+        justify-content: space-between !important; 
         flex-wrap: nowrap !important; 
         overflow-x: auto; 
+        margin-left: 0; 
         padding-bottom: 4px;
         -ms-overflow-style: none; 
         scrollbar-width: none; 
       }
       .week-controls::-webkit-scrollbar { display: none; }
-      /* 새로 묶은 그룹(.left-nav-group, .icon-nav-group)이 찌그러지지 않게 보호 */
+      /* 찌그러짐 보호 및 아이콘 우측 밀착 */
       .week-controls button, .review-toolbar, #week-display, .left-nav-group, .icon-nav-group { flex-shrink: 0; }
       .week-controls button { padding: 4px 6px !important; font-size: 0.7rem; }
       .review-toolbar { margin-right: 0 !important; }
+      .icon-nav-group { margin-left: auto !important; }
 
       /* 4. ★ HOME 뷰: 사진이 화면 밖으로 뚫고 나가는 현상 완벽 차단 */
       .home-view-container { width: 100%; box-sizing: border-box; }
