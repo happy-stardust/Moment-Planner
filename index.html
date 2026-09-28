@@ -71,7 +71,7 @@ body {
     .week-controls button:hover { border-color: var(--primary-color); color: var(--primary-color); }
     #week-display { font-size: 0.85rem; min-width: 100px; white-space: nowrap; text-align: center; font-weight: 600; }
 
-/* HOME View */
+    /* HOME View */
     .home-view-container { display: none; flex-direction: column; align-items: center; gap: 24px; padding: 10px 0; }
     
     /* 정방형 감성 사진 원상복구 */
@@ -154,9 +154,7 @@ body {
     .daily-day-tabs { display: flex; gap: 6px; }
     .day-tab { padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); cursor: pointer; background: var(--bg-color); transition: 0.2s; }
     .day-tab.active { background: var(--primary-color); color: white; }
-    .daily-jump-btns { display: flex; gap: 8px; }
-    .jump-btn { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s; }
-    .jump-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+    
     .daily-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
     .daily-box { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); overflow: hidden; display: flex; flex-direction: column;}
     .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; min-height: 54px; }
@@ -271,9 +269,7 @@ body {
     .res-text { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; word-break: break-all;}
     .highlight { background: rgba(250, 210, 225, 0.6); font-weight: 600; border-radius: 2px; padding: 0 2px;}
 
- 
-
-/* ========================================= */
+    /* ========================================= */
     /* ★ 모바일 반응형 완벽 통합본 (이 코드 하나로 끝납니다) ★ */
     /* ========================================= */
     @media (max-width: 960px) {
@@ -345,12 +341,11 @@ body {
       .time-col { width: 40px; font-size: 0.65rem; }
       .tb-cell-content { min-height: 32px; padding: 2px; }
       .sch-badge { font-size: 0.65rem; padding: 2px 4px; }
+      
+      /* 데일리 요일 탭 밸런스 조정 */
+      .daily-day-tabs { width: 100%; justify-content: space-between; gap: 4px; }
+      .day-tab { padding: 6px 0; text-align: center; flex: 1; font-size: 0.85rem; font-weight: 600; }
     }
-
-    
-    
-
-    
   </style>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
@@ -366,7 +361,7 @@ body {
     <header class="planner-header">
       <div class="title-group">
         <h1>Moment PLANNER</h1>
-        <span>Time Block management </span>
+        <span>Time Block management</span>
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
@@ -379,32 +374,39 @@ body {
 
     <div class="sub-bar" id="sub-bar">
       <div class="month-list" id="month-list">
-        <span onclick="jumpToMonth(0)">JAN</span><span onclick="jumpToMonth(1)">FEB</span><span onclick="jumpToMonth(2)">MAR</span>
-        <span onclick="jumpToMonth(3)">APR</span><span onclick="jumpToMonth(4)">MAY</span><span onclick="jumpToMonth(5)">JUN</span>
-        <span onclick="jumpToMonth(6)">JUL</span><span onclick="jumpToMonth(7)">AUG</span><span onclick="jumpToMonth(8)">SEP</span>
-        <span onclick="jumpToMonth(9)">OCT</span><span onclick="jumpToMonth(10)">NOV</span><span onclick="jumpToMonth(11)">DEC</span>
+        <span onclick="jumpToMonth(0)"><span class="hide-on-mobile">JAN</span><span class="show-on-mobile" style="display:none;">1</span></span>
+        <span onclick="jumpToMonth(1)"><span class="hide-on-mobile">FEB</span><span class="show-on-mobile" style="display:none;">2</span></span>
+        <span onclick="jumpToMonth(2)"><span class="hide-on-mobile">MAR</span><span class="show-on-mobile" style="display:none;">3</span></span>
+        <span onclick="jumpToMonth(3)"><span class="hide-on-mobile">APR</span><span class="show-on-mobile" style="display:none;">4</span></span>
+        <span onclick="jumpToMonth(4)"><span class="hide-on-mobile">MAY</span><span class="show-on-mobile" style="display:none;">5</span></span>
+        <span onclick="jumpToMonth(5)"><span class="hide-on-mobile">JUN</span><span class="show-on-mobile" style="display:none;">6</span></span>
+        <span onclick="jumpToMonth(6)"><span class="hide-on-mobile">JUL</span><span class="show-on-mobile" style="display:none;">7</span></span>
+        <span onclick="jumpToMonth(7)"><span class="hide-on-mobile">AUG</span><span class="show-on-mobile" style="display:none;">8</span></span>
+        <span onclick="jumpToMonth(8)"><span class="hide-on-mobile">SEP</span><span class="show-on-mobile" style="display:none;">9</span></span>
+        <span onclick="jumpToMonth(9)"><span class="hide-on-mobile">OCT</span><span class="show-on-mobile" style="display:none;">10</span></span>
+        <span onclick="jumpToMonth(10)"><span class="hide-on-mobile">NOV</span><span class="show-on-mobile" style="display:none;">11</span></span>
+        <span onclick="jumpToMonth(11)"><span class="hide-on-mobile">DEC</span><span class="show-on-mobile" style="display:none;">12</span></span>
       </div>
       <div class="week-controls">
-        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; margin-right: 12px; display:none;">
-          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 회고 모드 켜기</button>
+        <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
+          <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
         </div>
-        <button onclick="changePeriod(-1)">◀ 이전</button>
+        <button onclick="changePeriod(-1)">◀<span class="hide-on-mobile"> 이전</span></button>
         <span id="week-display" class="active-indicator">로딩 중...</span>
-        <button onclick="changePeriod(1)">다음 ▶</button>
-        <button onclick="goToday()" style="margin-left:4px;">오늘</button>
-         <button onclick="openFontModal()" style="margin-left:8px; padding: 4px 8px; font-weight:600; border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
-    <span style="opacity: 0.8;">🎨 폰트</span>
-</button>
-<button onclick="openScheduleModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600; color: #475569;" title="새로운 일정 추가">
-    <span style="opacity: 0.8;">🗓️ 일정 추가</span>
-</button>
-<button onclick="openSearchModal()" style="margin-left:0px; padding: 4px 8px; font-weight:600;" title="과거 메모 및 회고 검색">
-    <span style="opacity: 0.8;">🔍 검색</span>
-</button>
-
-<button id="auth-btn" onclick="toggleLogin()" style="margin-left:8px; padding: 4px 8px; border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
-    <span style="opacity: 0.8;">🔐 로그인</span>
-</button>
+        <button onclick="changePeriod(1)"><span class="hide-on-mobile">다음 </span>▶</button>
+        <button onclick="goToday()">오늘</button>
+        <button onclick="openFontModal()" style="border-color:#e58b88; color:#e58b88;" title="글씨체 변경">
+            <span style="opacity: 0.8;">🎨<span class="hide-on-mobile"> 폰트</span></span>
+        </button>
+        <button onclick="openScheduleModal()" style="color: #475569;" title="새로운 일정 추가">
+            <span style="opacity: 0.8;">🗓️<span class="hide-on-mobile"> 일정</span></span>
+        </button>
+        <button onclick="openSearchModal()" title="과거 메모 및 회고 검색">
+            <span style="opacity: 0.8;">🔍<span class="hide-on-mobile"> 검색</span></span>
+        </button>
+        <button id="auth-btn" onclick="toggleLogin()" style="border-color:#4285F4; color:#4285F4; font-weight:600;" title="구글 계정으로 로그인/동기화">
+            <span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>
+        </button>
       </div>
     </div>
 
@@ -510,17 +512,13 @@ body {
     <main class="daily-view-container" id="view-daily">
       <div class="daily-top-nav-bar">
         <div class="daily-day-tabs" id="daily-day-tabs">
-          <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')">Monday</div>
-          <div class="day-tab" id="dt-tue" onclick="setDailyDay('tue')">Tuesday</div>
-          <div class="day-tab" id="dt-wed" onclick="setDailyDay('wed')">Wednesday</div>
-          <div class="day-tab" id="dt-thur" onclick="setDailyDay('thur')">Thursday</div>
-          <div class="day-tab" id="dt-fri" onclick="setDailyDay('fri')">Friday</div>
-          <div class="day-tab" id="dt-sat" onclick="setDailyDay('sat')">Saturday</div>
-          <div class="day-tab" id="dt-sun" onclick="setDailyDay('sun')">Sunday</div>
-        </div>
-        <div class="daily-jump-btns">
-          <button class="jump-btn" onclick="jumpToMonthlyFromDaily()">📅 먼슬리로 이동</button>
-          <button class="jump-btn" onclick="jumpToWeeklyFromDaily()">📊 위클리로 이동</button>
+          <div class="day-tab active" id="dt-mon" onclick="setDailyDay('mon')"><span class="hide-on-mobile">Monday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
+          <div class="day-tab" id="dt-tue" onclick="setDailyDay('tue')"><span class="hide-on-mobile">Tuesday</span><span class="show-on-mobile" style="display:none;">ㅎ</span></div>
+          <div class="day-tab" id="dt-wed" onclick="setDailyDay('wed')"><span class="hide-on-mobile">Wednesday</span><span class="show-on-mobile" style="display:none;">ㅅ</span></div>
+          <div class="day-tab" id="dt-thur" onclick="setDailyDay('thur')"><span class="hide-on-mobile">Thursday</span><span class="show-on-mobile" style="display:none;">ㅁ</span></div>
+          <div class="day-tab" id="dt-fri" onclick="setDailyDay('fri')"><span class="hide-on-mobile">Friday</span><span class="show-on-mobile" style="display:none;">ㄱ</span></div>
+          <div class="day-tab" id="dt-sat" onclick="setDailyDay('sat')"><span class="hide-on-mobile">Saturday</span><span class="show-on-mobile" style="display:none;">ㅌ</span></div>
+          <div class="day-tab" id="dt-sun" onclick="setDailyDay('sun')"><span class="hide-on-mobile">Sunday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
         </div>
       </div>
 
@@ -617,16 +615,13 @@ body {
     <main class="daily-view-container" id="view-diary" style="display: none;">
       <div class="daily-top-nav-bar">
         <div class="daily-day-tabs" id="diary-day-tabs">
-          <div class="day-tab active" id="ddt-mon" onclick="setDiaryDay('mon')">Monday</div>
-          <div class="day-tab" id="ddt-tue" onclick="setDiaryDay('tue')">Tuesday</div>
-          <div class="day-tab" id="ddt-wed" onclick="setDiaryDay('wed')">Wednesday</div>
-          <div class="day-tab" id="ddt-thur" onclick="setDiaryDay('thur')">Thursday</div>
-          <div class="day-tab" id="ddt-fri" onclick="setDiaryDay('fri')">Friday</div>
-          <div class="day-tab" id="ddt-sat" onclick="setDiaryDay('sat')">Saturday</div>
-          <div class="day-tab" id="ddt-sun" onclick="setDiaryDay('sun')">Sunday</div>
-        </div>
-        <div class="daily-jump-btns">
-          <button class="jump-btn" onclick="switchView('daily')">📅 플래너로 이동</button>
+          <div class="day-tab active" id="ddt-mon" onclick="setDiaryDay('mon')"><span class="hide-on-mobile">Monday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
+          <div class="day-tab" id="ddt-tue" onclick="setDiaryDay('tue')"><span class="hide-on-mobile">Tuesday</span><span class="show-on-mobile" style="display:none;">ㅎ</span></div>
+          <div class="day-tab" id="ddt-wed" onclick="setDiaryDay('wed')"><span class="hide-on-mobile">Wednesday</span><span class="show-on-mobile" style="display:none;">ㅅ</span></div>
+          <div class="day-tab" id="ddt-thur" onclick="setDiaryDay('thur')"><span class="hide-on-mobile">Thursday</span><span class="show-on-mobile" style="display:none;">ㅁ</span></div>
+          <div class="day-tab" id="ddt-fri" onclick="setDiaryDay('fri')"><span class="hide-on-mobile">Friday</span><span class="show-on-mobile" style="display:none;">ㄱ</span></div>
+          <div class="day-tab" id="ddt-sat" onclick="setDiaryDay('sat')"><span class="hide-on-mobile">Saturday</span><span class="show-on-mobile" style="display:none;">ㅌ</span></div>
+          <div class="day-tab" id="ddt-sun" onclick="setDiaryDay('sun')"><span class="hide-on-mobile">Sunday</span><span class="show-on-mobile" style="display:none;">ㅇ</span></div>
         </div>
       </div>
 
@@ -668,7 +663,6 @@ body {
             </div>
             <div class="kpt-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none; padding-bottom: 0;">
               <span class="kpt-title" style="color: var(--text-main);">3. 오늘의 단상 (자유 일기 & 감정 비우기)</span>
-              <!-- flex와 resize 속성을 제거하여 자연스럽게 늘어나게 변경 -->
               <textarea class="daily-textarea" id="diary-evening-content" style="min-height: 150px; overflow: hidden;" oninput="autoResize(this)" placeholder="자유롭게 오늘 겪은 일과 감정을 적어보세요. 내일로 안고 가고 싶지 않은 감정은 이곳에 다 털어버리세요."></textarea>
             </div>
           </div>
@@ -939,7 +933,7 @@ body {
         const authBtn = document.getElementById('auth-btn');
         if (user) {
             currentUser = user;
-            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔓 로그아웃</span>';
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔓<span class="hide-on-mobile"> 로그아웃</span></span>';
             dbRef = db.ref('users/' + user.uid + '/allData');
 
             dbRef.on('value', (snapshot) => {
@@ -959,7 +953,7 @@ body {
             });
         } else {
             currentUser = null;
-            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔐 구글 로그인</span>';
+            if(authBtn) authBtn.innerHTML = '<span style="opacity: 0.8;">🔐<span class="hide-on-mobile"> 로그인</span></span>';
             loadLocalData();
             loadWeek();
             renderAll();
@@ -1838,7 +1832,7 @@ if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
         isWeeklyReviewMode = !isWeeklyReviewMode;
         const btn = document.getElementById('toggle-review-btn');
         if (btn) {
-          btn.innerText = isWeeklyReviewMode ? '📝 계획 모드로 돌아가기' : '🔄 회고 모드 켜기';
+          btn.innerHTML = isWeeklyReviewMode ? '📝 <span class="hide-on-mobile">계획 모드</span>' : '🔄 <span class="hide-on-mobile">회고 모드</span>';
           btn.style.backgroundColor = isWeeklyReviewMode ? 'var(--text-main)' : 'var(--primary-color)';
         }
         switchView('weekly'); 
@@ -2598,7 +2592,7 @@ if(daily.eveningGratitude) diaryHtml += `<div class="summary-kpt-text" style="ma
     }
 
     window.jumpToSearchResult = function(weekKey, day) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); setDailyDay(day); switchView('daily'); }
-    window.jumpToWeeklyReview = function(weekKey) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); isWeeklyReviewMode = true; document.getElementById('toggle-review-btn').innerText = '📝 계획 모드로 돌아가기'; switchView('weekly'); }
+    window.jumpToWeeklyReview = function(weekKey) { currentDate = new Date(weekKey); closeModal('search-modal'); loadWeek(); isWeeklyReviewMode = true; document.getElementById('toggle-review-btn').innerHTML = '📝 <span class="hide-on-mobile">계획 모드</span>'; switchView('weekly'); }
  
 
     try {
