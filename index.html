@@ -304,7 +304,7 @@ body {
         scrollbar-width: none; 
       }
       .week-controls::-webkit-scrollbar { display: none; }
-      .week-controls button, .review-toolbar, #week-display { flex-shrink: 0; padding: 5px 8px; font-size: 0.75rem; }
+     .week-controls button, .review-toolbar, #week-display { flex-shrink: 0; padding: 4px 5px !important; font-size: 0.7rem; }
       .review-toolbar { margin-right: 0 !important; } 
 
       /* 4. ★ HOME 뷰: 사진이 화면 밖으로 뚫고 나가는 현상 완벽 차단 */
@@ -358,7 +358,7 @@ body {
       
       /* 할 일 텍스트 및 뱃지 콤팩트화 */
       .day-column .task-item { padding: 0 4px; font-size: 0.65rem; gap: 4px; }
-      .day-column .schedule-bar { height: 16px; font-size: 0.55rem; padding: 0 4px; margin: 1px 2px; }
+      .day-column .schedule-bar { height: 20px; margin: 4px; font-size: 0.6rem; line-height: 20px; padding: 0 4px; }
       
       /* 할 일 추가 인풋창 (맨 밑에 고정) */
       .day-column .inline-input-row { height: 28px; min-height: 28px; padding: 0 6px; background: rgba(255,255,255,0.8); }
@@ -1155,13 +1155,14 @@ if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
         initWeekDataIfNeeded(currentWeekKey);
     }
 
-    function updateDateUI() {
+  function updateDateUI() {
         const weekDisplay = document.getElementById('week-display');
         if (!weekDisplay) return;
 
         if (currentView === 'monthly' || currentView === 'home') {
             weekDisplay.innerText = `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`;
-            document.querySelectorAll('#month-list span').forEach((span, idx) => {
+            // 범인 검거! '> span' 을 넣어 내부 요소의 클래스가 지워지는 것을 막습니다.
+            document.querySelectorAll('#month-list > span').forEach((span, idx) => {
                 span.className = (idx === currentDate.getMonth()) ? 'active-indicator' : '';
             });
         } else {
@@ -1170,9 +1171,12 @@ if (typeof dObj.eveningGratitude === 'undefined') dObj.eveningGratitude = '';
             date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
             const week1 = new Date(date.getFullYear(), 0, 4);
             const weekNum = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-            weekDisplay.innerText = `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
             
-            document.querySelectorAll('#month-list span').forEach((span, idx) => {
+            // 모바일에서 공간을 아끼기 위해 '2026-W40'을 ''26 W40'으로 축약합니다.
+            weekDisplay.innerText = `'${String(date.getFullYear()).slice(2)} W${String(weekNum).padStart(2, '0')}`;
+            
+            // 여기도 '> span' 적용
+            document.querySelectorAll('#month-list > span').forEach((span, idx) => {
                 span.className = (idx === currentDate.getMonth()) ? 'active-indicator' : '';
             });
             
