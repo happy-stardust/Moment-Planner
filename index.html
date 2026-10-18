@@ -227,6 +227,9 @@
     .tb-cell-content.drag-over { background: #e2e8f0 !important; outline: 2px dashed var(--primary-color); }
 
     .sch-badge { max-width: 100%; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #334155; cursor: pointer; transition: transform 0.1s; }
+    .sch-chk { flex:none; width:14px; height:14px; border:1.5px solid #94a3b8; border-radius:4px; background:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:9px; color:#fff; cursor:pointer; }
+    .sch-chk.on { background:var(--primary-color); border-color:var(--primary-color); }
+    .sch-chk.on::before { content:"✔"; }
     .sch-badge:hover { transform: translateY(-1px); filter: brightness(0.95); }
     .badge-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     .badge-del { background: none; border: none; font-size: 9px; cursor: pointer; color: rgba(0,0,0,0.4); border-radius: 50%; padding: 2px; flex-shrink: 0;}
@@ -2301,6 +2304,42 @@
     };
 
     /* ---------- 반복 할 일 ---------- */
+    function schTimes(sch) {
+        const st = getSchStartTime(sch), et = getSchEndTime(sch);
+        let sh = parseInt(st.split(':')[0]), sm = parseInt(st.split(':')[1]);
+        let eh = parseInt(et.split(':')[0]), em = parseInt(et.split(':')[1]);
+        if (sh < 5) sh += 24;
+        if (eh < 5) eh += 24;
+        if (eh < sh || (eh === sh && em <= sm)) eh += 24;
+        return { sh: sh, sm: sm, total: (eh * 60 + em) - (sh * 60 + sm) };
+    }
+    function schAttendedBlock(sch, dateStr, dayObj) {
+        const id = sch.attended && sch.attended[dateStr];
+        if (!id || !dayObj) return null;
+        return collectBlock(dayObj, 'do', id).first ? id : null;
+    }
+    window.toggleScheduleDone = function(schId) {
+        const sch = (allData.schedules || []).find(x => x && x.id === schId);
+        if (!sch) return;
+        const day = currentDailyDay;
+        const dateStr = formatDateStr(getDailyDate(day));
+        const dayObj = allData[currentWeekKey].daily[day];
+        if (!sch.attended || typeof sch.attended !== 'object') sch.attended = {};
+        const cur = schAttendedBlock(sch, dateStr, dayObj);
+        if (cur) {
+            removeBlock(dayObj, 'do', cur);
+            delete sch.attended[dateStr];
+            showToast('Do 칸에서 뺐어요');
+        } else {
+            const t = schTimes(sch);
+            if (t.total <= 0) return;
+            if (!dayObj.do) dayObj.do = {};
+            sch.attended[dateStr] = distributeBadgeToCells(day, 'do', t.sh, t.sm, sch.title, t.total, sch.color, null, null);
+            showToast('Do 칸에 기록했어요. 시간이 달랐다면 Do 칸을 눌러 고쳐요');
+        }
+        saveAllData();
+        renderAll();
+    };
     const RT_KOR = { mon: '월', tue: '화', wed: '수', thur: '목', fri: '금', sat: '토', sun: '일' };
     const RT_ICONS = ['🌼', '🐥', '🍀', '🎀', '🌿', '🍉', '🍩', '🍰', '✨', '🎈', '🤍', '💜', '🌙', '🌟', '❄', '💖', '🔮', '🐾', '💫', '🍓', '🌷', '🧸', '🐣', '🌈', '🍒', '🐱', '🦋', '🍑'];
     const pickRtIcon = () => RT_ICONS[Math.floor(Math.random() * RT_ICONS.length)];
@@ -2618,6 +2657,8 @@
                 let remainingMins = totalMins;
                 let currentH = sh;
                 let currentM = sm;
+                let chkAdded = false;
+                const attendedId = schAttendedBlock(s, cellDateStr, allData[currentWeekKey]?.daily?.[currentDailyDay]);
 
                 while (remainingMins > 0 && currentH <= 26) {
                     let availableMins = 60 - currentM;
@@ -2635,6 +2676,14 @@
                             let cellDurationLabel = minsForThisCell > 0 ? ` (${formatTime(minsForThisCell)})` : '';
                             el.innerHTML = `<span class="badge-text" style="font-weight:600;">${timeLabel} ️💫 ${esc(s.title)}${cellDurationLabel}</span>`;
                             el.onclick = (e) => { e.stopPropagation(); openScheduleModal(s.id); };
+                            if (!chkAdded) {
+                                chkAdded = true;
+                                const chk = document.createElement('span');
+                                chk.className = 'sch-chk' + (attendedId ? ' on' : '');
+                                chk.title = '다녀왔어요 (Do 칸에 기록)';
+                                chk.onclick = (e) => { e.stopPropagation(); toggleScheduleDone(s.id); };
+                                el.insertBefore(chk, el.firstChild);
+                            }
                             cell.appendChild(el);
                         }
                         remainingMins -= minsForThisCell;
