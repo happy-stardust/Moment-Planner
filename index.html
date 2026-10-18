@@ -583,20 +583,20 @@
           <div class="rec-body">
             <div>
               <div class="rec-label strong">일곱 줄을 읽고, 가장 자주 스친 느낌 하나</div>
-              <input type="text" class="rec-input" id="wn-emotion" placeholder="예: 피곤함 (단어가 달라도 비슷한 결이면 하나로 묶어요)" />
+              <textarea class="rec-input" id="wn-emotion" rows="1" placeholder="예: 피곤함 (단어가 달라도 비슷한 결이면 하나로 묶어요)"></textarea>
             </div>
             <div class="rec-label strong" style="margin-bottom:-4px;">다음 주는 세 칸만</div>
             <div>
               <span class="next-tag nt-keep">그대로 둘 것</span>
-              <input type="text" class="rec-input" id="wn-keep" placeholder="예: 저녁 산책" />
+              <textarea class="rec-input" id="wn-keep" rows="1" placeholder="예: 저녁 산책"></textarea>
             </div>
             <div>
               <span class="next-tag nt-drop">덜어낼 것</span>
-              <input type="text" class="rec-input" id="wn-drop" placeholder="예: 야식" />
+              <textarea class="rec-input" id="wn-drop" rows="1" placeholder="예: 야식"></textarea>
             </div>
             <div>
               <span class="next-tag nt-try">실험해 볼 것</span>
-              <input type="text" class="rec-input" id="wn-exp" placeholder="예: 10시 반에 폰 내려놓기 (안 맞아도 그것도 결과예요)" />
+              <textarea class="rec-input" id="wn-exp" rows="1" placeholder="예: 10시 반에 폰 내려놓기 (안 맞아도 그것도 결과예요)"></textarea>
             </div>
           </div>
         </div>
@@ -2954,6 +2954,23 @@
                 const el = document.getElementById(pair[0]);
                 if (!el) return;
                 if (document.activeElement !== el && el.value !== (note[pair[1]] || '')) el.value = note[pair[1]] || '';
+                if (!el._recBound) {
+                    el._recBound = true;
+                    const fit = () => { el.style.height = 'auto'; if (el.scrollHeight > 0) el.style.height = (el.scrollHeight + 2) + 'px'; };
+                    el._fit = fit;
+                    const confirm = (flash) => {
+                        if (el.value.trim()) {
+                            el.classList.add('confirmed');
+                            if (flash) { el.classList.remove('just-saved'); void el.offsetWidth; el.classList.add('just-saved'); }
+                        } else el.classList.remove('confirmed');
+                    };
+                    el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); confirm(true); el.blur(); } });
+                    el.addEventListener('focus', () => el.classList.remove('confirmed', 'just-saved'));
+                    el.addEventListener('blur', () => confirm(false));
+                    el.addEventListener('input', () => { el.classList.remove('confirmed'); fit(); });
+                }
+                if (document.activeElement !== el) el.classList.toggle('confirmed', !!el.value.trim());
+                el._fit();
                 el.oninput = function(e) {
                     if (!allData[currentWeekKey]) initWeekDataIfNeeded(currentWeekKey);
                     if (!allData[currentWeekKey].weeklyNote) allData[currentWeekKey].weeklyNote = { emotion: '', keep: '', drop: '', exp: '' };
