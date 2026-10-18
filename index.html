@@ -158,6 +158,15 @@
     .day-tab.active { background: var(--primary-color); color: white; }
 
     .daily-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; }
+    @media (min-width: 769px) { .hdr-btn-tb { display:none; } }   /* 컴퓨터에선 시간표가 바로 옆에 보여서 이동 버튼 불필요 */
+    .daily-top-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+    .daily-top-row > .daily-box { min-width:0; }
+    .daily-top-row .hdr-btn { padding:3px 8px; font-size:0.7rem; }
+    @media (max-width: 768px) { .daily-top-row { grid-template-columns:1fr; } }
+    .rt-box-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+    .rt-box-list .drag-handle { display:none; }
+    .rt-box-list .task-item.has-steps { border-bottom:1px solid #f1f5f9; }
+    .rt-box-list .rt-empty { padding:14px 16px; font-size:0.78rem; color:#94a3b8; font-style:italic; }
     .daily-left-col { display: flex; flex-direction: column; gap: 16px; }
     .daily-box { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); overflow: hidden; display: flex; flex-direction: column;}
     .daily-box-header { background: #fcfcfd; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; min-height: 54px; }
@@ -641,21 +650,20 @@
 
           <div id="reminder-daily" style="display:none;"></div>
 
+          <div class="daily-top-row">
           <!-- 할 일 -->
           <div class="daily-box" style="min-height: 250px;">
             <div class="daily-box-header">
               <div class="hdr-row">
-                <span>📝 DAILY TO-DO</span>
-                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-                  <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()">🌼 반복</button>
-                  <button class="hdr-btn" onclick="carryOverYesterday()">↩ 어제 못 끝낸 것</button>
-                  <button class="hdr-btn" onclick="scrollToTimeblock()">⏱ 타임블록</button>
-                </div>
-              </div>
-              <div class="hdr-row" style="margin-top:4px;">
-                <span class="hdr-hint">Enter로 바로 등록 · 이름을 누르면 시간/색 설정 · ⏱로 시간대 배치</span>
+                <span style="white-space:nowrap;">📝 DAILY TO-DO</span>
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
+              <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">
+                <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()" title="반복 할 일 / 루틴 설정">🌼 반복</button>
+                <button class="hdr-btn" onclick="carryOverYesterday()">↩ 어제 못 끝낸 것</button>
+                <button class="hdr-btn hdr-btn-tb" onclick="scrollToTimeblock()" title="시간표로 이동">⏱ 타임블록</button>
+              </div>
+              <div style="height:8px;"></div>
               <div class="progress-bg"><div class="progress-fill" id="daily-progress-bar"></div></div>
             </div>
             <div style="flex:1; display:flex; flex-direction:column; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--row-height) - 1px), var(--line-color) calc(var(--row-height) - 1px), var(--line-color) var(--row-height));">
@@ -665,6 +673,15 @@
                 <input type="text" class="inline-task-input" id="todo-input-daily" placeholder="오늘의 할 일 입력 후 Enter" onkeyup="handleTodoEnter(event, 'daily')" />
               </div>
             </div>
+          </div>
+
+          <!-- 오늘의 루틴 -->
+          <div class="daily-box" id="routine-daily-box">
+            <div class="daily-box-header">
+              <div class="hdr-row"><span>🌼 오늘의 루틴</span><span class="hdr-hint" id="routine-daily-count"></span></div>
+            </div>
+            <ul class="rt-box-list" id="routine-daily-body"></ul>
+          </div>
           </div>
 
           <!-- 오늘의 기록 -->
@@ -713,7 +730,7 @@
                 <summary>오늘의 순간</summary>
                 <div class="rec-details-body">
                   <div>
-                    <div class="rec-label">오늘을 채운 조각들을 모아보아요 🎈 </div>
+                    <div class="rec-label">오늘 가장 마음이 놓였던 순간은?</div>
                     <textarea class="rec-input" id="daily-moment-input" rows="2" placeholder="한두 줄이면 충분해요"></textarea>
                   </div>
                 </div>
@@ -2529,7 +2546,7 @@
                         });
                     }
 
-                    const tasks = allData[currentWeekKey]?.[day] || [];
+                    const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !t.routineId);   /* 루틴은 데일리에서만 */
                     if (tasks.length === 0 && listEl.children.length === 0) {
                         listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">할 일이 없습니다 🌱</li>`;
                     } else {
@@ -2588,11 +2605,27 @@
                     listEl.appendChild(schLi);
                 });
 
-                const tasks = allData[currentWeekKey]?.[day] || [];
+                const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !t.routineId);
                 if (tasks.length === 0 && allDaySchedules.length === 0) listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">오늘의 할 일을 적어보세요 🌱</li>`;
                 else tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day, true)));
 
                 updateProgress(day);
+            }
+
+            {   /* 오늘의 루틴 칸 */
+                const rtBody = document.getElementById('routine-daily-body');
+                const rtCount = document.getElementById('routine-daily-count');
+                if (rtBody) {
+                    const rts = (allData[currentWeekKey]?.[day] || []).filter(t => t.routineId);
+                    rtBody.innerHTML = '';
+                    if (!rts.length) {
+                        rtBody.innerHTML = '<li class="rt-empty">오늘은 루틴이 없어요</li>';
+                        if (rtCount) rtCount.textContent = '';
+                    } else {
+                        rts.forEach(t => rtBody.appendChild(Array.isArray(t.steps) && t.steps.length ? routineLi(t, day) : createHtmlForTask(t, day, false)));
+                        if (rtCount) rtCount.textContent = rts.filter(t => t.state === 'done').length + '/' + rts.length + ' 완료';
+                    }
+                }
             }
 
             ['plan', 'do'].forEach(type => {
@@ -2784,24 +2817,28 @@
         }
     }
 
-    function updateProgress(day) {
-        const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !t.mealKey);
+    function calcProgress(tasks) {
         const total = tasks.length;
         const completed = tasks.filter(t => ['done', 'canceled', 'postponed'].includes(t.state)).length;
         const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-        const message = getProgressMessage(percent, total);
+        return { percent: percent, message: getProgressMessage(percent, total) };
+    }
+    function updateProgress(day) {
+        const all = (allData[currentWeekKey]?.[day] || []).filter(t => !t.mealKey);
+        /* 진행률은 루틴을 뺀 진짜 할 일만 계산 (루틴은 데일리의 루틴 칸에서 'N/M 완료'로 따로 보여요) */
+        const w = calcProgress(all.filter(t => !t.routineId));
+        const d = w;   /* 루틴은 자기 칸에서 따로 집계 */
 
         const pbWeekly = document.getElementById(`progress-bar-${day}`);
         const ptWeekly = document.getElementById(`progress-text-${day}`);
-        if (pbWeekly) pbWeekly.style.width = `${percent}%`;
-        if (ptWeekly) ptWeekly.innerText = message;
+        if (pbWeekly) pbWeekly.style.width = `${w.percent}%`;
+        if (ptWeekly) ptWeekly.innerText = w.message;
 
         if (currentDailyDay === day) {
             const pbDaily = document.getElementById('daily-progress-bar');
             const ptDaily = document.getElementById('daily-progress-text');
-            if (pbDaily) pbDaily.style.width = `${percent}%`;
-            if (ptDaily) ptDaily.innerText = message;
+            if (pbDaily) pbDaily.style.width = `${d.percent}%`;
+            if (ptDaily) ptDaily.innerText = d.message;
         }
     }
 
@@ -2874,7 +2911,7 @@
             const wKey = getMondayStr(currentRenderDate);
             const dayName = currentRenderDate.getDay() === 0 ? 'sun' : ['mon','tue','wed','thur','fri','sat'][currentRenderDate.getDay()-1];
             if (allData[wKey] && allData[wKey][dayName]) {
-                let tasks = allData[wKey][dayName] || [];
+                let tasks = (allData[wKey][dayName] || []).filter(t => !t.routineId);   /* 루틴은 먼슬리에서 제외 */
                 tasks.slice(0, 3).forEach(t => {
                     const tDiv = document.createElement('div');
                     tDiv.className = 'monthly-preview-text';
@@ -3320,8 +3357,11 @@
                                 if (taskIndexInArray !== -1) {
                                     const movedItem = fromArr.splice(taskIndexInArray, 1)[0];
                                     if (!Array.isArray(allData[currentWeekKey][toDay])) allData[currentWeekKey][toDay] = [];
-                                    const newVisualIndex = Array.from(evt.to.children).filter(el => el.classList.contains('task-item')).indexOf(draggedElement);
-                                    const insertIndex = newVisualIndex === -1 ? allData[currentWeekKey][toDay].length : newVisualIndex;
+                                    const toArr = allData[currentWeekKey][toDay];
+                                    const sibs = Array.from(evt.to.children).filter(el => el.classList.contains('task-item'));
+                                    const nextEl = sibs[sibs.indexOf(draggedElement) + 1];
+                                    const nextIdx = nextEl ? toArr.findIndex(t => t.id === nextEl.dataset.id) : -1;
+                                    const insertIndex = nextIdx === -1 ? toArr.length : nextIdx;   /* 숨겨진 루틴이 있어도 위치가 어긋나지 않게 */
                                     allData[currentWeekKey][toDay].splice(insertIndex, 0, movedItem);
                                     saveAllData(); renderAll();
                                 }
