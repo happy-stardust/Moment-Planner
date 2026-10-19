@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <meta property="og:image" content="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
-  <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/25/06/d1/2506d1fe52a96332de72634695e3c6d1.jpg">
+  <meta property="og:image" content="https://i.pinimg.com/1200x/87/d9/72/87d97252cd74c82b7b7bb50ff8204117.jpg">
+  <link rel="apple-touch-icon" href="https://i.pinimg.com/1200x/87/d9/72/87d97252cd74c82b7b7bb50ff8204117.jpg">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
 
   <title>Moment PLANNER</title>
@@ -316,7 +316,27 @@
     .rt-chip.on { background:var(--primary-color,#8b9bb4); border-color:var(--primary-color,#8b9bb4); color:#fff; }
     .rt-chip.quick { border-style:dashed; }
     .month-tomato { margin-left:auto; font-size:0.62rem; line-height:1; color:#e8590c; font-weight:700; }
-    .-day-head { display:flex; align-items:center; gap:2px; }
+    .month-seg { display:inline-flex; border:1px solid var(--border-color); border-radius:999px; overflow:hidden; background:#fff; font-size:0.78rem; align-self:center; }
+    .month-seg button { border:none; background:transparent; padding:6px 16px; color:var(--text-muted); cursor:pointer; font-family:inherit; font-size:inherit; }
+    .month-seg button.on { background:var(--primary-color); color:#fff; font-weight:600; }
+    .diary-list { display:none; flex-direction:column; gap:10px; }
+    .diary-card { background:#fff; border:1px solid var(--border-color); border-radius:10px; overflow:hidden; }
+    .diary-head { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; cursor:pointer; }
+    .diary-date { flex:none; width:44px; text-align:center; }
+    .diary-date b { display:block; font-size:1.15rem; line-height:1.1; color:var(--text-main); }
+    .diary-date span { font-size:0.66rem; color:var(--text-muted); }
+    .diary-date.sun b { color:#e8737a; }
+    .diary-ht { flex:1; min-width:0; }
+    .diary-tom { font-size:0.7rem; letter-spacing:1px; }
+    .diary-tom i { font-style:normal; opacity:0.2; }
+    .diary-one { font-weight:600; font-size:0.88rem; margin-top:2px; color:var(--text-main); }
+    .diary-one.muted { font-weight:400; color:var(--text-muted); }
+    .diary-chev { color:var(--text-muted); font-size:0.65rem; margin-top:4px; }
+    .diary-body { padding:0 14px 14px 68px; font-size:0.84rem; line-height:1.7; white-space:pre-wrap; word-break:break-word; color:#475569; }
+    .diary-go { display:block; margin-top:8px; font-size:0.7rem; color:var(--primary-color); cursor:pointer; }
+    .diary-note { font-size:0.74rem; color:#cbd5e1; text-align:center; padding:4px 0 8px; }
+    .diary-empty { font-size:0.85rem; color:var(--text-muted); text-align:center; padding:40px 0; }
+    .monthly-day-head { display:flex; align-items:center; gap:2px; }
     .tomato-summary { font-size:0.8rem; color:var(--text-muted,#64748b); padding:2px 4px; }
     .tomato-summary b { color:#e8590c; }
     .wl-summary { font-size:0.8rem; color:var(--text-muted,#64748b); padding:2px 2px 8px; }
@@ -384,6 +404,11 @@
       .nav-tab { font-size: 0.8rem; }
 
       .hide-on-mobile { display: none !important; }
+      #toggle-month-btn { padding: 5px 7px !important; font-size: 0.7rem !important; }
+      .week-controls .icon-nav-group { gap: 3px !important; }
+      .week-controls { gap: 4px !important; }
+      #week-display { font-size: 0.8rem !important; padding: 0 2px !important; }
+      @media (max-width: 380px) { #toggle-month-btn .tm-lbl { display: none; } }
       .show-on-mobile { display: inline !important; }
 
       .sub-bar { flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box; }
@@ -400,11 +425,11 @@
       .home-square-card { width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; padding: 24px; box-sizing: border-box; }
       .home-quick-bar { flex-wrap: wrap; width: 100%; }
 
-      .-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 0; }
-      .-day-cell { height: 80px; max-height: 80px; padding: 2px; gap: 1px; }
-      .-day-number { font-size: 0.75rem; width: 18px; height: 18px; margin-bottom: 2px; }
-      .-weekday-header { padding: 4px 0; font-size: 0.65rem; }
-      .schedule-bar, .-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
+      .monthly-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 0; }
+      .monthly-day-cell { height: 80px; max-height: 80px; padding: 2px; gap: 1px; }
+      .monthly-day-number { font-size: 0.75rem; width: 18px; height: 18px; margin-bottom: 2px; }
+      .monthly-weekday-header { padding: 4px 0; font-size: 0.65rem; }
+      .schedule-bar, .monthly-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
 
       .planner-grid { border: none; background: transparent; gap: 8px; }
       .planner-grid[style*="grid"] { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; }
@@ -452,7 +477,7 @@
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
-        <span class="nav-tab" id="tab-" onclick="switchView('monthly')">MONTHLY</span>
+        <span class="nav-tab" id="tab-monthly" onclick="switchView('monthly')">MONTHLY</span>
         <span class="nav-tab" id="tab-weekly" onclick="jumpToTodayWeekly()">WEEKLY</span>
         <span class="nav-tab" id="tab-daily" onclick="jumpToTodayDaily()">DAILY</span>
       </nav>
@@ -478,6 +503,10 @@
         <div class="left-nav-group" style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
           <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
             <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
+          </div>
+
+          <div class="review-toolbar" id="month-toolbar" style="margin-bottom:0; display:none;">
+            <button class="toggle-mode-btn" id="toggle-month-btn" onclick="setMonthMode(monthMode === 'diary' ? 'cal' : 'diary')">📖 <span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span></button>
           </div>
 
           <div class="date-nav-group" style="display: flex; align-items: center; gap: 2px;">
@@ -534,6 +563,7 @@
     <!-- MONTHLY View -->
     <main class="monthly-view-container" id="view-monthly">
       <div class="monthly-grid" id="monthly-calendar-grid"></div>
+      <div class="diary-list" id="monthly-diary"></div>
     </main>
 
     <div id="reminder-weekly" style="display:none;"></div>
@@ -730,7 +760,7 @@
                 <summary>오늘의 순간</summary>
                 <div class="rec-details-body">
                   <div>
-                    <div class="rec-label">오늘 가장 마음이 놓였던 순간은?</div>
+                    <div class="rec-label">오늘을 채운 조각들을 모아보아요 🎈</div>
                     <textarea class="rec-input" id="daily-moment-input" rows="2" placeholder="아무것도 안한 날도 당신이 채운 날이예요"></textarea>
                   </div>
                 </div>
@@ -2132,6 +2162,8 @@
         const viewWeeklyReview = document.getElementById('view-weekly-review');
         const viewWeekly = document.getElementById('view-weekly');
         if (reviewToolbar) reviewToolbar.style.display = (viewType === 'weekly') ? 'flex' : 'none';
+        const monthToolbar = document.getElementById('month-toolbar');
+        if (monthToolbar) monthToolbar.style.display = (viewType === 'monthly') ? 'flex' : 'none';
 
         if (viewType === 'weekly') {
             if (viewWeekly) viewWeekly.style.display = isWeeklyReviewMode ? 'none' : 'grid';
@@ -2942,7 +2974,81 @@
         let sumEl = document.getElementById('monthly-summary');
         if (!sumEl && mv) { sumEl = document.createElement('div'); sumEl.id = 'monthly-summary'; sumEl.className = 'tomato-summary'; mv.insertBefore(sumEl, mv.firstChild); }
         if (sumEl) sumEl.innerHTML = monthCnt ? '이번 달 토마토 평균 <b>🍅 ' + (monthSum / monthCnt).toFixed(1) + '</b> · ' + monthCnt + '일 기록' : '';
+        renderMonthDiary(monthCnt, monthSum, sumEl);
     };
+
+    /* ---------- 먼슬리: 일기(오늘의 순간) 모아보기 ---------- */
+    let monthMode = 'cal';
+    try { if (localStorage.getItem('planner_month_mode') === 'diary') monthMode = 'diary'; } catch (e) {}
+    const diaryOpen = {};
+    window.setMonthMode = function(m) {
+        monthMode = m;
+        try { localStorage.setItem('planner_month_mode', m); } catch (e) {}
+        renderMonthlyCalendar();
+    };
+    function renderMonthDiary(monthCnt, monthSum, sumEl) {
+        const grid = document.getElementById('monthly-calendar-grid');
+        const box = document.getElementById('monthly-diary');
+        if (!grid || !box) return;
+        const tbtn = document.getElementById('toggle-month-btn');
+        if (tbtn) {
+            tbtn.innerHTML = monthMode === 'diary' ? '🗓 <span class="tm-lbl">달력</span><span class="hide-on-mobile"> 모드</span>' : '📖 <span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span>';
+            tbtn.style.backgroundColor = monthMode === 'diary' ? 'var(--text-main)' : 'var(--primary-color)';
+        }
+        grid.style.display = (monthMode === 'cal') ? '' : 'none';
+        box.style.display = (monthMode === 'diary') ? 'flex' : 'none';
+        if (monthMode !== 'diary') return;
+
+        const year = currentDate.getFullYear(), month = currentDate.getMonth();
+        const last = new Date(year, month + 1, 0).getDate();
+        const names = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
+        const kor = ['일', '월', '화', '수', '목', '금', '토'];
+        const entries = [];
+        let skipped = 0;
+        for (let d = last; d >= 1; d--) {
+            const dt = new Date(year, month, d);
+            const info = allData[getMondayStr(dt)]?.daily?.[names[dt.getDay()]] || {};
+            const text = String(info.momentText || '').trim();
+            if (!text) { skipped++; continue; }
+            entries.push({ dt: dt, key: formatDateStr(dt), text: text, one: String(info.oneLine || '').trim(), rating: info.energyRating || 0, dow: dt.getDay() });
+        }
+        if (sumEl) {
+            sumEl.innerHTML = '이번 달 일기 <b>' + entries.length + '일</b>' + (monthCnt ? ' · 토마토 평균 <b>🍅 ' + (monthSum / monthCnt).toFixed(1) + '</b>' : '');
+        }
+        box.innerHTML = '';
+        if (!entries.length) {
+            box.innerHTML = '<div class="diary-empty">이 달에는 아직 쓴 일기가 없어요 📖<br><small>데일리의 "오늘의 순간"에 쓰면 여기에 모여요</small></div>';
+            return;
+        }
+        const monthKey = year + '-' + month;
+        if (!diaryOpen[monthKey]) { diaryOpen[monthKey] = {}; diaryOpen[monthKey][entries[0].key] = true; }   /* 처음엔 가장 최근 글만 펼침 */
+        entries.forEach(en => {
+            const open = !!diaryOpen[monthKey][en.key];
+            const card = document.createElement('div');
+            card.className = 'diary-card';
+            const firstLine = en.text.split('\n')[0];
+            const title = en.one ? '<div class="diary-one">' + esc(en.one) + '</div>' : '<div class="diary-one muted">' + esc(firstLine.length > 40 ? firstLine.slice(0, 40) + '…' : firstLine) + '</div>';
+            const tom = en.rating ? '<div class="diary-tom">' + '🍅'.repeat(en.rating) + '<i>' + '🍅'.repeat(5 - en.rating) + '</i></div>' : '';
+            card.innerHTML = '<div class="diary-head"><div class="diary-date' + (en.dow === 0 ? ' sun' : '') + '"><b>' + en.dt.getDate() + '</b><span>' + kor[en.dow] + '</span></div>' +
+                '<div class="diary-ht">' + tom + title + '</div><div class="diary-chev">' + (open ? '▲' : '▼') + '</div></div>' +
+                (open ? '<div class="diary-body">' + esc(en.text) + '<span class="diary-go">그날 데일리로 이동 →</span></div>' : '');
+            card.querySelector('.diary-head').onclick = () => { diaryOpen[monthKey][en.key] = !open; renderMonthDiary(monthCnt, monthSum, sumEl); };
+            const go = card.querySelector('.diary-go');
+            if (go) go.onclick = (e) => {
+                e.stopPropagation();
+                currentDate = new Date(en.dt); loadWeek();
+                setDailyDay(names[en.dt.getDay()] === 'sun' ? 'sun' : names[en.dt.getDay()]);
+                switchView('daily');
+            };
+            box.appendChild(card);
+        });
+        if (skipped) {
+            const n = document.createElement('div');
+            n.className = 'diary-note';
+            n.textContent = '글이 없는 날 ' + skipped + '일은 건너뛰었어요';
+            box.appendChild(n);
+        }
+    }
 
     /* ---------- 주간 회고 ---------- */
     window.renderWeeklyReviewData = function() {
