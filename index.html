@@ -316,7 +316,7 @@
     .rt-chip.on { background:var(--primary-color,#8b9bb4); border-color:var(--primary-color,#8b9bb4); color:#fff; }
     .rt-chip.quick { border-style:dashed; }
     .month-tomato { margin-left:auto; font-size:0.62rem; line-height:1; color:#e8590c; font-weight:700; }
-    .monthly-day-head { display:flex; align-items:center; gap:2px; }
+    .-day-head { display:flex; align-items:center; gap:2px; }
     .tomato-summary { font-size:0.8rem; color:var(--text-muted,#64748b); padding:2px 4px; }
     .tomato-summary b { color:#e8590c; }
     .wl-summary { font-size:0.8rem; color:var(--text-muted,#64748b); padding:2px 2px 8px; }
@@ -400,11 +400,11 @@
       .home-square-card { width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; padding: 24px; box-sizing: border-box; }
       .home-quick-bar { flex-wrap: wrap; width: 100%; }
 
-      .monthly-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 0; }
-      .monthly-day-cell { height: 80px; max-height: 80px; padding: 2px; gap: 1px; }
-      .monthly-day-number { font-size: 0.75rem; width: 18px; height: 18px; margin-bottom: 2px; }
-      .monthly-weekday-header { padding: 4px 0; font-size: 0.65rem; }
-      .schedule-bar, .monthly-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
+      .-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 0; }
+      .-day-cell { height: 80px; max-height: 80px; padding: 2px; gap: 1px; }
+      .-day-number { font-size: 0.75rem; width: 18px; height: 18px; margin-bottom: 2px; }
+      .-weekday-header { padding: 4px 0; font-size: 0.65rem; }
+      .schedule-bar, .-preview-text { height: 16px; font-size: 0.55rem; padding: 0 3px; border-radius: 2px; margin: 0; font-weight: 500; }
 
       .planner-grid { border: none; background: transparent; gap: 8px; }
       .planner-grid[style*="grid"] { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; }
@@ -452,7 +452,7 @@
       </div>
       <nav class="nav-tabs">
         <span class="nav-tab active" id="tab-home" onclick="switchView('home')">HOME</span>
-        <span class="nav-tab" id="tab-monthly" onclick="switchView('monthly')">MONTHLY</span>
+        <span class="nav-tab" id="tab-" onclick="switchView('monthly')">MONTHLY</span>
         <span class="nav-tab" id="tab-weekly" onclick="jumpToTodayWeekly()">WEEKLY</span>
         <span class="nav-tab" id="tab-daily" onclick="jumpToTodayDaily()">DAILY</span>
       </nav>
@@ -518,15 +518,15 @@
       <div class="home-quick-bar">
         <div class="home-quick-btn" onclick="switchView('monthly')">
           <span class="btn-icon">🗓️</span>
-          <span class="btn-text">MONTHLY</span>
+          <span class="btn-text">M O N T H L Y</span>
         </div>
         <div class="home-quick-btn" onclick="jumpToTodayWeekly()">
           <span class="btn-icon">📊</span>
-          <span class="btn-text">WEEKLY</span>
+          <span class="btn-text">W E E K L Y</span>
         </div>
         <div class="home-quick-btn" onclick="jumpToTodayDaily()">
           <span class="btn-icon">📅</span>
-          <span class="btn-text">DAILY</span>
+          <span class="btn-text">D A I L Y</span>
         </div>
       </div>
     </main>
