@@ -578,7 +578,39 @@ body{background:#fff;padding:20px 20px 40px}
 #timeblock-box{border:1px solid #cfcfd8!important;border-radius:8px!important;overflow:hidden!important;background:#fff!important}
 #timeblock-box .timeblock-table th{border-bottom:1px solid #cfcfd8!important;padding:12px 8px!important}
 .daily-top-row .daily-box-header{height:58px!important;min-height:58px!important;padding:0 0 8px!important}
-</style></head>
+</style><style id="weekly-table">
+/* ===== 위클리 표 보기 ===== */
+.wk-table{display:none}
+.wk-box{border:1px solid #cfcfd8;border-radius:8px;overflow:hidden;background:#fff}
+.wk-tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.wk-namecol{width:34%}
+.wk-tbl th{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:#8b8b98;padding:12px 0 10px;border-bottom:1px solid #cfcfd8;cursor:pointer}
+.wk-tbl th small{display:block;font-size:.66rem;letter-spacing:0;color:#b0b0bc;margin-top:2px}
+.wk-tbl th.today,.wk-tbl th.today small{color:#e58b88}
+.wk-tbl th.wk-name{text-align:left;padding-left:16px;cursor:default}
+.wk-tbl td{height:40px;border-bottom:1px solid #f1f1f5;text-align:center;font-size:.9rem;padding:0}
+.wk-tbl td.wk-c{cursor:pointer}
+.wk-tbl td.wk-c:hover{background:#f7f7fa}
+.wk-tbl td.tc{background:#fcf3f3}
+.wk-tbl td.wk-name{text-align:left;padding:0 8px 0 16px;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-tbl .wk-name span{vertical-align:middle}
+.wk-tbl tr:last-child td{border-bottom:0}
+.wk-rowdone td.wk-name span{color:#b0b0bc;text-decoration:line-through}
+.wk-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#1b1b24}
+.wk-mk{color:#8b8b98;font-size:.95rem}
+.wk-chk{display:inline-block;width:13px;height:13px;border:1.5px solid #c8c8d2;border-radius:4px;margin-right:8px;vertical-align:middle;cursor:pointer}
+.wk-chk.on{background:#1b1b24;border-color:#1b1b24}
+.wk-sec td{height:30px!important;font-size:.66rem;letter-spacing:.14em;color:#8b8b98;text-align:left!important;padding-left:16px!important;background:#fafafd}
+.wk-empty{color:#b8b8c4;font-size:.8rem!important;text-align:left!important;padding-left:16px!important}
+.wk-add td{border-bottom:0}
+.wk-add .wk-plus{color:#b8b8c4;margin-right:8px}
+.wk-add input{border:0;outline:0;background:transparent;font:inherit;font-size:.82rem;width:80%;color:#1b1b24}
+.wk-leg{display:flex;gap:16px;font-size:.7rem;color:#8b8b98;margin-top:12px;flex-wrap:wrap}
+@media(max-width:600px){.wk-namecol{width:36%}.wk-tbl td.wk-name{font-size:.8rem;padding-left:10px}.wk-tbl th.wk-name{padding-left:10px}}
+#review-toolbar{gap:8px}
+#toggle-table-btn{margin-left:2px}
+</style>
+</head>
 <body>
 
   <div class="planner-container">
@@ -615,6 +647,7 @@ body{background:#fff;padding:20px 20px 40px}
         <div class="left-nav-group" style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
           <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
             <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()"><span class="tm-lbl">회고</span><span class="hide-on-mobile"> 모드</span></button>
+            <button class="toggle-mode-btn" id="toggle-table-btn" onclick="toggleWeeklyLayout()">표 보기</button>
           </div>
 
           <div class="review-toolbar" id="month-toolbar" style="margin-bottom:0; display:none;">
@@ -718,6 +751,7 @@ body{background:#fff;padding:20px 20px 40px}
         });
       </script>
     </main>
+    <main class="wk-table" id="view-weekly-table" style="display:none;"></main>
 
     <div class="meal-box" id="meal-box"></div>
 
@@ -2679,7 +2713,144 @@ body{background:#fff;padding:20px 20px 40px}
         showToast('앞으로는 올라오지 않아요 (이미 올라온 건 그대로)');
     };
 
+
+    /* ---------- 위클리 "표 보기" (알라스테어 방식): 한 줄 = 할 일 하나, 요일 칸에 점 ---------- */
+    let weeklyLayout = 'box';
+    try { weeklyLayout = localStorage.getItem('moment_weekly_layout') === 'table' ? 'table' : 'box'; } catch (e) {}
+    function syncWeeklyLayout() {
+        const grid = document.getElementById('view-weekly');
+        const tbl = document.getElementById('view-weekly-table');
+        const btn = document.getElementById('toggle-table-btn');
+        const inWeekly = currentView === 'weekly' && !isWeeklyReviewMode;
+        if (btn) btn.textContent = weeklyLayout === 'table' ? '박스 보기' : '표 보기';
+        if (tbl) tbl.style.display = (inWeekly && weeklyLayout === 'table') ? 'block' : 'none';
+        if (grid && inWeekly) grid.style.display = weeklyLayout === 'table' ? 'none' : 'grid';
+    }
+    window.toggleWeeklyLayout = function() {
+        weeklyLayout = weeklyLayout === 'table' ? 'box' : 'table';
+        try { localStorage.setItem('moment_weekly_layout', weeklyLayout); } catch (e) {}
+        renderAll();
+    };
+    function wkRowKey(t) {
+        if (t.routineId) return 'rt:' + t.routineId;
+        return 'tx:' + String(t.originalText || t.text || '').trim().toLowerCase();
+    }
+    function wkEnc(k) { return encodeURIComponent(k).replace(/'/g, '%27'); }
+    function wkRowLabel(t) {
+        if (t.routineId) {
+            const r = (allData.routines || []).find(x => x && x.id === t.routineId);
+            if (r && r.text) return r.text;
+        }
+        return String(t.originalText || t.text || '').trim();
+    }
+    window.wkCellClick = function(encKey, day) {
+        const rowKey = decodeURIComponent(encKey);
+        const wd = allData[currentWeekKey];
+        if (!wd) return;
+        const list = wd[day] || (wd[day] = []);
+        const hit = list.find(t => t && !isRtTask(t) && !t.mealKey && wkRowKey(t) === rowKey);
+        if (hit) {
+            /* ● 예정 → ✓ 완료 → (기록 없으면) 빈칸 */
+            if (hit.state === 'done') {
+                const hasRecord = (hit.plannedMins || 0) > 0 || (hit.spentMins || 0) > 0 || getPlanGroups(day, hit.id).length > 0;
+                if (hasRecord) { showToast('시간 기록이 있어서 데일리에서 지워 주세요'); return; }
+                deleteTodo(day, hit.id); return;
+            }
+            hit.state = 'done';
+            saveAllData(); renderAll(); return;
+        }
+        /* 빈 칸 → 그 요일에 추가 (요일 미정 항목이면 요일로 옮김) */
+        let proto = null;
+        const weeklyList = wd.weekly || [];
+        const wIdx = weeklyList.findIndex(t => t && wkRowKey(t) === rowKey);
+        if (wIdx >= 0) { proto = weeklyList[wIdx]; weeklyList.splice(wIdx, 1); }
+        else {
+            DAY_CODES.some(d => { const f = (wd[d] || []).find(t => t && !t.mealKey && wkRowKey(t) === rowKey); if (f) { proto = f; return true; } return false; });
+        }
+        if (!proto) return;
+        const text = proto.originalText || proto.text;
+        const nt = { id: newId('todo'), text: text, originalText: text, plannedMins: 0, spentMins: 0, state: 'todo', color: proto.color || pastelColors[2] };
+        if (proto.routineId) nt.routineId = proto.routineId;
+        list.push(nt);
+        sortTasks(list);
+        saveAllData(); renderAll();
+    };
+    window.wkWeeklyToggle = function(encKey) {
+        const rowKey = decodeURIComponent(encKey);
+        const wd = allData[currentWeekKey];
+        const t = (wd.weekly || []).find(x => x && wkRowKey(x) === rowKey);
+        if (!t) return;
+        t.state = t.state === 'done' ? 'todo' : 'done';
+        saveAllData(); renderAll();
+    };
+    window.wkAddWeekly = function(e) {
+        if (e.key !== 'Enter' || e.isComposing) return;
+        const v = e.target.value.trim();
+        if (!v) return;
+        const wd = allData[currentWeekKey];
+        if (!Array.isArray(wd.weekly)) wd.weekly = [];
+        wd.weekly.push({ id: newId('todo'), text: v, originalText: v, plannedMins: 0, spentMins: 0, state: 'todo', color: pastelColors[2] });
+        e.target.value = '';
+        saveAllData(); renderAll();
+        const inp = document.getElementById('wk-add-input'); if (inp) inp.focus();
+    };
+    function renderWeeklyTable() {
+        const box = document.getElementById('view-weekly-table');
+        if (!box || weeklyLayout !== 'table') return;
+        const active = document.activeElement;
+        if (active && active.id === 'wk-add-input' && active.value) return;   /* 입력 중에는 다시 그리지 않음 */
+        const wd = allData[currentWeekKey];
+        if (!wd) return;
+        const days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun'];
+        const kor = { mon: 'MON', tue: 'TUE', wed: 'WED', thur: 'THU', fri: 'FRI', sat: 'SAT', sun: 'SUN' };
+        const todayStr = formatDateStr(new Date());
+        const rows = new Map();
+        const getRow = (t) => { const k = wkRowKey(t); if (!rows.has(k)) rows.set(k, { key: k, label: wkRowLabel(t), cells: {}, weekly: null, first: 99 }); return rows.get(k); };
+        days.forEach((d, di) => (wd[d] || []).forEach(t => {
+            if (!t || isRtTask(t) || t.mealKey) return;
+            const r = getRow(t);
+            if (!r.cells[d]) r.cells[d] = t;
+            r.first = Math.min(r.first, di);
+        }));
+        (wd.weekly || []).forEach(t => { if (t) { const r = getRow(t); r.weekly = t; } });
+        const all = Array.from(rows.values());
+        const dated = all.filter(r => Object.keys(r.cells).length).sort((a, b) => a.first - b.first || a.label.localeCompare(b.label, 'ko'));
+        const open = all.filter(r => !Object.keys(r.cells).length);
+
+        const cell = (r, d) => {
+            const t = r.cells[d];
+            let mark = '', click = ` onclick="wkCellClick('${wkEnc(r.key)}','${d}')"`;
+            if (t) {
+                if (t.state === 'done') mark = '<span class="wk-mk">✓</span>';
+                else if (t.state === 'postponed') { mark = '<span class="wk-mk">→</span>'; click = ''; }
+                else if (t.state === 'canceled') { mark = '<span class="wk-mk">✕</span>'; click = ''; }
+                else mark = '<span class="wk-dot"></span>';
+            }
+            const isToday = formatDateStr(getDailyDate(d)) === todayStr;
+            return `<td class="wk-c${isToday ? ' tc' : ''}"${click}>${mark}</td>`;
+        };
+        const rowHtml = (r, isOpen) => {
+            const done = isOpen ? !!(r.weekly && r.weekly.state === 'done') : Object.values(r.cells).every(t => t.state === 'done');
+            const lead = isOpen ? `<span class="wk-chk${done ? ' on' : ''}" onclick="wkWeeklyToggle('${wkEnc(r.key)}')"></span>` : '';
+            return `<tr class="${done ? 'wk-rowdone' : ''}"><td class="wk-name">${lead}<span>${esc(r.label)}</span></td>${days.map(d => cell(r, d)).join('')}</tr>`;
+        };
+        let html = '<div class="wk-box"><table class="wk-tbl"><colgroup><col class="wk-namecol">' + days.map(() => '<col>').join('') + '</colgroup>';
+        html += '<tr><th class="wk-name">THIS WEEK</th>' + days.map(d => {
+            const dt = getDailyDate(d);
+            const isToday = formatDateStr(dt) === todayStr;
+            return `<th class="${isToday ? 'today' : ''}" onclick="jumpToDailyFromWeekly('${d}')" title="해당 요일 데일리로 이동">${kor[d]}<small>${dt.getDate()}</small></th>`;
+        }).join('') + '</tr>';
+        html += '<tr class="wk-sec"><td colspan="8">요일 정한 일</td></tr>';
+        html += dated.length ? dated.map(r => rowHtml(r, false)).join('') : '<tr><td class="wk-empty" colspan="8">아직 요일을 정한 할 일이 없어요</td></tr>';
+        html += '<tr class="wk-sec"><td colspan="8">이번 주 안에 (요일 미정)</td></tr>';
+        html += open.map(r => rowHtml(r, true)).join('');
+        html += '<tr class="wk-add"><td class="wk-name" colspan="8"><span class="wk-plus">+</span><input id="wk-add-input" type="text" placeholder="이번 주 안에 할 일 추가 (Enter)" onkeyup="wkAddWeekly(event)"></td></tr>';
+        html += '</table></div><div class="wk-leg"><span>● 예정</span><span>✓ 완료</span><span>→ 미룸</span><span>빈 칸을 누르면 그 요일에 추가 · ● 누르면 ✓ · ✓ 한 번 더 누르면 지워져요</span></div>';
+        box.innerHTML = html;
+    }
+
     window.renderAll = function(specificDay = null) {
+        syncWeeklyLayout();
         applyRoutines();
         renderReminders();
         renderMeals();
@@ -2731,6 +2902,7 @@ body{background:#fff;padding:20px 20px 40px}
                     }
                     updateProgress(day);
                 });
+                renderWeeklyTable();
             }
         }
     };
