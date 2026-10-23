@@ -546,6 +546,9 @@ body{background:#fff;padding:20px 20px 40px}
 .daily-top-row .task-item,.daily-top-row .rt-box-list .task-item{height:34px!important;border-bottom:1px solid #f1f1f5!important;box-sizing:border-box}
 .daily-top-row .inline-input-row{border-bottom:1px solid #f1f1f5!important;box-sizing:border-box}
 .daily-top-row .rt-box-list .task-item.has-steps{border-bottom:1px solid #f1f1f5!important}
+.daily-top-row .task-item.has-steps,.daily-top-row .rt-box-list .task-item.has-steps{height:auto!important}   /* 단계를 펼치면 칸이 같이 늘어나요 */
+.daily-top-row .rt-box-list .task-item.has-steps .rt-main{height:34px;box-sizing:border-box}
+.daily-top-row .daily-box,.daily-top-row .rt-box-list{overflow:visible!important}
 .daily-top-row .empty-state{border-bottom:1px solid #f1f1f5!important}
 /* ===== 위클리: 요일별 둥근 박스 + 연한 줄 ===== */
 .planner-grid{gap:12px!important;border-top:0!important}
@@ -785,7 +788,7 @@ body{background:#fff;padding:20px 20px 40px}
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
               <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">
-                <button class="hdr-btn" onclick="carryOverYesterday()">↩ 어제 못 끝낸 것</button>
+                <button class="hdr-btn" onclick="carryOverYesterday()">↩ 지난 못 끝낸 것</button>
                 <button class="hdr-btn hdr-btn-tb" onclick="scrollToTimeblock()" title="시간표로 이동">타임블록</button>
               </div>
               <div style="height:8px;"></div>
@@ -2140,18 +2143,26 @@ body{background:#fff;padding:20px 20px 40px}
 
     /* ---------- 어제 못 끝낸 할 일 가져오기 ---------- */
     window.carryOverYesterday = function() {
+        /* 이번 주(월요일이면 지난주 포함)에서 오늘 이전에 못 끝낸 할 일을 모두 오늘로 가져와요 */
         const today = getDailyDate(currentDailyDay);
-        const y = new Date(today);
-        y.setDate(y.getDate() - 1);
-        const wk = getMondayStr(y);
         const names = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
-        const yDay = names[y.getDay()];
+        const start = new Date(getMondayStr(today) + 'T00:00:00');
+        if (today.getDay() === 1) start.setDate(start.getDate() - 7);   /* 월요일 → 지난주 월요일부터 */
+        const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const picked = [];   /* { t, label } */
+        const counts = [];
+        for (let d = new Date(start); d < t0; d.setDate(d.getDate() + 1)) {
+            const wk = getMondayStr(d);
+            const dn = names[d.getDay()];
+            if (!allData[wk] || !Array.isArray(allData[wk][dn])) continue;
+            const diff = Math.round((t0 - d) / 86400000);
+            const label = diff === 1 ? '어제' : diff === 2 ? '그제' : (d.getMonth() + 1) + '/' + d.getDate();
+            const list = allData[wk][dn].filter(t => t && (t.state === 'todo' || t.state === 'in-progress') && !t.migrated && !isRtTask(t) && !t.mealKey);
+            if (list.length) { counts.push(label + ' ' + list.length); list.forEach(t => picked.push(t)); }
+        }
+        if (picked.length === 0) { showToast('가져올 할 일이 없어요'); return; }
 
-        if (!allData[wk] || !Array.isArray(allData[wk][yDay])) { showToast('어제 기록이 없어요'); return; }
-        const list = allData[wk][yDay].filter(t => t && (t.state === 'todo' || t.state === 'in-progress') && !t.migrated && !isRtTask(t) && !t.mealKey);
-        if (list.length === 0) { showToast('가져올 할 일이 없어요'); return; }
-
-        list.forEach(t => {
+        picked.forEach(t => {
             const planned = t.plannedMins || 0;
             const remain = planned > 0 ? Math.max(planned - (t.spentMins || 0), 0) : 0;
             const nid = newId('mig');
@@ -2163,7 +2174,7 @@ body{background:#fff;padding:20px 20px 40px}
         });
         saveAllData();
         renderAll();
-        showToast(`어제 못 끝낸 ${list.length}개를 가져왔어요`);
+        showToast('못 끝낸 ' + picked.length + '개를 가져왔어요 (' + counts.join(', ') + ')');
     };
 
     window.processDoLog = function() {
