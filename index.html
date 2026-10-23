@@ -557,13 +557,10 @@ body{background:#fff;padding:20px 20px 40px}
 .inline-input-row{border-top:1px solid #ececf2!important}
 .task-item{border-bottom:1px solid #f3f3f7!important}
 
-/* ===== 데일리: 순서 = 할 일/루틴 → 기록 → 식단, 기록은 항상 접힘 ===== */
-#record-box.collapsed .rec-body{display:none}
-#record-box:not(.collapsed) #rec-summary{display:none}
-#record-box .daily-box-header{min-height:0}
-#rec-summary{font-size:.78rem;font-weight:400;color:#4a4a58;padding-top:6px;cursor:pointer;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0;text-transform:none}
-#rec-summary.empty{color:#b0b0bc}
-#rec-toggle-hint{cursor:pointer}
+/* ===== 데일리: 맨 위에 큰 날짜·기록, 관찰/순간 본문은 항상 접힘 ===== */
+.daily-date-head{padding:14px 0 8px;border-bottom:1px solid #1b1b24;margin-bottom:-4px}
+.rec-details{position:relative}
+.rec-details.has>summary::before{content:"작성됨 ●";position:absolute;right:22px;top:10px;color:#e58b88;font-size:.6rem;letter-spacing:0;text-transform:none}
 </style>
 </head>
 <body>
@@ -777,6 +774,9 @@ body{background:#fff;padding:20px 20px 40px}
       <div class="daily-grid">
         <div class="daily-left-col">
 
+          <!-- 큰 날짜: 기록 섹션에서 떼어 데일리 맨 위로 -->
+          <div class="daily-date-head"><span id="daily-date-label">오늘</span></div>
+
           <div id="reminder-daily" style="display:none;"></div>
 
           <div class="daily-top-row">
@@ -816,13 +816,12 @@ body{background:#fff;padding:20px 20px 40px}
           </div>
 
           <!-- 오늘의 기록 -->
-          <div class="daily-box collapsed" id="record-box">
+          <div class="daily-box" id="record-box">
             <div class="daily-box-header">
-              <div class="hdr-row" onclick="toggleRecord()" style="cursor:pointer;">
-                <span id="daily-date-label">오늘의 기록</span>
-                <span class="hdr-hint" id="rec-toggle-hint">기록 ▾</span>
+              <div class="hdr-row">
+                <span>오늘의 기록</span>
+                <span class="hdr-hint">필수는 두 가지만</span>
               </div>
-              <div id="rec-summary" onclick="toggleRecord()"></div>
             </div>
             <div class="rec-body">
               <div>
@@ -2287,27 +2286,16 @@ body{background:#fff;padding:20px 20px 40px}
         renderAll();
     };
 
+    /* 관찰/순간 본문은 항상 접어두고, 내용이 있으면 제목 앞에 작은 점(●)만 보여줘요 */
     function updateRecSummary(info) {
-        const el = document.getElementById('rec-summary');
-        if (!el) return;
         info = info || {};
-        const parts = [];
-        if (info.energyRating > 0) parts.push('\uD83C\uDF45 ' + info.energyRating);
-        const one = String(info.oneLine || '').trim();
-        if (one) parts.push(one);
-        const more = [];
-        if (info.filled || info.notDone || info.energyDrained) more.push('관찰');
-        if (String(info.momentText || '').trim()) more.push('순간');
-        if (more.length) parts.push(more.join('·') + ' 작성');
-        el.textContent = parts.length ? parts.join('  ·  ') : '아직 기록 전';
-        el.classList.toggle('empty', !parts.length);
+        const hasObs = !!(String(info.filled || '').trim() || String(info.notDone || '').trim() || String(info.energyDrained || '').trim());
+        const hasMom = !!String(info.momentText || '').trim();
+        const o = document.getElementById('det-observe'), m = document.getElementById('det-moment');
+        if (o) o.classList.toggle('has', hasObs);
+        if (m) m.classList.toggle('has', hasMom);
     }
     function setRecordCollapsed(c) {
-        const box = document.getElementById('record-box');
-        if (!box) return;
-        box.classList.toggle('collapsed', c);
-        const h = document.getElementById('rec-toggle-hint');
-        if (h) h.textContent = c ? '기록 ▾' : '접기 ▴';
         if (c) ['det-observe', 'det-moment'].forEach(id => { const d = document.getElementById(id); if (d) d.open = false; });
     }
     document.addEventListener('input', function(e) {
@@ -2316,11 +2304,6 @@ body{background:#fff;padding:20px 20px 40px}
             updateRecSummary(d);
         }
     });
-    window.toggleRecord = function() {
-        const box = document.getElementById('record-box');
-        setRecordCollapsed(!box.classList.contains('collapsed'));
-        if (!box.classList.contains('collapsed')) box.querySelectorAll('.rec-input').forEach(t => t._fit && t._fit());
-    };
     window.setDailyDay = function(day) {
         currentDailyDay = day;
         setRecordCollapsed(true);
