@@ -562,7 +562,23 @@ body{background:#fff;padding:20px 20px 40px}
 .rec-details{position:relative}
 .rec-details.has>summary::before{content:"작성됨 ●";position:absolute;right:22px;top:10px;color:#e58b88;font-size:.6rem;letter-spacing:0;text-transform:none}
 </style>
-</head>
+<style id="dailyBoxes">
+/* ===== 데일리: 섹션 3개(할 일·루틴 / 기록 / 식단)를 둥근 테두리로 묶기 ===== */
+.daily-left-col{gap:14px!important}
+.daily-top-row,#record-box,#meal-daily-box{border:1px solid #cfcfd8!important;border-radius:8px!important;padding:14px 16px 12px!important;background:#fff!important;box-sizing:border-box;overflow:visible!important}
+.daily-top-row{gap:20px!important}
+#record-box .daily-box-header,#meal-daily-box .daily-box-header{padding:0 0 8px!important;margin:0}
+.daily-top-row .daily-box-header .hdr-row,#record-box>.daily-box-header .hdr-row,#meal-daily-box .daily-box-header .hdr-row{font-size:.95rem!important;font-weight:600!important;letter-spacing:.01em!important;text-transform:none!important;color:#1b1b24!important}
+.daily-left-col .daily-box-header .hdr-hint{font-size:.7rem!important;font-weight:400!important;color:#9a9aa8!important;letter-spacing:0!important}
+.daily-top-row .daily-box-header,#record-box .daily-box-header,#meal-daily-box .daily-box-header{border-bottom:1px solid #e6e6ee!important}
+.daily-top-row>.daily-box{min-height:150px!important}
+#record-box .rec-body{padding:12px 0 0!important}
+#record-box .rec-details:last-child{border-bottom:0}
+.daily-date-head{margin-bottom:4px!important}
+#timeblock-box{border:1px solid #cfcfd8!important;border-radius:8px!important;overflow:hidden!important;background:#fff!important}
+#timeblock-box .timeblock-table th{border-bottom:1px solid #cfcfd8!important;padding:12px 8px!important}
+.daily-top-row .daily-box-header{height:58px!important;min-height:58px!important;padding:0 0 8px!important}
+</style></head>
 <body>
 
   <div class="planner-container">
@@ -784,7 +800,7 @@ body{background:#fff;padding:20px 20px 40px}
           <div class="daily-box" style="min-height: 250px;">
             <div class="daily-box-header">
               <div class="hdr-row">
-                <span style="white-space:nowrap;">DAILY TO-DO</span>
+                <span style="white-space:nowrap;">오늘의 할 일</span>
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
               <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">
