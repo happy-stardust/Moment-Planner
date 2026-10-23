@@ -537,6 +537,23 @@ body{background:#fff;padding:20px 20px 40px}
 .monthly-day-cell.other-month{opacity:1}
 .monthly-day-cell.other-month .monthly-day-number{color:#c4c4cc}
 </style>
+<style id="layout-lines">
+/* ===== 데일리: 할 일 / 루틴 헤더 높이와 줄 맞춤 (네모 없음) ===== */
+.daily-top-row{align-items:stretch!important;gap:24px!important}
+.daily-top-row .daily-box-header{height:68px;min-height:68px!important;box-sizing:border-box;padding:10px 0 8px!important;justify-content:space-between}
+.daily-top-row .daily-box-header .progress-bg{display:none}
+.daily-top-row .daily-box>div[style*="repeating-linear"]{background-image:none!important}
+.daily-top-row .task-item,.daily-top-row .rt-box-list .task-item{height:34px!important;border-bottom:1px solid #f1f1f5!important;box-sizing:border-box}
+.daily-top-row .inline-input-row{border-bottom:1px solid #f1f1f5!important;box-sizing:border-box}
+.daily-top-row .rt-box-list .task-item.has-steps{border-bottom:1px solid #f1f1f5!important}
+.daily-top-row .empty-state{border-bottom:1px solid #f1f1f5!important}
+/* ===== 위클리: 요일별 둥근 박스 + 연한 줄 ===== */
+.planner-grid{gap:12px!important;border-top:0!important}
+.day-column{border:1px solid #cfcfd8!important;border-radius:8px!important;overflow:hidden;background-color:#fff!important;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--row-height) - 1px),#f3f3f7 calc(var(--row-height) - 1px),#f3f3f7 var(--row-height))!important}
+.column-header{border-bottom:1px solid #cfcfd8!important;padding:0 12px}
+.inline-input-row{border-top:1px solid #ececf2!important}
+.task-item{border-bottom:1px solid #f3f3f7!important}
+</style>
 </head>
 <body>
 
@@ -760,7 +777,6 @@ body{background:#fff;padding:20px 20px 40px}
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
               <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">
-                <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()" title="반복 할 일 / 루틴 설정">반복</button>
                 <button class="hdr-btn" onclick="carryOverYesterday()">↩ 어제 못 끝낸 것</button>
                 <button class="hdr-btn hdr-btn-tb" onclick="scrollToTimeblock()" title="시간표로 이동">타임블록</button>
               </div>
@@ -780,6 +796,9 @@ body{background:#fff;padding:20px 20px 40px}
           <div class="daily-box" id="routine-daily-box">
             <div class="daily-box-header">
               <div class="hdr-row"><span>오늘의 루틴</span><span class="hdr-hint" id="routine-daily-count"></span></div>
+              <div style="display:flex; gap:6px; align-items:center; justify-content:flex-end; margin-top:8px;">
+                <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()" title="반복 할 일 / 루틴 설정">반복</button>
+              </div>
             </div>
             <ul class="rt-box-list" id="routine-daily-body"></ul>
           </div>
@@ -901,7 +920,7 @@ body{background:#fff;padding:20px 20px 40px}
         <h3>반복 할 일</h3>
         <button onclick="closeModal('modal-routine')" class="close-btn">✕</button>
       </div>
-      <div style="font-size:0.78rem; color:var(--text-muted);">정해둔 요일마다 투두에 자동으로 올라와요. (오늘부터 적용)</div>
+      <div style="font-size:0.78rem; color:var(--text-muted);">정해둔 요일마다 자동으로 올라와요. 단계를 적으면 루틴 칸에, 비워두면 오늘의 할 일에 들어가요. (오늘부터 적용)</div>
       <div class="rt-list" id="rt-list"></div>
       <input type="text" id="rt-text" class="modal-input" placeholder="이름 (예: 모닝루틴, 영양제 먹기)" />
       <textarea id="rt-steps" class="modal-input" placeholder="단계가 있으면 한 줄에 하나씩 적어요&#10;예)&#10;기상&#10;스트레칭&#10;이불정리&#10;(비워두면 한 줄짜리 반복이에요)"></textarea>
@@ -1086,6 +1105,8 @@ body{background:#fff;padding:20px 20px 40px}
   </div>
 
   <script>
+    /* 단계가 있는 반복 = 루틴 칸, 한 줄짜리 반복 = 일반 할 일 */
+    function isRtTask(t) { return !!(t && t.routineId && Array.isArray(t.steps) && t.steps.length); }
     const pastelColors = [ '#E3D3E6', '#E9D6DA', '#CFD3EF', '#D9E5D3', '#E4E6CC', '#EFDCD3', '#D3E4E6', '#E8E0CF', '#C9D6E8', '#DCDAE9' ];
     let selectedBadgeColor = pastelColors[2];
     let editTodoColor = pastelColors[2];
@@ -2118,7 +2139,7 @@ body{background:#fff;padding:20px 20px 40px}
         const yDay = names[y.getDay()];
 
         if (!allData[wk] || !Array.isArray(allData[wk][yDay])) { showToast('어제 기록이 없어요'); return; }
-        const list = allData[wk][yDay].filter(t => t && (t.state === 'todo' || t.state === 'in-progress') && !t.migrated && !t.routineId && !t.mealKey);
+        const list = allData[wk][yDay].filter(t => t && (t.state === 'todo' || t.state === 'in-progress') && !t.migrated && !isRtTask(t) && !t.mealKey);
         if (list.length === 0) { showToast('가져올 할 일이 없어요'); return; }
 
         list.forEach(t => {
@@ -2648,7 +2669,7 @@ body{background:#fff;padding:20px 20px 40px}
                         });
                     }
 
-                    const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !t.routineId);   /* 루틴은 데일리에서만 */
+                    const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !isRtTask(t));   /* 단계 있는 루틴은 데일리에서만 */
                     if (tasks.length === 0 && listEl.children.length === 0) {
                         listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">할 일이 없습니다 🌱</li>`;
                     } else {
@@ -2707,7 +2728,7 @@ body{background:#fff;padding:20px 20px 40px}
                     listEl.appendChild(schLi);
                 });
 
-                const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !t.routineId);
+                const tasks = (allData[currentWeekKey]?.[day] || []).filter(t => !isRtTask(t));
                 if (tasks.length === 0 && allDaySchedules.length === 0) listEl.innerHTML = `<li class="empty-state" style="font-style:italic; border:none;">오늘의 할 일을 적어보세요 🌱</li>`;
                 else tasks.forEach(task => listEl.appendChild(createHtmlForTask(task, day, true)));
 
@@ -2718,7 +2739,7 @@ body{background:#fff;padding:20px 20px 40px}
                 const rtBody = document.getElementById('routine-daily-body');
                 const rtCount = document.getElementById('routine-daily-count');
                 if (rtBody) {
-                    const rts = (allData[currentWeekKey]?.[day] || []).filter(t => t.routineId);
+                    const rts = (allData[currentWeekKey]?.[day] || []).filter(t => isRtTask(t));
                     rtBody.innerHTML = '';
                     if (!rts.length) {
                         rtBody.innerHTML = '<li class="rt-empty">오늘은 루틴이 없어요</li>';
@@ -2928,7 +2949,7 @@ body{background:#fff;padding:20px 20px 40px}
     function updateProgress(day) {
         const all = (allData[currentWeekKey]?.[day] || []).filter(t => !t.mealKey);
         /* 진행률은 루틴을 뺀 진짜 할 일만 계산 (루틴은 데일리의 루틴 칸에서 'N/M 완료'로 따로 보여요) */
-        const w = calcProgress(all.filter(t => !t.routineId));
+        const w = calcProgress(all.filter(t => !isRtTask(t)));
         const d = w;   /* 루틴은 자기 칸에서 따로 집계 */
 
         const pbWeekly = document.getElementById(`progress-bar-${day}`);
@@ -3013,7 +3034,7 @@ body{background:#fff;padding:20px 20px 40px}
             const wKey = getMondayStr(currentRenderDate);
             const dayName = currentRenderDate.getDay() === 0 ? 'sun' : ['mon','tue','wed','thur','fri','sat'][currentRenderDate.getDay()-1];
             if (allData[wKey] && allData[wKey][dayName]) {
-                let tasks = (allData[wKey][dayName] || []).filter(t => !t.routineId);   /* 루틴은 먼슬리에서 제외 */
+                let tasks = (allData[wKey][dayName] || []).filter(t => !isRtTask(t));   /* 단계 있는 루틴은 먼슬리에서 제외 */
                 tasks.slice(0, 3).forEach(t => {
                     const tDiv = document.createElement('div');
                     tDiv.className = 'monthly-preview-text';
