@@ -466,6 +466,77 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+<style id="variant">
+/* 샘플 4: 아주 심플 (영상 속 다이어리 느낌) */
+:root{--bg-color:#ffffff;--card-bg:#ffffff;--border-color:#e3e3ea;--line-color:#eeeef3;--text-main:#1b1b24;--text-muted:#8b8b98;--primary-color:#1b1b24;}
+body{background:#fff;padding:20px 20px 40px}
+.planner-container{box-shadow:none;border-radius:0;padding:0;gap:16px}
+.planner-header{border-bottom:1px solid #1b1b24!important;padding-bottom:10px;align-items:baseline}
+.title-group h1{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#1b1b24}
+.title-group span{display:none}
+.nav-tab{font-size:.78rem;color:#9a9aa8;letter-spacing:.02em;padding-bottom:2px}
+.nav-tab:hover,.nav-tab.active{color:#1b1b24;font-weight:500;border-bottom:1px solid #1b1b24}
+.sub-bar .active-indicator{color:#1b1b24;text-decoration:none;font-weight:600}
+.week-controls button{border:0;background:transparent;color:#8b8b98}
+.daily-top-nav-bar{border-bottom:1px solid #e3e3ea}
+.day-tab{background:transparent;border-radius:0;padding:4px 8px;color:#9a9aa8;font-size:.78rem}
+.day-tab.active{background:transparent;color:#1b1b24;border-bottom:1px solid #1b1b24}
+.daily-left-col #record-box{order:-1}
+.daily-box{border:0;border-radius:0;background:transparent;overflow:visible}
+.daily-box-header{background:transparent;padding:14px 0 8px;border-bottom:1px solid #1b1b24;min-height:0;font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#8b8b98}
+#daily-date-label{font-size:1.6rem;font-weight:600;letter-spacing:-.01em;text-transform:none;color:#1b1b24}
+.hdr-hint,.progress-text-display{font-size:.68rem;letter-spacing:.04em;color:#8b8b98}
+.hdr-btn{border:0;border-bottom:1px solid #1b1b24;border-radius:0;background:transparent;padding:2px 0;font-size:.7rem}
+.rec-body{padding:14px 0;gap:18px}
+.rec-label{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#9a9aa8}
+.rec-input{border:0;border-bottom:1px solid #e3e3ea;border-radius:0;padding:6px 0;font-size:.9rem;background:transparent}
+.rec-input:focus{border-color:#1b1b24;box-shadow:none}
+.rec-input.confirmed{background:transparent;box-shadow:none}
+.rec-details{border-top:1px solid #e3e3ea}
+.rec-details>summary{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#8b8b98}
+.progress-bg{height:1px;background:#e3e3ea}
+.progress-fill{background:#1b1b24}
+.meal-row input[type=text]{border:0;border-bottom:1px solid #e3e3ea;border-radius:0;background:transparent}
+.meal-daily-body{padding:10px 0}
+.timeblock-table th{background:transparent;letter-spacing:.14em;text-transform:uppercase;font-size:.66rem}
+
+/* ---- 전체 화면으로 확장 ---- */
+.icon-nav-group button{border:0!important;background:transparent!important;box-shadow:none!important;filter:grayscale(1) opacity(.7)}
+.month-seg{border:0;border-bottom:1px solid #1b1b24;border-radius:0;background:transparent}
+.month-seg button{padding:4px 12px}
+.month-seg button.on{background:transparent;color:#1b1b24;font-weight:600}
+.toggle-mode-btn{background:transparent!important;color:#1b1b24!important;border:0!important;border-bottom:1px solid #1b1b24!important;border-radius:0!important;box-shadow:none!important;padding:4px 2px!important;font-size:.74rem!important}
+.home-square-card{border-radius:0;box-shadow:none}
+.home-quick-bar{gap:18px}
+.home-quick-btn{background:transparent;border:0;border-bottom:1px solid #1b1b24;border-radius:0;padding:10px 0;box-shadow:none}
+.home-quick-btn:hover{transform:none;box-shadow:none}
+.home-quick-btn .btn-icon{display:none}
+.home-quick-btn .btn-text{font-weight:500;letter-spacing:.2em}
+.monthly-grid{border:0;border-top:1px solid #1b1b24;border-radius:0;background:#eeeef3}
+.monthly-weekday-header{background:#fff;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#8b8b98;border-bottom:1px solid #e3e3ea}
+.monthly-day-cell:hover{background:#f7f7fa}
+.monthly-day-cell.other-month{background:#fff;opacity:.35}
+.monthly-day-cell.today .monthly-day-number{background:transparent;color:#1b1b24;box-shadow:inset 0 0 0 1px #1b1b24}
+.planner-grid{border:0;border-top:1px solid #1b1b24;border-radius:0;background:#eeeef3}
+.column-header{background:transparent;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#1b1b24}
+.column-header.weekly-todo{background:transparent;color:#8b8b98}
+.column-header.clickable:hover{background:#f7f7fa}
+.review-panel{border:0;border-radius:0;border-top:1px solid #1b1b24;background:transparent}
+.review-panel-header{background:transparent;padding:12px 0 8px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:#8b8b98}
+.review-panel-header small{letter-spacing:.02em;text-transform:none}
+.week-line-row{padding:12px 0}
+.week-line-row:hover{background:#f7f7fa}
+.meal-box{border:0;border-radius:0;border-top:1px solid #1b1b24;padding:14px 0}
+.meal-title{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:#8b8b98}
+.search-modal{border-radius:0!important;box-shadow:none!important;border:1px solid #1b1b24}
+.font-opt-btn{border-radius:0!important}
+</style>
+<style id="variant2">
+.planner-grid{background:transparent!important;gap:14px 16px!important}
+.day-column{border:0!important;border-radius:0!important;border-top:1px solid #e3e3ea!important}
+.monthly-day-cell.other-month{opacity:1}
+.monthly-day-cell.other-month .monthly-day-number{color:#c4c4cc}
+</style>
 </head>
 <body>
 
@@ -502,11 +573,11 @@
       <div class="week-controls">
         <div class="left-nav-group" style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
           <div class="review-toolbar" id="review-toolbar" style="margin-bottom:0; display:none;">
-            <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()">🔄 <span class="hide-on-mobile">회고 모드</span></button>
+            <button class="toggle-mode-btn" id="toggle-review-btn" onclick="toggleWeeklyMode()"><span class="tm-lbl">회고</span><span class="hide-on-mobile"> 모드</span></button>
           </div>
 
           <div class="review-toolbar" id="month-toolbar" style="margin-bottom:0; display:none;">
-            <button class="toggle-mode-btn" id="toggle-month-btn" onclick="setMonthMode(monthMode === 'diary' ? 'cal' : 'diary')">📖 <span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span></button>
+            <button class="toggle-mode-btn" id="toggle-month-btn" onclick="setMonthMode(monthMode === 'diary' ? 'cal' : 'diary')"><span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span></button>
           </div>
 
           <div class="date-nav-group" style="display: flex; align-items: center; gap: 2px;">
@@ -685,13 +756,13 @@
           <div class="daily-box" style="min-height: 250px;">
             <div class="daily-box-header">
               <div class="hdr-row">
-                <span style="white-space:nowrap;">📝 DAILY TO-DO</span>
+                <span style="white-space:nowrap;">DAILY TO-DO</span>
                 <span id="daily-progress-text" class="progress-text-display"></span>
               </div>
               <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">
-                <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()" title="반복 할 일 / 루틴 설정">🌼 반복</button>
+                <button class="hdr-btn" id="rt-open-btn" onclick="openRoutineModal()" title="반복 할 일 / 루틴 설정">반복</button>
                 <button class="hdr-btn" onclick="carryOverYesterday()">↩ 어제 못 끝낸 것</button>
-                <button class="hdr-btn hdr-btn-tb" onclick="scrollToTimeblock()" title="시간표로 이동">⏱ 타임블록</button>
+                <button class="hdr-btn hdr-btn-tb" onclick="scrollToTimeblock()" title="시간표로 이동">타임블록</button>
               </div>
               <div style="height:8px;"></div>
               <div class="progress-bg"><div class="progress-fill" id="daily-progress-bar"></div></div>
@@ -708,7 +779,7 @@
           <!-- 오늘의 루틴 -->
           <div class="daily-box" id="routine-daily-box">
             <div class="daily-box-header">
-              <div class="hdr-row"><span>🌼 오늘의 루틴</span><span class="hdr-hint" id="routine-daily-count"></span></div>
+              <div class="hdr-row"><span>오늘의 루틴</span><span class="hdr-hint" id="routine-daily-count"></span></div>
             </div>
             <ul class="rt-box-list" id="routine-daily-body"></ul>
           </div>
@@ -760,7 +831,7 @@
                 <summary>오늘의 순간</summary>
                 <div class="rec-details-body">
                   <div>
-                    <div class="rec-label">오늘을 채운 조각들을 모아보아요 🎈</div>
+                    <div class="rec-label">오늘을 채운 조각들을 모아보아요 </div>
                     <textarea class="rec-input" id="daily-moment-input" rows="2" placeholder="아무것도 안한 날도 당신이 채운 날이예요"></textarea>
                   </div>
                 </div>
@@ -771,7 +842,7 @@
           <!-- 오늘의 식단 -->
           <div class="daily-box" id="meal-daily-box">
             <div class="daily-box-header">
-              <div class="hdr-row"><span>🍽 오늘의 식단</span><span class="hdr-hint">먹었으면 체크</span></div>
+              <div class="hdr-row"><span>오늘의 식단</span><span class="hdr-hint">먹었으면 체크</span></div>
             </div>
             <div class="meal-daily-body" id="meal-daily-body"></div>
           </div>
@@ -802,7 +873,7 @@
   <div id="modal-todo-edit" class="modal-overlay" onclick="closeModal('modal-todo-edit')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>✏️ 할 일 수정</h3>
+        <h3>할 일 수정</h3>
         <button onclick="closeModal('modal-todo-edit')" class="close-btn">✕</button>
       </div>
       <input type="hidden" id="edit-todo-id" />
@@ -827,7 +898,7 @@
   <div id="modal-routine" class="modal-overlay" onclick="closeModal('modal-routine')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>🌼 반복 할 일</h3>
+        <h3>반복 할 일</h3>
         <button onclick="closeModal('modal-routine')" class="close-btn">✕</button>
       </div>
       <div style="font-size:0.78rem; color:var(--text-muted);">정해둔 요일마다 투두에 자동으로 올라와요. (오늘부터 적용)</div>
@@ -843,7 +914,7 @@
   <div id="modal-place" class="modal-overlay" onclick="closeModal('modal-place')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>⏱ 시간대에 배치</h3>
+        <h3>시간대에 배치</h3>
         <button onclick="closeModal('modal-place')" class="close-btn">✕</button>
       </div>
       <div id="place-title" style="font-size:0.95rem; font-weight:600; color:var(--text-main);"></div>
@@ -868,7 +939,7 @@
   <div id="modal-direct-add" class="modal-overlay" onclick="closeModal('modal-direct-add')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>🏷️ 뱃지 기록/수정</h3>
+        <h3>뱃지 기록/수정</h3>
         <button onclick="closeModal('modal-direct-add')" class="close-btn">✕</button>
       </div>
       <p style="font-size:0.8rem; color:var(--text-muted); margin:0; margin-bottom:12px;" id="direct-add-subtitle">투두 등록 없이 바로 기록합니다.</p>
@@ -894,7 +965,7 @@
   <div id="modal-do-log" class="modal-overlay" onclick="closeModal('modal-do-log')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>📈 실행 기록하기</h3>
+        <h3>실행 기록하기</h3>
         <button onclick="closeModal('modal-do-log')" class="close-btn">✕</button>
       </div>
       <div style="font-size:0.95rem; font-weight:600; color:var(--text-main);" id="do-log-title"></div>
@@ -929,7 +1000,7 @@
   <div id="modal-early-finish" class="modal-overlay">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>🎉 예상보다 빠르네요!</h3>
+        <h3>예상보다 빠르네요!</h3>
       </div>
       <p style="font-size:0.85rem; color:var(--text-main); margin-bottom:10px;">목표 시간보다 일찍 작업이 중단되었습니다.<br>이 할 일을 완전히 마무리할까요?</p>
       <input type="hidden" id="early-task-id" />
@@ -945,7 +1016,7 @@
   <div id="font-modal" class="modal-overlay" onclick="closeModal('font-modal')">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-header">
-        <h3>🎨 글씨체 변경</h3>
+        <h3>글씨체 변경</h3>
         <button onclick="closeModal('font-modal')" class="close-btn">✕</button>
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px; max-height: 60vh; overflow-y: auto;">
@@ -1008,15 +1079,14 @@
   <!-- 미루기 모달 -->
   <div id="postpone-modal" class="modal-overlay" onclick="closePostponeModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
-      <div class="search-header"><h3>언제로 미룰까요? 🗓️</h3><button onclick="closePostponeModal()" class="close-btn">✕</button></div>
+      <div class="search-header"><h3>언제로 미룰까요? </h3><button onclick="closePostponeModal()" class="close-btn"></button></div>
       <input type="date" id="postpone-date" class="modal-input" />
       <button class="btn-primary" onclick="confirmPostpone()">이동하기</button>
     </div>
   </div>
 
   <script>
-    const pastelColors = [ '#E3DAE7', '#ECD9DD', '#DCE2FF', '#DFEED4', '#EBEED4', '#FFEFE7', '#DAE7E6',
-        '#F5ECC2', '#E4F1FE', '#ECECEC'];
+    const pastelColors = [ '#E3D3E6', '#E9D6DA', '#CFD3EF', '#D9E5D3', '#E4E6CC', '#EFDCD3', '#D3E4E6', '#E8E0CF', '#C9D6E8', '#DCDAE9' ];
     let selectedBadgeColor = pastelColors[2];
     let editTodoColor = pastelColors[2];
 
@@ -2214,7 +2284,7 @@
     function syncReviewBtn() {
         const btn = document.getElementById('toggle-review-btn');
         if (btn) {
-          btn.innerHTML = isWeeklyReviewMode ? '📝 <span class="hide-on-mobile">계획 모드</span>' : '🔄 <span class="hide-on-mobile">회고 모드</span>';
+          btn.innerHTML = isWeeklyReviewMode ? '<span class="tm-lbl">계획</span><span class="hide-on-mobile"> 모드</span>' : '<span class="tm-lbl">회고</span><span class="hide-on-mobile"> 모드</span>';
           btn.style.backgroundColor = isWeeklyReviewMode ? 'var(--text-main)' : 'var(--primary-color)';
         }
     }
@@ -2992,7 +3062,7 @@
         if (!grid || !box) return;
         const tbtn = document.getElementById('toggle-month-btn');
         if (tbtn) {
-            tbtn.innerHTML = monthMode === 'diary' ? '🗓 <span class="tm-lbl">달력</span><span class="hide-on-mobile"> 모드</span>' : '📖 <span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span>';
+            tbtn.innerHTML = monthMode === 'diary' ? '<span class="tm-lbl">달력</span><span class="hide-on-mobile"> 모드</span>' : '<span class="tm-lbl">일기</span><span class="hide-on-mobile"> 모드</span>';
             tbtn.style.backgroundColor = monthMode === 'diary' ? 'var(--text-main)' : 'var(--primary-color)';
         }
         grid.style.display = (monthMode === 'cal') ? '' : 'none';
