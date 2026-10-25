@@ -622,6 +622,15 @@ body{background:#fff;padding:20px 20px 40px}
 .gcal-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid #f1f1f5;font-size:.86rem;cursor:pointer}
 .gcal-dot{width:10px;height:10px;border-radius:50%;flex:none}
 .gcal-actions{display:flex;gap:8px}
+
+.daily-allday-banner.gcal-ev.has-desc{display:block!important;white-space:normal;overflow:visible}
+.gcal-desc{white-space:pre-wrap;font-size:.74rem;color:#6a6a78;margin-top:3px;line-height:1.45;font-weight:400}
+
+#gcal-diary{margin-bottom:12px}
+#gcal-diary .gd-head{font-size:.64rem;letter-spacing:.06em;color:#9a9aa8;margin-bottom:6px}
+#gcal-diary .gd-item{background:#f6f6f9;border-left:3px solid #9aa0b4;border-radius:3px;padding:7px 10px;margin-bottom:6px}
+#gcal-diary .gd-title{font-size:.78rem;font-weight:600;color:#3a3a48;line-height:1.4}
+#gcal-diary .gd-body{white-space:pre-wrap;font-size:.8rem;color:#4a4a58;line-height:1.55;margin-top:3px}
 </style>
 </head>
 <body>
@@ -2367,7 +2376,7 @@ body{background:#fff;padding:20px 20px 40px}
     function updateRecSummary(info) {
         info = info || {};
         const hasObs = !!(String(info.filled || '').trim() || String(info.notDone || '').trim() || String(info.energyDrained || '').trim());
-        const hasMom = !!String(info.momentText || '').trim();
+        const hasMom = !!String(info.momentText || '').trim() || gcalRenderDiary();
         const o = document.getElementById('det-observe'), m = document.getElementById('det-moment');
         if (o) o.classList.toggle('has', hasObs);
         if (m) m.classList.toggle('has', hasMom);
@@ -2951,7 +2960,7 @@ body{background:#fff;padding:20px 20px 40px}
         const to = new Date(from); to.setDate(to.getDate() + 7);
         const map = {};
         const put = (ds, ev) => { (map[ds] = map[ds] || []).push(ev); };
-        Promise.all(gcal.sel.map(id => {
+        Promise.all(gcalFetchIds().map(id => {
             const cal = gcal.cals.find(c => c.id === id);
             if (!cal) return Promise.resolve();
             return gcalApi('calendars/' + encodeURIComponent(id) + '/events', { timeMin: from.toISOString(), timeMax: to.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '250' }).then(j => {
@@ -2960,14 +2969,14 @@ body{background:#fff;padding:20px 20px 40px}
                     const title = e.summary || '(제목 없음)';
                     if (e.start && e.start.date) {
                         const s = parseDateStr(e.start.date), en = parseDateStr(e.end ? e.end.date : e.start.date);
-                        for (let d = new Date(s); d < en; d.setDate(d.getDate() + 1)) put(gcalDateStr(d), { title, allDay: true, label: '', color: cal.color, cal: cal.name, sort: '00:00' });
+                        for (let d = new Date(s); d < en; d.setDate(d.getDate() + 1)) put(gcalDateStr(d), { title, allDay: true, label: '', color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: '00:00' });
                     } else if (e.start && e.start.dateTime) {
                         const s = new Date(e.start.dateTime), en = new Date(e.end ? e.end.dateTime : e.start.dateTime);
                         const sd = gcalDateStr(s), ed = gcalDateStr(en);
-                        if (sd === ed) put(sd, { title, allDay: false, label: gcalHM(s) + '-' + gcalHM(en), color: cal.color, cal: cal.name, sort: gcalHM(s) });
+                        if (sd === ed) put(sd, { title, allDay: false, label: gcalHM(s) + '-' + gcalHM(en), color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: gcalHM(s) });
                         else {
-                            put(sd, { title, allDay: false, label: gcalHM(s) + '→', color: cal.color, cal: cal.name, sort: gcalHM(s) });
-                            if (en > from && !(en.getHours() === 0 && en.getMinutes() === 0)) put(ed, { title, allDay: false, label: '→' + gcalHM(en), color: cal.color, cal: cal.name, sort: '00:00' });
+                            put(sd, { title, allDay: false, label: gcalHM(s) + '→', color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: gcalHM(s) });
+                            if (en > from && !(en.getHours() === 0 && en.getMinutes() === 0)) put(ed, { title, allDay: false, label: '→' + gcalHM(en), color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: '00:00' });
                         }
                     }
                 });
@@ -2978,10 +2987,47 @@ body{background:#fff;padding:20px 20px 40px}
             if (wk === currentWeekKey) renderAll();
         }).catch(() => { gcal.loading[wk] = false; });
     }
+    function gcalIsDiary(c) { return !!c && /時間日記|시간일기/.test(c.name || ''); }
+    function gcalFetchIds() {
+        const ids = (gcal.sel || []).slice();
+        (gcal.cals || []).forEach(c => { if (gcalIsDiary(c) && ids.indexOf(c.id) < 0) ids.push(c.id); });
+        return ids;
+    }
+    function gcalDiaryEvents(dateStr) {
+        const wk = getMondayStr(parseDateStr(dateStr));
+        const m = gcal.events[wk];
+        return ((m && m[dateStr]) || []).filter(e => e.diary);
+    }
+    function gcalText(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = String(html || '').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n');
+        return (tmp.textContent || '').trim();
+    }
+    /* 오늘의 순간 안에 시간일기(읽기 전용)를 보여줘요. 내용이 있으면 true */
+    function gcalRenderDiary() {
+        const body = document.querySelector('#det-moment .rec-details-body');
+        if (!body) return false;
+        let box = document.getElementById('gcal-diary');
+        if (!box) { box = document.createElement('div'); box.id = 'gcal-diary'; body.insertBefore(box, body.firstChild); }
+        box.innerHTML = '';
+        const evs = gcalValid() ? gcalDiaryEvents(formatDateStr(getDailyDate(currentDailyDay))) : [];
+        if (!evs.length) { box.style.display = 'none'; return false; }
+        box.style.display = '';
+        const h = document.createElement('div'); h.className = 'gd-head'; h.textContent = '시간일기 · 구글 캘린더'; box.appendChild(h);
+        evs.forEach(ev => {
+            const it = document.createElement('div'); it.className = 'gd-item'; it.style.borderLeftColor = ev.color;
+            const t = document.createElement('div'); t.className = 'gd-title';
+            t.textContent = (ev.allDay ? '' : ev.label + '  ') + ev.title; it.appendChild(t);
+            const d = gcalText(ev.desc);
+            if (d) { const p = document.createElement('div'); p.className = 'gd-body'; p.textContent = d; it.appendChild(p); }
+            box.appendChild(it);
+        });
+        return true;
+    }
     function gcalDayEvents(dateStr) {
         const wk = getMondayStr(parseDateStr(dateStr));
         const m = gcal.events[wk];
-        return (m && m[dateStr]) || [];
+        return ((m && m[dateStr]) || []).filter(e => !e.diary);
     }
     function gcalEventLi(ev, cls) {
         const li = document.createElement('li');
@@ -2989,6 +3035,19 @@ body{background:#fff;padding:20px 20px 40px}
         li.style.borderLeftColor = ev.color;
         li.title = '구글 캘린더 · ' + ev.cal;
         li.textContent = (ev.allDay ? '' : ev.label + ' ') + ev.title;
+        if (ev.desc && cls.indexOf('daily') === 0) {
+            const t = document.createElement('div');
+            t.className = 'gcal-desc';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = String(ev.desc).replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n');
+            t.textContent = (tmp.textContent || '').trim();
+            li.appendChild(t);
+            li.classList.add('has-desc');
+        } else if (ev.desc) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = String(ev.desc).replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n');
+            li.title += '\n' + (tmp.textContent || '').trim();
+        }
         return li;
     }
     function gcalUpdateBtn() {
