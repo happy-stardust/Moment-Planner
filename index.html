@@ -638,6 +638,16 @@ body{background:#fff;padding:20px 20px 40px}
 .diary-ev{margin-bottom:8px}.diary-ev b{font-size:.78rem;color:#3a3a48}
 
 .gcal-inp{width:100%;box-sizing:border-box;border:1px solid #dcdce4;border-radius:6px;padding:9px 10px;font-size:.82rem;margin-bottom:8px;font-family:inherit}
+
+/* 위클리 칸: 내용이 많아지면 줄이지 않고 칸 안에서 스크롤 */
+.day-column .task-list > *{flex-shrink:0}
+.day-column .gcal-ev{height:auto!important;min-height:20px;line-height:1.35!important;flex:none}
+.day-column .task-list{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+@media (max-width:768px){
+  .day-column .task-list{scrollbar-width:thin;-ms-overflow-style:auto}
+  .day-column .task-list::-webkit-scrollbar{display:block;width:3px}
+  .day-column .task-list::-webkit-scrollbar-thumb{background:#d4d4de;border-radius:2px}
+}
 </style>
 </head>
 <body>
