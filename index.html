@@ -631,6 +631,11 @@ body{background:#fff;padding:20px 20px 40px}
 #gcal-diary .gd-item{background:#f6f6f9;border-left:3px solid #9aa0b4;border-radius:3px;padding:7px 10px;margin-bottom:6px}
 #gcal-diary .gd-title{font-size:.78rem;font-weight:600;color:#3a3a48;line-height:1.4}
 #gcal-diary .gd-body{white-space:pre-wrap;font-size:.8rem;color:#4a4a58;line-height:1.55;margin-top:3px}
+
+#det-moment.diary-on .rec-details-body > div:not(#gcal-diary){display:none}
+#gcal-diary .gd-write{background:none;border:0;color:#9a9aa8;font-size:.74rem;padding:2px 0;cursor:pointer;font-family:inherit}
+.diary-sub{font-size:.78rem;color:#6a6a78;margin-top:6px;padding-top:6px;border-top:1px dashed #ececf1}
+.diary-ev{margin-bottom:8px}.diary-ev b{font-size:.78rem;color:#3a3a48}
 </style>
 </head>
 <body>
@@ -2950,6 +2955,37 @@ body{background:#fff;padding:20px 20px 40px}
     }
     function gcalDateStr(d) { return formatDateStr(d); }
     function gcalHM(dt) { return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0'); }
+    function gcalFetchRange(ids, from, to) {
+        const map = {};
+        const put = (ds, ev) => { (map[ds] = map[ds] || []).push(ev); };
+        return Promise.all(ids.map(id => {
+            const cal = gcal.cals.find(c => c.id === id);
+            if (!cal) return Promise.resolve();
+            const dia = gcalIsDiary(cal);
+            return gcalApi('calendars/' + encodeURIComponent(id) + '/events', { timeMin: from.toISOString(), timeMax: to.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '250' }).then(j => {
+                (j.items || []).forEach(e => {
+                    if (e.status === 'cancelled') return;
+                    const title = e.summary || '(제목 없음)';
+                    const base = { title, color: cal.color, cal: cal.name, diary: dia, desc: e.description || '' };
+                    if (e.start && e.start.date) {
+                        const s = parseDateStr(e.start.date), en = parseDateStr(e.end ? e.end.date : e.start.date);
+                        for (let d = new Date(s); d < en; d.setDate(d.getDate() + 1)) put(gcalDateStr(d), Object.assign({ allDay: true, label: '', sort: '00:00' }, base));
+                    } else if (e.start && e.start.dateTime) {
+                        const s = new Date(e.start.dateTime), en = new Date(e.end ? e.end.dateTime : e.start.dateTime);
+                        const sd = gcalDateStr(s), ed = gcalDateStr(en);
+                        if (sd === ed) put(sd, Object.assign({ allDay: false, label: gcalHM(s) + '-' + gcalHM(en), sort: gcalHM(s) }, base));
+                        else {
+                            put(sd, Object.assign({ allDay: false, label: gcalHM(s) + '→', sort: gcalHM(s) }, base));
+                            if (en > from && !(en.getHours() === 0 && en.getMinutes() === 0)) put(ed, Object.assign({ allDay: false, label: '→' + gcalHM(en), sort: '00:00' }, base));
+                        }
+                    }
+                });
+            });
+        })).then(() => {
+            Object.values(map).forEach(l => l.sort((a, b) => a.sort.localeCompare(b.sort)));
+            return map;
+        });
+    }
     function gcalEnsure() {
         if (!gcalValid() || !gcal.sel) return;
         const wk = currentWeekKey;
@@ -2958,34 +2994,27 @@ body{background:#fff;padding:20px 20px 40px}
         const mon = parseDateStr(wk);
         const from = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate(), 0, 0, 0);
         const to = new Date(from); to.setDate(to.getDate() + 7);
-        const map = {};
-        const put = (ds, ev) => { (map[ds] = map[ds] || []).push(ev); };
-        Promise.all(gcalFetchIds().map(id => {
-            const cal = gcal.cals.find(c => c.id === id);
-            if (!cal) return Promise.resolve();
-            return gcalApi('calendars/' + encodeURIComponent(id) + '/events', { timeMin: from.toISOString(), timeMax: to.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '250' }).then(j => {
-                (j.items || []).forEach(e => {
-                    if (e.status === 'cancelled') return;
-                    const title = e.summary || '(제목 없음)';
-                    if (e.start && e.start.date) {
-                        const s = parseDateStr(e.start.date), en = parseDateStr(e.end ? e.end.date : e.start.date);
-                        for (let d = new Date(s); d < en; d.setDate(d.getDate() + 1)) put(gcalDateStr(d), { title, allDay: true, label: '', color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: '00:00' });
-                    } else if (e.start && e.start.dateTime) {
-                        const s = new Date(e.start.dateTime), en = new Date(e.end ? e.end.dateTime : e.start.dateTime);
-                        const sd = gcalDateStr(s), ed = gcalDateStr(en);
-                        if (sd === ed) put(sd, { title, allDay: false, label: gcalHM(s) + '-' + gcalHM(en), color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: gcalHM(s) });
-                        else {
-                            put(sd, { title, allDay: false, label: gcalHM(s) + '→', color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: gcalHM(s) });
-                            if (en > from && !(en.getHours() === 0 && en.getMinutes() === 0)) put(ed, { title, allDay: false, label: '→' + gcalHM(en), color: cal.color, cal: cal.name, diary: gcalIsDiary(cal), desc: e.description || '', sort: '00:00' });
-                        }
-                    }
-                });
-            });
-        })).then(() => {
-            Object.values(map).forEach(l => l.sort((a, b) => a.sort.localeCompare(b.sort)));
+        gcalFetchRange(gcalFetchIds(), from, to).then(map => {
             gcal.events[wk] = map; gcal.loading[wk] = false;
             if (wk === currentWeekKey) renderAll();
         }).catch(() => { gcal.loading[wk] = false; });
+    }
+    /* 먼슬리 일기 모드: 그 달의 시간일기만 한 번에 불러와요 */
+    gcal.dm = {}; gcal.dmLoading = {};
+    function gcalEnsureMonth(y, m) {
+        const key = y + '-' + m;
+        if (!gcalValid() || !gcal.cals || !gcal.cals.length || gcal.dm[key] || gcal.dmLoading[key]) return;
+        const ids = gcal.cals.filter(gcalIsDiary).map(c => c.id);
+        if (!ids.length) { gcal.dm[key] = {}; return; }
+        gcal.dmLoading[key] = true;
+        gcalFetchRange(ids, new Date(y, m, 1), new Date(y, m + 1, 1)).then(map => {
+            gcal.dm[key] = map; gcal.dmLoading[key] = false;
+            if (typeof monthMode !== 'undefined' && monthMode === 'diary') renderMonthlyCalendar();
+        }).catch(() => { gcal.dmLoading[key] = false; });
+    }
+    function gcalMonthDiary(y, m, d) {
+        const mp = gcal.dm[y + '-' + m];
+        return (mp && mp[formatDateStr(new Date(y, m, d))]) || [];
     }
     function gcalIsDiary(c) { return !!c && /時間日記|시간일기/.test(c.name || ''); }
     function gcalFetchIds() {
@@ -3011,17 +3040,27 @@ body{background:#fff;padding:20px 20px 40px}
         if (!box) { box = document.createElement('div'); box.id = 'gcal-diary'; body.insertBefore(box, body.firstChild); }
         box.innerHTML = '';
         const evs = gcalValid() ? gcalDiaryEvents(formatDateStr(getDailyDate(currentDailyDay))) : [];
-        if (!evs.length) { box.style.display = 'none'; return false; }
+        const det = document.getElementById('det-moment');
+        if (!evs.length) { box.style.display = 'none'; if (det) det.classList.remove('diary-on'); return false; }
+        const dk = formatDateStr(getDailyDate(currentDailyDay));
+        const ta = document.getElementById('daily-moment-input');
+        const hasOwn = !!(ta && ta.value.trim());
+        if (det) det.classList.toggle('diary-on', !hasOwn && gcal.writeKey !== dk);
         box.style.display = '';
         const h = document.createElement('div'); h.className = 'gd-head'; h.textContent = '시간일기 · 구글 캘린더'; box.appendChild(h);
         evs.forEach(ev => {
             const it = document.createElement('div'); it.className = 'gd-item'; it.style.borderLeftColor = ev.color;
             const t = document.createElement('div'); t.className = 'gd-title';
-            t.textContent = (ev.allDay ? '' : ev.label + '  ') + ev.title; it.appendChild(t);
+            t.textContent = ev.title; it.appendChild(t);
             const d = gcalText(ev.desc);
             if (d) { const p = document.createElement('div'); p.className = 'gd-body'; p.textContent = d; it.appendChild(p); }
             box.appendChild(it);
         });
+        if (!hasOwn && gcal.writeKey !== dk) {
+            const w = document.createElement('button'); w.className = 'gd-write'; w.textContent = '+ 직접 쓰기';
+            w.onclick = () => { gcal.writeKey = dk; gcalRenderDiary(); const t = document.getElementById('daily-moment-input'); if (t) t.focus(); };
+            box.appendChild(w);
+        }
         return true;
     }
     function gcalDayEvents(dateStr) {
@@ -3082,9 +3121,9 @@ body{background:#fff;padding:20px 20px 40px}
         gcal.sel = (gcal.sel || []).filter(x => x !== id);
         if (on) gcal.sel.push(id);
         gcalLS('moment_gcal_sel', JSON.stringify(gcal.sel));
-        gcal.events = {}; gcalEnsure();
+        gcal.events = {}; gcal.dm = {}; gcalEnsure();
     };
-    window.gcalRefresh = function() { gcal.events = {}; gcalEnsure(); };
+    window.gcalRefresh = function() { gcal.events = {}; gcal.dm = {}; gcalEnsure(); };
     window.gcalDisconnect = function() {
         try { if (gcal.token && window.google) google.accounts.oauth2.revoke(gcal.token, () => {}); } catch (e) {}
         gcal.token = null; gcal.events = {}; gcal.cals = []; gcal.sel = null;
@@ -3573,21 +3612,23 @@ body{background:#fff;padding:20px 20px 40px}
         const last = new Date(year, month + 1, 0).getDate();
         const names = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
         const kor = ['일', '월', '화', '수', '목', '금', '토'];
+        gcalEnsureMonth(year, month);
         const entries = [];
         let skipped = 0;
         for (let d = last; d >= 1; d--) {
             const dt = new Date(year, month, d);
             const info = allData[getMondayStr(dt)]?.daily?.[names[dt.getDay()]] || {};
             const text = String(info.momentText || '').trim();
-            if (!text) { skipped++; continue; }
-            entries.push({ dt: dt, key: formatDateStr(dt), text: text, one: String(info.oneLine || '').trim(), rating: info.energyRating || 0, dow: dt.getDay() });
+            const devs = gcalMonthDiary(year, month, d);
+            if (!text && !devs.length) { skipped++; continue; }
+            entries.push({ devs: devs, dt: dt, key: formatDateStr(dt), text: text, one: String(info.oneLine || '').trim(), rating: info.energyRating || 0, dow: dt.getDay() });
         }
         if (sumEl) {
             sumEl.innerHTML = '이번 달 일기 <b>' + entries.length + '일</b>' + (monthCnt ? ' · 토마토 평균 <b>🍅 ' + (monthSum / monthCnt).toFixed(1) + '</b>' : '');
         }
         box.innerHTML = '';
         if (!entries.length) {
-            box.innerHTML = '<div class="diary-empty">이 달에는 아직 쓴 일기가 없어요 📖<br><small>데일리의 "오늘의 순간"에 쓰면 여기에 모여요</small></div>';
+            box.innerHTML = '<div class="diary-empty">이 달에는 아직 쓴 일기가 없어요 📖<br><small>구글 캘린더 時間日記에 쓰면 여기에 모여요</small></div>';
             return;
         }
         const monthKey = year + '-' + month;
@@ -3597,11 +3638,13 @@ body{background:#fff;padding:20px 20px 40px}
             const card = document.createElement('div');
             card.className = 'diary-card';
             const firstLine = en.text.split('\n')[0];
-            const title = en.one ? '<div class="diary-one">' + esc(en.one) + '</div>' : '<div class="diary-one muted">' + esc(firstLine.length > 40 ? firstLine.slice(0, 40) + '…' : firstLine) + '</div>';
+            const hl = en.devs.length ? en.devs.map(e => e.title).join(' · ') : firstLine;
+            const title = en.one ? '<div class="diary-one">' + esc(en.one) + '</div>' : '<div class="diary-one muted">' + esc(hl.length > 40 ? hl.slice(0, 40) + '…' : hl) + '</div>';
+            const devHtml = en.devs.map(e => '<div class="diary-ev"><b>' + esc(e.title) + '</b>' + (gcalText(e.desc) ? '<br>' + esc(gcalText(e.desc)) : '') + '</div>').join('');
             const tom = en.rating ? '<div class="diary-tom">' + '🍅'.repeat(en.rating) + '<i>' + '🍅'.repeat(5 - en.rating) + '</i></div>' : '';
             card.innerHTML = '<div class="diary-head"><div class="diary-date' + (en.dow === 0 ? ' sun' : '') + '"><b>' + en.dt.getDate() + '</b><span>' + kor[en.dow] + '</span></div>' +
                 '<div class="diary-ht">' + tom + title + '</div><div class="diary-chev">' + (open ? '▲' : '▼') + '</div></div>' +
-                (open ? '<div class="diary-body">' + esc(en.text) + '<span class="diary-go">그날 데일리로 이동 →</span></div>' : '');
+                (open ? '<div class="diary-body">' + devHtml + (en.text ? (devHtml ? '<div class="diary-sub">' + esc(en.text) + '</div>' : esc(en.text)) : '') + '<span class="diary-go">그날 데일리로 이동 →</span></div>' : '');
             card.querySelector('.diary-head').onclick = () => { diaryOpen[monthKey][en.key] = !open; renderMonthDiary(monthCnt, monthSum, sumEl); };
             const go = card.querySelector('.diary-go');
             if (go) go.onclick = (e) => {
