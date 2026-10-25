@@ -636,6 +636,8 @@ body{background:#fff;padding:20px 20px 40px}
 #gcal-diary .gd-write{background:none;border:0;color:#9a9aa8;font-size:.74rem;padding:2px 0;cursor:pointer;font-family:inherit}
 .diary-sub{font-size:.78rem;color:#6a6a78;margin-top:6px;padding-top:6px;border-top:1px dashed #ececf1}
 .diary-ev{margin-bottom:8px}.diary-ev b{font-size:.78rem;color:#3a3a48}
+
+.gcal-inp{width:100%;box-sizing:border-box;border:1px solid #dcdce4;border-radius:6px;padding:9px 10px;font-size:.82rem;margin-bottom:8px;font-family:inherit}
 </style>
 </head>
 <body>
@@ -2890,68 +2892,36 @@ body{background:#fff;padding:20px 20px 40px}
         box.innerHTML = html;
     }
 
-
-    /* ---------- 구글 캘린더 읽기 전용 연동 (일정을 플래너에 보여주기만 해요) ---------- */
-    const GCAL_CLIENT_ID = '795962641185-44sk902kbhea72283kcsnutbfl7fjskl.apps.googleusercontent.com';
-    const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
-    const gcal = { token: null, exp: 0, tc: null, cals: [], sel: null, events: {}, loading: {}, error: '', libCbs: null };
+    /* ---------- 구글 캘린더 읽기 전용 연동 (구글 Apps Script 중계: 로그인 없이 자동으로 불러와요) ---------- */
+    const gcal = { url: '', key: '', cals: [], sel: null, events: {}, loading: {}, error: '' };
     function gcalLS(k, v) {
         try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {}
         return null;
     }
-    function gcalLoadLib(cb) {
-        if (window.google && google.accounts && google.accounts.oauth2) { cb(); return; }
-        if (gcal.libCbs) { gcal.libCbs.push(cb); return; }
-        gcal.libCbs = [cb];
-        const s = document.createElement('script');
-        s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
-        s.onload = () => { const l = gcal.libCbs; gcal.libCbs = null; l.forEach(f => f()); };
-        s.onerror = () => { gcal.libCbs = null; gcal.error = '구글 로그인 스크립트를 불러오지 못했어요 (인터넷 연결 확인)'; gcalUpdateBtn(); gcalRenderModal(); };
-        document.head.appendChild(s);
-    }
-    function gcalInitClient() {
-        if (gcal.tc) return;
-        gcal.tc = google.accounts.oauth2.initTokenClient({
-            client_id: GCAL_CLIENT_ID,
-            scope: GCAL_SCOPE,
-            callback: (r) => {
-                if (!r || r.error) { gcal.error = (r && r.error === 'access_denied') ? '권한을 허용하지 않았어요' : ''; gcalUpdateBtn(); gcalRenderModal(); return; }
-                gcal.token = r.access_token;
-                gcal.exp = Date.now() + ((r.expires_in || 3600) - 60) * 1000;
-                gcal.error = '';
-                gcalLS('moment_gcal_on', '1');
-                gcal.events = {};
-                gcalLoadCalendars().then(() => { gcalEnsure(); gcalRenderModal(); });
-                gcalUpdateBtn();
-            },
-            error_callback: (e) => {
-                gcal.error = (e && (e.type === 'popup_closed' || e.type === 'popup_failed_to_open')) ? '' : '연결에 실패했어요';
-                gcalUpdateBtn(); gcalRenderModal();
-            }
-        });
-    }
-    function gcalConnect(silent) {
-        gcalLoadLib(() => { gcalInitClient(); gcal.tc.requestAccessToken({ prompt: silent ? 'none' : '' }); });
-    }
-    function gcalValid() {
-        if (gcal.token && Date.now() > gcal.exp) { gcal.token = null; gcalUpdateBtn(); }
-        return !!gcal.token;
-    }
-    async function gcalApi(path, params) {
-        const url = 'https://www.googleapis.com/calendar/v3/' + path + (params ? '?' + new URLSearchParams(params).toString() : '');
-        const res = await fetch(url, { headers: { Authorization: 'Bearer ' + gcal.token } });
-        if (res.status === 401) { gcal.token = null; gcal.error = '연결이 만료됐어요. 다시 연결해 주세요'; gcalUpdateBtn(); gcalRenderModal(); throw new Error('401'); }
-        if (!res.ok) { gcal.error = '캘린더를 불러오지 못했어요 (' + res.status + ')'; gcalRenderModal(); throw new Error('http ' + res.status); }
-        return res.json();
+    gcal.url = gcalLS('moment_gcal_url') || '';
+    gcal.key = gcalLS('moment_gcal_key') || '';
+    function gcalValid() { return !!(gcal.url && gcal.key); }
+    async function gcalCall(params) {
+        const q = new URLSearchParams(Object.assign({ key: gcal.key }, params)).toString();
+        let res;
+        try { res = await fetch(gcal.url + (gcal.url.indexOf('?') >= 0 ? '&' : '?') + q); }
+        catch (e) { gcal.error = '캘린더에 연결하지 못했어요. 주소가 맞는지, 인터넷이 되는지 확인해 주세요'; gcalRenderModal(); throw e; }
+        let j = null;
+        try { j = await res.json(); } catch (e) {}
+        if (!res.ok || !j) { gcal.error = '캘린더를 불러오지 못했어요. 주소를 다시 확인해 주세요'; gcalRenderModal(); throw new Error('bad'); }
+        if (j.error) { gcal.error = j.error === 'unauthorized' ? '비밀번호가 맞지 않아요' : ('오류: ' + j.error); gcalRenderModal(); throw new Error(j.error); }
+        gcal.error = '';
+        return j;
     }
     async function gcalLoadCalendars() {
         try {
-            const j = await gcalApi('users/me/calendarList', { minAccessRole: 'reader', maxResults: '100' });
-            gcal.cals = (j.items || []).map(c => ({ id: c.id, name: c.summaryOverride || c.summary || c.id, color: c.backgroundColor || '#9aa0b4', def: c.selected !== false }));
+            const j = await gcalCall({ action: 'cals' });
+            gcal.cals = (j.cals || []).map(c => ({ id: c.id, name: c.name || c.id, color: c.color || '#9aa0b4', def: c.def !== false }));
             let saved = null;
             try { saved = JSON.parse(gcalLS('moment_gcal_sel') || 'null'); } catch (e) {}
             gcal.sel = Array.isArray(saved) ? saved : gcal.cals.filter(c => c.def).map(c => c.id);
-        } catch (e) { /* 메시지는 gcalApi에서 처리 */ }
+            return true;
+        } catch (e) { return false; }
     }
     function gcalDateStr(d) { return formatDateStr(d); }
     function gcalHM(dt) { return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0'); }
@@ -2962,7 +2932,7 @@ body{background:#fff;padding:20px 20px 40px}
             const cal = gcal.cals.find(c => c.id === id);
             if (!cal) return Promise.resolve();
             const dia = gcalIsDiary(cal);
-            return gcalApi('calendars/' + encodeURIComponent(id) + '/events', { timeMin: from.toISOString(), timeMax: to.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '250' }).then(j => {
+            return gcalCall({ action: 'events', id: id, from: from.toISOString(), to: to.toISOString() }).then(j => {
                 (j.items || []).forEach(e => {
                     if (e.status === 'cancelled') return;
                     const title = e.summary || '(제목 없음)';
@@ -3092,30 +3062,41 @@ body{background:#fff;padding:20px 20px 40px}
     function gcalUpdateBtn() {
         const b = document.getElementById('gcal-btn');
         if (!b) return;
-        const on = gcalValid();
+        const on = gcalValid() && !gcal.error;
         b.classList.toggle('gcal-on', on);
-        b.title = on ? '구글 캘린더 연결됨 (눌러서 설정)' : '구글 캘린더 연결 (일정을 읽어와요)';
+        b.title = gcalValid() ? '구글 캘린더 연결됨 (눌러서 설정)' : '구글 캘린더 연결 (일정을 읽어와요)';
     }
     window.gcalOpen = function() {
-        if (!gcalValid()) { gcalConnect(false); document.getElementById('gcal-modal').style.display = 'flex'; gcalRenderModal(); return; }
         document.getElementById('gcal-modal').style.display = 'flex';
         gcalRenderModal();
     };
     function gcalRenderModal() {
+        gcalUpdateBtn();
         const box = document.getElementById('gcal-body');
         if (!box) return;
+        const err = gcal.error ? '<p class="gcal-note" style="color:#d9534f">' + esc(gcal.error) + '</p>' : '';
         if (!gcalValid()) {
-            box.innerHTML = '<p class="gcal-note">' + (gcal.error ? esc(gcal.error) : '구글 로그인 창에서 "읽기 전용" 권한을 허용해 주세요.') + '</p><button class="btn-primary" onclick="gcalConnect(false)">구글 캘린더 연결</button>';
+            box.innerHTML = err + '<p class="gcal-note">구글 Apps Script에서 만든 <b>웹 앱 주소</b>와 <b>비밀번호</b>를 한 번만 넣어 주세요. 그 뒤로는 열 때마다 자동으로 불러와요.</p>' +
+                '<input id="gcal-url" class="gcal-inp" placeholder="웹 앱 주소 (https://script.google.com/macros/s/…/exec)" value="' + esc(gcal.url) + '">' +
+                '<input id="gcal-key" class="gcal-inp" placeholder="비밀번호 (스크립트에 적은 것)" value="' + esc(gcal.key) + '">' +
+                '<div class="gcal-actions"><button class="btn-primary" onclick="gcalSave()">연결</button></div>';
             return;
         }
-        let h = '<p class="gcal-note">플래너에 보여줄 캘린더를 골라요. (읽기 전용이라 캘린더는 바뀌지 않아요)</p><div class="gcal-list">';
+        let h = err + '<p class="gcal-note">플래너에 보여줄 캘린더를 골라요. (읽기 전용이라 캘린더는 바뀌지 않아요)</p><div class="gcal-list">';
         gcal.cals.forEach(c => {
             h += '<label class="gcal-row"><input type="checkbox" ' + ((gcal.sel || []).indexOf(c.id) >= 0 ? 'checked ' : '') + 'onchange="gcalToggleCal(\'' + encodeURIComponent(c.id).replace(/'/g, '%27') + '\', this.checked)"><span class="gcal-dot" style="background:' + esc(c.color) + '"></span><span>' + esc(c.name) + '</span></label>';
         });
         h += '</div><div class="gcal-actions"><button class="btn-secondary" onclick="gcalRefresh()">새로고침</button><button class="btn-secondary" onclick="gcalDisconnect()">연결 해제</button></div>';
         box.innerHTML = h;
     }
-    window.gcalConnect = gcalConnect;
+    window.gcalSave = function() {
+        gcal.url = (document.getElementById('gcal-url').value || '').trim();
+        gcal.key = (document.getElementById('gcal-key').value || '').trim();
+        if (!gcal.url || !gcal.key) { gcal.error = '주소와 비밀번호를 모두 넣어 주세요'; gcalRenderModal(); return; }
+        gcalLS('moment_gcal_url', gcal.url); gcalLS('moment_gcal_key', gcal.key);
+        gcal.error = ''; gcal.events = {}; gcal.dm = {};
+        gcalLoadCalendars().then(ok => { if (ok) { gcalEnsure(); } else { gcalLS('moment_gcal_url', null); gcalLS('moment_gcal_key', null); gcal.url = ''; gcal.key = ''; } gcalRenderModal(); });
+    };
     window.gcalToggleCal = function(encId, on) {
         const id = decodeURIComponent(encId);
         gcal.sel = (gcal.sel || []).filter(x => x !== id);
@@ -3123,15 +3104,14 @@ body{background:#fff;padding:20px 20px 40px}
         gcalLS('moment_gcal_sel', JSON.stringify(gcal.sel));
         gcal.events = {}; gcal.dm = {}; gcalEnsure();
     };
-    window.gcalRefresh = function() { gcal.events = {}; gcal.dm = {}; gcalEnsure(); };
+    window.gcalRefresh = function() { gcal.events = {}; gcal.dm = {}; gcalLoadCalendars().then(() => { gcalEnsure(); gcalRenderModal(); }); };
     window.gcalDisconnect = function() {
-        try { if (gcal.token && window.google) google.accounts.oauth2.revoke(gcal.token, () => {}); } catch (e) {}
-        gcal.token = null; gcal.events = {}; gcal.cals = []; gcal.sel = null;
-        gcalLS('moment_gcal_on', null); gcalLS('moment_gcal_sel', null);
+        gcal.url = ''; gcal.key = ''; gcal.events = {}; gcal.dm = {}; gcal.cals = []; gcal.sel = null; gcal.error = '';
+        gcalLS('moment_gcal_url', null); gcalLS('moment_gcal_key', null); gcalLS('moment_gcal_sel', null);
         gcalUpdateBtn(); gcalRenderModal(); renderAll();
     };
-    /* 예전에 연결했다면 열 때 조용히 다시 연결을 시도해요 (안 되면 버튼을 눌러 다시 연결) */
-    setTimeout(() => { if (gcalLS('moment_gcal_on') === '1') gcalConnect(true); }, 1200);
+    /* 열 때마다 자동으로 불러와요 */
+    setTimeout(() => { if (gcalValid()) gcalLoadCalendars().then(ok => { gcalUpdateBtn(); if (ok) { gcalEnsure(); } }); }, 300);
 
     window.renderAll = function(specificDay = null) {
         gcalEnsure();
